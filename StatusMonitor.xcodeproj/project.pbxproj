@@ -6,17 +6,29 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8673B27C2F884C760063B14E /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2732F884C760063B14E /* NotificationService.swift */; };
+		8673B27D2F884C760063B14E /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2792F884C760063B14E /* DashboardView.swift */; };
+		8673B27E2F884C760063B14E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B27A2F884C760063B14E /* SettingsView.swift */; };
+		8673B27F2F884C760063B14E /* RSSParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2742F884C760063B14E /* RSSParser.swift */; };
+		8673B2802F884C760063B14E /* StatusMonitorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2782F884C760063B14E /* StatusMonitorApp.swift */; };
+		8673B2812F884C760063B14E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2712F884C760063B14E /* Models.swift */; };
+		8673B2822F884C760063B14E /* StatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2752F884C760063B14E /* StatusManager.swift */; };
+		8673B2832F884C760063B14E /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8673B2702F884C760063B14E /* Info.plist */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8673B25C2F884BFF0063B14E /* StatusMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StatusMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8673B2702F884C760063B14E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8673B2712F884C760063B14E /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		8673B2732F884C760063B14E /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		8673B2742F884C760063B14E /* RSSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParser.swift; sourceTree = "<group>"; };
+		8673B2752F884C760063B14E /* StatusManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusManager.swift; sourceTree = "<group>"; };
+		8673B2772F884C760063B14E /* StatusMonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StatusMonitor.entitlements; sourceTree = "<group>"; };
+		8673B2782F884C760063B14E /* StatusMonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusMonitorApp.swift; sourceTree = "<group>"; };
+		8673B2792F884C760063B14E /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		8673B27A2F884C760063B14E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		8673B25E2F884BFF0063B14E /* StatusMonitor */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = StatusMonitor;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8673B2592F884BFF0063B14E /* Frameworks */ = {
@@ -32,8 +44,13 @@
 		8673B2532F884BFF0063B14E = {
 			isa = PBXGroup;
 			children = (
-				8673B25E2F884BFF0063B14E /* StatusMonitor */,
 				8673B25D2F884BFF0063B14E /* Products */,
+				8673B2702F884C760063B14E /* Info.plist */,
+				8673B2722F884C760063B14E /* Models */,
+				8673B2762F884C760063B14E /* Services */,
+				8673B2772F884C760063B14E /* StatusMonitor.entitlements */,
+				8673B2782F884C760063B14E /* StatusMonitorApp.swift */,
+				8673B27B2F884C760063B14E /* Views */,
 			);
 			sourceTree = "<group>";
 		};
@@ -43,6 +60,33 @@
 				8673B25C2F884BFF0063B14E /* StatusMonitor.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8673B2722F884C760063B14E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				8673B2712F884C760063B14E /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		8673B2762F884C760063B14E /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				8673B2732F884C760063B14E /* NotificationService.swift */,
+				8673B2742F884C760063B14E /* RSSParser.swift */,
+				8673B2752F884C760063B14E /* StatusManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		8673B27B2F884C760063B14E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				8673B2792F884C760063B14E /* DashboardView.swift */,
+				8673B27A2F884C760063B14E /* SettingsView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -59,9 +103,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				8673B25E2F884BFF0063B14E /* StatusMonitor */,
 			);
 			name = StatusMonitor;
 			packageProductDependencies = (
@@ -109,6 +150,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8673B2832F884C760063B14E /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +161,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8673B27C2F884C760063B14E /* NotificationService.swift in Sources */,
+				8673B27D2F884C760063B14E /* DashboardView.swift in Sources */,
+				8673B27E2F884C760063B14E /* SettingsView.swift in Sources */,
+				8673B27F2F884C760063B14E /* RSSParser.swift in Sources */,
+				8673B2802F884C760063B14E /* StatusMonitorApp.swift in Sources */,
+				8673B2812F884C760063B14E /* Models.swift in Sources */,
+				8673B2822F884C760063B14E /* StatusManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,20 +299,34 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = MoollApps.StatusMonitor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -282,20 +345,34 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = MoollApps.StatusMonitor;
 				PRODUCT_NAME = "$(TARGET_NAME)";

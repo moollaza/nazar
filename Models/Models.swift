@@ -34,7 +34,7 @@ struct Provider: Identifiable, Codable, Equatable {
         Provider(name: "Asana", baseURL: "https://status.asana.com"),
         Provider(name: "GitHub", baseURL: "https://www.githubstatus.com"),
         Provider(name: "OpenAI", baseURL: "https://status.openai.com"),
-        Provider(name: "Slack", baseURL: "https://status.slack.com"),
+        // Slack uses a custom status page, not Atlassian Statuspage
         Provider(name: "Vercel", baseURL: "https://www.vercel-status.com"),
     ]
 }
@@ -79,6 +79,15 @@ struct StatuspageComponent: Codable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case id, name, status, description
         case updatedAt = "updated_at"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        status = try container.decode(String.self, forKey: .status)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt)
     }
 }
 

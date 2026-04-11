@@ -20,7 +20,7 @@ struct SettingsView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Providers")
+                Text("Services")
                     .font(.headline)
                 Spacer()
                 Button("Browse Catalog") { showCatalogPicker = true }
@@ -34,50 +34,78 @@ struct SettingsView: View {
 
             Divider()
 
-            List {
-                ForEach(manager.providers) { provider in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(provider.name)
-                                .font(.system(.body, weight: .medium))
-                            HStack(spacing: 4) {
+            if manager.providers.isEmpty {
+                VStack(spacing: 8) {
+                    Text("No services added")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text("Use Browse Catalog to get started.")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List {
+                    ForEach(manager.providers) { provider in
+                        HStack(spacing: 10) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(provider.name)
+                                    .font(.system(.body, weight: .medium))
                                 Text(provider.baseURL)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
+                                    .truncationMode(.middle)
                             }
-                        }
-                        Spacer()
-                        Picker("", selection: Binding<Int>(
-                            get: { provider.pollIntervalSeconds },
-                            set: { manager.updatePollInterval(for: provider, seconds: $0) }
-                        )) {
-                            ForEach(pollIntervalOptions, id: \.seconds) { option in
-                                Text(option.label).tag(option.seconds)
+
+                            Spacer()
+
+                            // Poll interval — compact
+                            Menu {
+                                ForEach(pollIntervalOptions, id: \.seconds) { option in
+                                    Button {
+                                        manager.updatePollInterval(for: provider, seconds: option.seconds)
+                                    } label: {
+                                        HStack {
+                                            Text(option.label)
+                                            if provider.pollIntervalSeconds == option.seconds {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            } label: {
+                                Text(intervalLabel(for: provider.pollIntervalSeconds))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
+                            .menuStyle(.borderlessButton)
+                            .fixedSize()
+                            .help("Poll interval")
+
+                            // Remove button
+                            Button {
+                                manager.removeProvider(provider)
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .foregroundStyle(.secondary)
+                                    .font(.system(size: 14))
+                            }
+                            .buttonStyle(.plain)
+                            .help("Remove service")
                         }
-                        .pickerStyle(.menu)
-                        .fixedSize()
-                        .help("Poll interval")
-                        Text(provider.type.rawValue)
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(.quaternary)
-                            .clipShape(Capsule())
-                    }
-                    .contextMenu {
-                        Button("Remove", role: .destructive) {
-                            manager.removeProvider(provider)
-                        }
+                        .padding(.vertical, 2)
                     }
                 }
+                .listStyle(.inset)
             }
-            .listStyle(.inset)
 
             Divider()
 
             HStack {
+                Text("\(manager.providers.count) services")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 Spacer()
                 Button("Done") { dismiss() }
                     .buttonStyle(.borderedProminent)
@@ -98,9 +126,13 @@ struct SettingsView: View {
         }
     }
 
+    private func intervalLabel(for seconds: Int) -> String {
+        pollIntervalOptions.first(where: { $0.seconds == seconds })?.label ?? "\(seconds)s"
+    }
+
     private var addProviderSheet: some View {
         VStack(spacing: 16) {
-            Text("Add Provider")
+            Text("Add Custom Service")
                 .font(.headline)
 
             TextField("Name (e.g. Anthropic)", text: $newName)

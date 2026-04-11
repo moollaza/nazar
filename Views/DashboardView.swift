@@ -1,9 +1,32 @@
 import SwiftUI
 
+enum DashboardSort: String {
+    case severity, alphabetical
+}
+
 struct DashboardView: View {
     @Environment(StatusManager.self) var manager
     @State private var expandedProvider: UUID?
     @State private var showSettings = false
+    @State private var showCatalogPicker = false
+    @AppStorage("dashboardSort") private var sortOrder: DashboardSort = .severity
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+
+    private var sortedSnapshots: [ProviderSnapshot] {
+        switch sortOrder {
+        case .severity:
+            return manager.snapshots.sorted {
+                if $0.overallStatus != $1.overallStatus {
+                    return $0.overallStatus > $1.overallStatus
+                }
+                return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+        case .alphabetical:
+            return manager.snapshots.sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -12,6 +35,17 @@ struct DashboardView: View {
                 Text("Status Monitor")
                     .font(.headline)
                 Spacer()
+                Picker("Sort", selection: $sortOrder) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .help("Sort by severity")
+                        .tag(DashboardSort.severity)
+                    Image(systemName: "textformat.abc")
+                        .help("Sort alphabetically")
+                        .tag(DashboardSort.alphabetical)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 80)
+                .labelsHidden()
                 Button(action: { manager.pollAll() }) {
                     Image(systemName: "arrow.clockwise")
                         .font(.system(size: 12))
@@ -31,7 +65,14 @@ struct DashboardView: View {
 
             Divider()
 
-            if manager.providers.isEmpty {
+            if manager.providers.isEmpty && !hasCompletedOnboarding {
+                // First launch: show catalog picker inline
+                CatalogPickerView(isOnboarding: true) {
+                    hasCompletedOnboarding = true
+                }
+                .environment(manager)
+            } else if manager.providers.isEmpty {
+                // Post-onboarding empty state
                 VStack(spacing: 12) {
                     Image(systemName: "antenna.radiowaves.left.and.right")
                         .font(.system(size: 32))
@@ -41,8 +82,8 @@ struct DashboardView: View {
                     Text("Add services to start monitoring their status.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Button("Open Settings") {
-                        showSettings = true
+                    Button("Browse Catalog") {
+                        showCatalogPicker = true
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
@@ -59,9 +100,10 @@ struct DashboardView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 1) {
-                        ForEach(manager.snapshots.sorted(by: { $0.overallStatus > $1.overallStatus })) { snapshot in
+                        ForEach(sortedSnapshots) { snapshot in
                             ProviderRowView(
                                 snapshot: snapshot,
+                                statusPageURL: manager.providers.first(where: { $0.id == snapshot.id }).flatMap { URL(string: $0.baseURL) },
                                 isExpanded: expandedProvider == snapshot.id,
                                 onTap: {
                                     withAnimation(.easeInOut(duration: 0.2)) {
@@ -100,6 +142,13 @@ struct DashboardView: View {
             SettingsView()
                 .environment(manager)
         }
+        .sheet(isPresented: $showCatalogPicker) {
+            CatalogPickerView(isOnboarding: false) {
+                showCatalogPicker = false
+            }
+            .environment(manager)
+            .frame(width: 400, height: 480)
+        }
     }
 }
 
@@ -107,6 +156,7 @@ struct DashboardView: View {
 
 struct ProviderRowView: View {
     let snapshot: ProviderSnapshot
+    var statusPageURL: URL? = nil
     let isExpanded: Bool
     let onTap: () -> Void
 
@@ -187,6 +237,30 @@ struct ProviderRowView: View {
                                         .foregroundStyle(.secondary)
                                         .lineLimit(3)
                                 }
+                            }
+                        }
+                    }
+
+                    // View Status Page link
+                    if let url = statusPageURL {
+                        Divider()
+                        Button {
+                            NSWorkspace.shared.open(url)
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text("View Status Page")
+                                    .font(.caption)
+                                Image(systemName: "arrow.up.right")
+                                    .font(.caption2)
+                            }
+                            .foregroundStyle(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
                             }
                         }
                     }

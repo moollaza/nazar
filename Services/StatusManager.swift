@@ -69,6 +69,15 @@ class StatusManager {
         Task { await poll(provider: provider) }
     }
 
+    func updatePollInterval(for provider: Provider, seconds: Int) {
+        guard let idx = providers.firstIndex(where: { $0.id == provider.id }) else { return }
+        providers[idx].pollIntervalSeconds = max(30, seconds)
+        saveProviders()
+        if isPolling {
+            schedulePolling(for: providers[idx])
+        }
+    }
+
     func removeProvider(_ provider: Provider) {
         timers[provider.id]?.invalidate()
         timers.removeValue(forKey: provider.id)

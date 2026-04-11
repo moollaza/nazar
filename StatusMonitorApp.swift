@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 @main
 struct StatusMonitorApp: App {
@@ -21,6 +22,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Hide dock icon — menu bar only
         NSApp.setActivationPolicy(.accessory)
+
+        // Ensure notification delegate is set before anything else
+        UNUserNotificationCenter.current().delegate = NotificationService.shared
 
         // Request notification permissions
         NotificationService.shared.requestPermission()
@@ -51,9 +55,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Start polling
         statusManager.startPolling()
 
+        // Open popover when user taps a notification
+        NotificationService.shared.onNotificationTapped = { [weak self] in
+            if !(self?.popover.isShown ?? false) {
+                self?.togglePopover()
+            }
+        }
+
         // Observe overall status changes for menu bar icon
         statusManager.onWorstStatusChanged = { [weak self] status in
             self?.updateMenuBarIcon(for: status)
+        }
+
+        // Auto-open popover on first launch for onboarding
+        if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+            DispatchQueue.main.async { [weak self] in
+                self?.togglePopover()
+            }
         }
     }
 

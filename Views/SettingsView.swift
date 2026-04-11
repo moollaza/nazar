@@ -1,8 +1,17 @@
 import SwiftUI
 
+private let pollIntervalOptions: [(label: String, seconds: Int)] = [
+    ("30s", 30),
+    ("1m", 60),
+    ("2m", 120),
+    ("5m", 300),
+    ("15m", 900),
+]
+
 struct SettingsView: View {
     @Environment(StatusManager.self) var manager
     @State private var showAddProvider = false
+    @State private var showCatalogPicker = false
     @State private var newName = ""
     @State private var newURL = ""
     @State private var newType: ProviderType = .statuspage
@@ -14,7 +23,10 @@ struct SettingsView: View {
                 Text("Providers")
                     .font(.headline)
                 Spacer()
-                Button("Add") { showAddProvider.toggle() }
+                Button("Browse Catalog") { showCatalogPicker = true }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                Button("Add Custom") { showAddProvider.toggle() }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
             }
@@ -28,12 +40,25 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(provider.name)
                                 .font(.system(.body, weight: .medium))
-                            Text(provider.baseURL)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
+                            HStack(spacing: 4) {
+                                Text(provider.baseURL)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
                         }
                         Spacer()
+                        Picker("", selection: Binding<Int>(
+                            get: { provider.pollIntervalSeconds },
+                            set: { manager.updatePollInterval(for: provider, seconds: $0) }
+                        )) {
+                            ForEach(pollIntervalOptions, id: \.seconds) { option in
+                                Text(option.label).tag(option.seconds)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .fixedSize()
+                        .help("Poll interval")
                         Text(provider.type.rawValue)
                             .font(.caption2)
                             .padding(.horizontal, 6)
@@ -63,6 +88,13 @@ struct SettingsView: View {
         .frame(width: 440, height: 400)
         .sheet(isPresented: $showAddProvider) {
             addProviderSheet
+        }
+        .sheet(isPresented: $showCatalogPicker) {
+            CatalogPickerView(isOnboarding: false) {
+                showCatalogPicker = false
+            }
+            .environment(manager)
+            .frame(width: 400, height: 480)
         }
     }
 

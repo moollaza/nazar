@@ -5,6 +5,9 @@ import AppKit
 class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
 
+    /// Called when user taps a notification; set by AppDelegate to open the popover.
+    var onNotificationTapped: (@MainActor @Sendable () -> Void)?
+
     private override init() {
         super.init()
         UNUserNotificationCenter.current().delegate = self
@@ -54,5 +57,15 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         completionHandler([.banner, .sound])
+    }
+
+    // Open popover when user taps a notification
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        Task { @MainActor in onNotificationTapped?() }
+        completionHandler()
     }
 }

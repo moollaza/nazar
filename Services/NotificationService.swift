@@ -23,7 +23,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         content.title = "\(provider): \(to.label)"
 
         if let incident = incident {
-            content.body = incident
+            content.body = String(incident.prefix(200))
         } else if to.severity > from.severity {
             content.body = "Status degraded from \(from.label) to \(to.label)"
         } else {

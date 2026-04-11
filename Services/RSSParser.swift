@@ -35,6 +35,7 @@ class RSSStatusParser: NSObject, XMLParserDelegate {
 
     func parse() -> [RSSItem] {
         let parser = XMLParser(data: data)
+        parser.shouldResolveExternalEntities = false
         parser.delegate = self
         parser.parse()
         return items

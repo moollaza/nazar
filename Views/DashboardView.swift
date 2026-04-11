@@ -31,7 +31,24 @@ struct DashboardView: View {
 
             Divider()
 
-            if manager.snapshots.isEmpty {
+            if manager.providers.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "antenna.radiowaves.left.and.right")
+                        .font(.system(size: 32))
+                        .foregroundStyle(.secondary)
+                    Text("No services monitored")
+                        .font(.headline)
+                    Text("Add services to start monitoring their status.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Button("Open Settings") {
+                        showSettings = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if manager.snapshots.isEmpty {
                 VStack(spacing: 8) {
                     ProgressView()
                     Text("Loading status pages…")
@@ -106,11 +123,10 @@ struct ProviderRowView: View {
 
                 Spacer()
 
-                if let error = snapshot.error {
-                    Text(error)
-                        .font(.caption2)
-                        .foregroundStyle(.red)
-                        .lineLimit(1)
+                if snapshot.error != nil {
+                    Text("Unavailable")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 } else {
                     Text(snapshot.overallStatus.label)
                         .font(.caption)

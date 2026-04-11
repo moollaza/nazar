@@ -16,8 +16,17 @@ struct Provider: Identifiable, Codable, Equatable {
         self.name = name
         self.baseURL = baseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         self.type = type
-        self.pollIntervalSeconds = pollIntervalSeconds
+        self.pollIntervalSeconds = max(30, pollIntervalSeconds)
         self.isEnabled = isEnabled
+    }
+
+    var hasValidURL: Bool {
+        guard let url = URL(string: baseURL),
+              let scheme = url.scheme?.lowercased(),
+              ["https", "http"].contains(scheme) else {
+            return false
+        }
+        return true
     }
 
     var apiURL: URL? {
@@ -50,7 +59,13 @@ struct StatuspageSummary: Codable {
     let page: StatuspagePage
     let status: StatuspageOverall
     let components: [StatuspageComponent]
-    let incidents: [StatuspageIncident]
+    let incidents: [StatuspageIncident]?
+    let scheduledMaintenances: [StatuspageIncident]?
+
+    enum CodingKeys: String, CodingKey {
+        case page, status, components, incidents
+        case scheduledMaintenances = "scheduled_maintenances"
+    }
 }
 
 struct StatuspagePage: Codable {
@@ -94,11 +109,11 @@ struct StatuspageComponent: Codable, Identifiable {
 struct StatuspageIncident: Codable, Identifiable {
     let id: String
     let name: String
-    let status: String         // "investigating", "identified", "monitoring", "resolved"
-    let impact: String         // "none", "minor", "major", "critical"
-    let createdAt: String
+    let status: String
+    let impact: String
+    let createdAt: String?
     let updatedAt: String
-    let incidentUpdates: [StatuspageIncidentUpdate]
+    let incidentUpdates: [StatuspageIncidentUpdate]?
 
     enum CodingKeys: String, CodingKey {
         case id, name, status, impact
@@ -127,12 +142,14 @@ enum ComponentStatus: String, Codable, Comparable {
     case degradedPerformance = "degraded_performance"
     case partialOutage = "partial_outage"
     case majorOutage = "major_outage"
+    case underMaintenance = "under_maintenance"
     case unknown
 
     var severity: Int {
         switch self {
         case .operational: return 0
         case .degradedPerformance: return 1
+        case .underMaintenance: return 1
         case .partialOutage: return 2
         case .majorOutage: return 3
         case .unknown: return -1
@@ -149,6 +166,7 @@ enum ComponentStatus: String, Codable, Comparable {
         case .degradedPerformance: return "Degraded"
         case .partialOutage: return "Partial Outage"
         case .majorOutage: return "Major Outage"
+        case .underMaintenance: return "Maintenance"
         case .unknown: return "Unknown"
         }
     }
@@ -157,6 +175,7 @@ enum ComponentStatus: String, Codable, Comparable {
         switch self {
         case .operational: return .systemGreen
         case .degradedPerformance: return .systemYellow
+        case .underMaintenance: return .systemYellow
         case .partialOutage: return .systemOrange
         case .majorOutage: return .systemRed
         case .unknown: return .systemGray
@@ -167,6 +186,7 @@ enum ComponentStatus: String, Codable, Comparable {
         switch self {
         case .operational: return ("checkmark.circle.fill", .systemGreen)
         case .degradedPerformance: return ("exclamationmark.triangle.fill", .systemYellow)
+        case .underMaintenance: return ("wrench.fill", .systemYellow)
         case .partialOutage: return ("exclamationmark.triangle.fill", .systemOrange)
         case .majorOutage: return ("xmark.circle.fill", .systemRed)
         case .unknown: return ("questionmark.circle.fill", .systemGray)

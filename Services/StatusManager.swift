@@ -40,11 +40,19 @@ class StatusManager {
 
     func loadProviders() {
         if let data = UserDefaults.standard.data(forKey: "providers"),
-           let saved = try? JSONDecoder().decode([Provider].self, from: data) {
+           let saved = try? JSONDecoder().decode([Provider].self, from: data),
+           !saved.isEmpty {
             providers = saved
+            // Migration: existing users who haven't seen onboarding
+            if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+                UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+            }
+        } else if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+            // User completed onboarding but removed all providers
+            providers = []
         } else {
-            providers = Provider.defaults
-            saveProviders()
+            // First launch — onboarding will handle provider selection
+            providers = []
         }
     }
 

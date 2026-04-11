@@ -15,6 +15,7 @@
 		8673B2812F884C760063B14E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2712F884C760063B14E /* Models.swift */; };
 		8673B2822F884C760063B14E /* StatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2752F884C760063B14E /* StatusManager.swift */; };
 		8673B2832F884C760063B14E /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8673B2702F884C760063B14E /* Info.plist */; };
+		AA00000100000001000CATJN /* catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = AA00000100000002000CATJN /* catalog.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		8673B2782F884C760063B14E /* StatusMonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusMonitorApp.swift; sourceTree = "<group>"; };
 		8673B2792F884C760063B14E /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		8673B27A2F884C760063B14E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AA00000100000002000CATJN /* catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = catalog.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +49,7 @@
 				8673B25D2F884BFF0063B14E /* Products */,
 				8673B2702F884C760063B14E /* Info.plist */,
 				8673B2722F884C760063B14E /* Models */,
+				AA00000100000003000RESRC /* Resources */,
 				8673B2762F884C760063B14E /* Services */,
 				8673B2772F884C760063B14E /* StatusMonitor.entitlements */,
 				8673B2782F884C760063B14E /* StatusMonitorApp.swift */,
@@ -87,6 +90,14 @@
 				8673B27A2F884C760063B14E /* SettingsView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		AA00000100000003000RESRC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000100000002000CATJN /* catalog.json */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -151,6 +162,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8673B2832F884C760063B14E /* Info.plist in Resources */,
+				AA00000100000001000CATJN /* catalog.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

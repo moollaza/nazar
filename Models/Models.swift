@@ -1,23 +1,71 @@
 import Foundation
 import AppKit
 
+// MARK: - Catalog Entry (read-only reference data)
+
+struct CatalogEntry: Identifiable, Codable, Equatable {
+    let id: String          // kebab-case slug, e.g. "github"
+    let name: String        // Display name, e.g. "GitHub"
+    let baseURL: String     // Status page base URL
+    let type: ProviderType  // .statuspage or .rss
+    let category: String    // e.g. "Developer Tools"
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, type, category
+        case baseURL = "base_url"
+    }
+}
+
+// MARK: - Catalog (static bundled data)
+
+struct Catalog {
+    let entries: [CatalogEntry]
+    let categories: [String]
+
+    static let shared: Catalog = {
+        guard let url = Bundle.main.url(forResource: "catalog", withExtension: "json"),
+              let data = try? Data(contentsOf: url) else {
+            return Catalog(entries: [], categories: [])
+        }
+        let decoder = JSONDecoder()
+        let entries = (try? decoder.decode([CatalogEntry].self, from: data)) ?? []
+        let categories = Array(Set(entries.map(\.category))).sorted()
+        return Catalog(entries: entries, categories: categories)
+    }()
+
+    func entries(in category: String) -> [CatalogEntry] {
+        entries.filter { $0.category == category }
+    }
+
+    func search(_ query: String) -> [CatalogEntry] {
+        guard !query.isEmpty else { return entries }
+        return entries.filter { $0.name.localizedCaseInsensitiveContains(query) }
+    }
+}
+
 // MARK: - Provider Configuration
 
 struct Provider: Identifiable, Codable, Equatable {
     let id: UUID
     var name: String
-    var baseURL: String          // e.g. "https://status.anthropic.com"
+    var baseURL: String
     var type: ProviderType
     var pollIntervalSeconds: Int
     var isEnabled: Bool
+    var catalogEntryId: String?  // matches CatalogEntry.id if created from catalog
 
-    init(name: String, baseURL: String, type: ProviderType = .statuspage, pollIntervalSeconds: Int = 60, isEnabled: Bool = true) {
+    init(name: String, baseURL: String, type: ProviderType = .statuspage, pollIntervalSeconds: Int = 60, isEnabled: Bool = true, catalogEntryId: String? = nil) {
         self.id = UUID()
         self.name = name
         self.baseURL = baseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         self.type = type
         self.pollIntervalSeconds = max(30, pollIntervalSeconds)
         self.isEnabled = isEnabled
+        self.catalogEntryId = catalogEntryId
+    }
+
+    init(from entry: CatalogEntry) {
+        self.init(name: entry.name, baseURL: entry.baseURL, type: entry.type, catalogEntryId: entry.id)
     }
 
     var hasValidURL: Bool {
@@ -38,14 +86,7 @@ struct Provider: Identifiable, Codable, Equatable {
         }
     }
 
-    static let defaults: [Provider] = [
-        Provider(name: "Anthropic", baseURL: "https://status.anthropic.com"),
-        Provider(name: "Asana", baseURL: "https://status.asana.com"),
-        Provider(name: "GitHub", baseURL: "https://www.githubstatus.com"),
-        Provider(name: "OpenAI", baseURL: "https://status.openai.com"),
-        // Slack uses a custom status page, not Atlassian Statuspage
-        Provider(name: "Vercel", baseURL: "https://www.vercel-status.com"),
-    ]
+    static let defaults: [Provider] = []
 }
 
 enum ProviderType: String, Codable, CaseIterable {

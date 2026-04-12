@@ -72,9 +72,10 @@ struct ServicesSettingsView: View {
     @Environment(StatusManager.self) var manager
     @State private var providerToRemove: Provider?
     @State private var showAddCustom = false
+    @State private var sortOrder = [KeyPathComparator(\Provider.name, comparator: .localizedStandard)]
 
     var sortedProviders: [Provider] {
-        manager.providers.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        manager.providers.sorted(using: sortOrder)
     }
 
     var body: some View {
@@ -103,29 +104,10 @@ struct ServicesSettingsView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                // Table header
-                HStack(spacing: 0) {
-                    Text("Service")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Text("Interval")
-                        .frame(width: 70, alignment: .center)
-                    Text("Muted")
-                        .frame(width: 50, alignment: .center)
-                    Text("")
-                        .frame(width: 30)
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 4)
-
-                Divider()
-
-                List {
-                    ForEach(sortedProviders) { provider in
+                Table(sortedProviders, sortOrder: $sortOrder) {
+                    TableColumn("Service", value: \.name) { provider in
                         HStack(spacing: 8) {
                             ServiceIconView(name: provider.name, catalogId: provider.catalogEntryId)
-
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(provider.name)
                                     .font(.system(.body, weight: .medium))
@@ -135,52 +117,53 @@ struct ServicesSettingsView: View {
                                     .lineLimit(1)
                                     .truncationMode(.middle)
                             }
-
-                            Spacer()
-
-                            // Poll interval
-                            Menu {
-                                ForEach(pollIntervalOptions, id: \.seconds) { option in
-                                    Button(option.label) {
-                                        manager.updatePollInterval(for: provider, seconds: option.seconds)
-                                    }
-                                }
-                            } label: {
-                                Text(intervalLabel(for: provider.pollIntervalSeconds))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .frame(width: 35)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .fixedSize()
-
-                            // Mute toggle
-                            Button {
-                                manager.toggleMute(for: provider)
-                            } label: {
-                                Image(systemName: provider.isMuted ? "speaker.slash.fill" : "speaker.wave.2")
-                                    .foregroundStyle(provider.isMuted ? .orange : .secondary)
-                                    .font(.system(size: 12))
-                            }
-                            .buttonStyle(.plain)
-                            .help(provider.isMuted ? "Unmute" : "Mute")
-                            .frame(width: 24)
-
-                            // Remove
-                            Button {
-                                providerToRemove = provider
-                            } label: {
-                                Image(systemName: "trash")
-                                    .foregroundStyle(.secondary)
-                                    .font(.system(size: 11))
-                            }
-                            .buttonStyle(.plain)
-                            .help("Remove service")
-                            .frame(width: 24)
                         }
                     }
+
+                    TableColumn("Interval") { provider in
+                        Menu {
+                            ForEach(pollIntervalOptions, id: \.seconds) { option in
+                                Button(option.label) {
+                                    manager.updatePollInterval(for: provider, seconds: option.seconds)
+                                }
+                            }
+                        } label: {
+                            Text(intervalLabel(for: provider.pollIntervalSeconds))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .menuStyle(.borderlessButton)
+                        .fixedSize()
+                    }
+                    .width(70)
+
+                    TableColumn("Muted") { provider in
+                        Button {
+                            manager.toggleMute(for: provider)
+                        } label: {
+                            Image(systemName: provider.isMuted ? "speaker.slash.fill" : "speaker.wave.2")
+                                .foregroundStyle(provider.isMuted ? .orange : .secondary)
+                                .font(.system(size: 12))
+                        }
+                        .buttonStyle(.plain)
+                        .help(provider.isMuted ? "Unmute" : "Mute")
+                    }
+                    .width(50)
+
+                    TableColumn("") { provider in
+                        Button {
+                            providerToRemove = provider
+                        } label: {
+                            Image(systemName: "trash")
+                                .foregroundStyle(.secondary)
+                                .font(.system(size: 11))
+                        }
+                        .buttonStyle(.plain)
+                        .help("Remove service")
+                    }
+                    .width(30)
                 }
-                .listStyle(.inset(alternatesRowBackgrounds: true))
+                .alternatingRowBackgrounds()
             }
         }
         .sheet(isPresented: $showAddCustom) {

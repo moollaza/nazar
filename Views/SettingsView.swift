@@ -235,7 +235,7 @@ struct AddCustomServiceView: View {
             }
             .pickerStyle(.segmented)
 
-            Text("For Atlassian Statuspage sites, use the base URL. For RSS, provide the full feed URL.")
+            Text("Supports Atlassian Statuspage, incident.io, and RSS/Atom feeds. For Statuspage/incident.io, use the base URL (e.g. https://status.example.com). For RSS, provide the full feed URL.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -292,7 +292,7 @@ struct CatalogSettingsView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text("\(monitoredIds.count) added")
+                Text("\(monitoredIds.count) monitoring")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

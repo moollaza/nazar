@@ -202,9 +202,24 @@ class StatusManager {
         let summary = try decoder.decode(StatuspageSummary.self, from: data)
 
         let overall = ComponentStatus(fromIndicator: summary.status.indicator)
-        let components = summary.components.map {
-            ComponentSnapshot(id: $0.id, name: $0.name, status: ComponentStatus(fromStatuspage: $0.status))
+
+        // Build group name lookup for child components (e.g., Asana has US, EU, Japan groups)
+        var groupNames: [String: String] = [:]
+        for comp in summary.components {
+            if comp.group == true {
+                groupNames[comp.id] = comp.name
+            }
         }
+
+        let components = summary.components
+            .filter { $0.group != true }  // exclude group headers, keep children
+            .map { comp -> ComponentSnapshot in
+                var displayName = comp.name
+                if let groupId = comp.groupId, let groupName = groupNames[groupId] {
+                    displayName = "\(comp.name) (\(groupName))"
+                }
+                return ComponentSnapshot(id: comp.id, name: displayName, status: ComponentStatus(fromStatuspage: comp.status))
+            }
         let incidents = (summary.incidents ?? []).prefix(5).map { incident in
             IncidentSnapshot(
                 id: incident.id,

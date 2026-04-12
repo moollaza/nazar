@@ -311,15 +311,15 @@ struct ProviderRowView: View {
 
             Spacer()
 
-            // Status label
+            // Status badge
             if snapshot.error != nil {
-                Text("Unavailable")
+                StatusBadge(label: "Unavailable", color: .gray)
+            } else if snapshot.overallStatus == .operational {
+                Text("Operational")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                Text(snapshot.overallStatus.label)
-                    .font(.caption)
-                    .foregroundStyle(snapshot.overallStatus == .operational ? .secondary : Color(nsColor: snapshot.overallStatus.color))
+                StatusBadge(label: snapshot.overallStatus.label, color: Color(nsColor: snapshot.overallStatus.color))
             }
 
             Image(systemName: "chevron.right")
@@ -370,5 +370,23 @@ struct ProviderRowView: View {
             }
             #endif
         }
+    }
+}
+
+// MARK: - Status Badge
+
+struct StatusBadge: View {
+    let label: String
+    let color: Color
+
+    var body: some View {
+        Text(label)
+            .font(.caption2)
+            .fontWeight(.medium)
+            .foregroundColor(color)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(color.opacity(0.12))
+            .clipShape(Capsule())
     }
 }

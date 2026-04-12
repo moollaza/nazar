@@ -71,7 +71,6 @@
   {"id": "segment", "name": "Segment", "base_url": "https://status.segment.com", "type": "statuspage", "category": "Payments"},
 
   {"id": "reddit", "name": "Reddit", "base_url": "https://www.redditstatus.com", "type": "statuspage", "category": "Social & Media"},
-  {"id": "twitch", "name": "Twitch", "base_url": "https://www.twitchstatus.com", "type": "statuspage", "category": "Social & Media"},
 
   {"id": "jira", "name": "Jira", "base_url": "https://jira-software.status.atlassian.com", "type": "statuspage", "category": "Atlassian"},
   {"id": "confluence", "name": "Confluence", "base_url": "https://confluence.status.atlassian.com", "type": "statuspage", "category": "Atlassian"},

@@ -146,13 +146,17 @@ struct StatuspageOverall: Codable {
 struct StatuspageComponent: Codable, Identifiable {
     let id: String
     let name: String
-    let status: String         // "operational", "degraded_performance", "partial_outage", "major_outage"
+    let status: String
     let description: String?
     let updatedAt: String?
+    let group: Bool?
+    let groupId: String?
 
     enum CodingKeys: String, CodingKey {
         case id, name, status, description
         case updatedAt = "updated_at"
+        case group
+        case groupId = "group_id"
     }
 
     init(from decoder: Decoder) throws {
@@ -162,6 +166,8 @@ struct StatuspageComponent: Codable, Identifiable {
         status = try container.decode(String.self, forKey: .status)
         description = try container.decodeIfPresent(String.self, forKey: .description)
         updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt)
+        group = try container.decodeIfPresent(Bool.self, forKey: .group)
+        groupId = try container.decodeIfPresent(String.self, forKey: .groupId)
     }
 }
 
@@ -262,6 +268,7 @@ enum ComponentStatus: String, Codable, Comparable {
         case "minor": self = .degradedPerformance
         case "major": self = .partialOutage
         case "critical": self = .majorOutage
+        case "maintenance": self = .underMaintenance
         default: self = .unknown
         }
     }

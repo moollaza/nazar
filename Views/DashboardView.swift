@@ -4,9 +4,12 @@ enum DashboardSort: String {
     case severity, alphabetical
 }
 
+private let detailViewComponentThreshold = 10
+
 struct DashboardView: View {
     @Environment(StatusManager.self) var manager
     @State private var expandedProvider: UUID?
+    @State private var selectedProviderId: UUID?
     @State private var showSettings = false
     @State private var showCatalogPicker = false
     @State private var searchText = ""
@@ -34,7 +37,44 @@ struct DashboardView: View {
         }
     }
 
+    private var selectedSnapshot: ProviderSnapshot? {
+        guard let id = selectedProviderId else { return nil }
+        return manager.snapshots.first(where: { $0.id == id })
+    }
+
     var body: some View {
+        Group {
+            if let snapshot = selectedSnapshot {
+                let provider = manager.providers.first(where: { $0.id == snapshot.id })
+                ServiceDetailView(
+                    snapshot: snapshot,
+                    catalogId: provider?.catalogEntryId,
+                    statusPageURL: provider.flatMap { URL(string: $0.baseURL) },
+                    onBack: { selectedProviderId = nil }
+                )
+                .transition(.move(edge: .trailing))
+            } else {
+                dashboardContent
+                    .transition(.move(edge: .leading))
+            }
+        }
+        .frame(width: 420, height: 520)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environment(manager)
+        }
+        .sheet(isPresented: $showCatalogPicker) {
+            CatalogPickerView(isOnboarding: false) {
+                showCatalogPicker = false
+            }
+            .environment(manager)
+            .frame(width: 400, height: 480)
+        }
+    }
+
+    @ViewBuilder
+    private var dashboardContent: some View {
         VStack(spacing: 0) {
             // Header
             HStack {
@@ -144,8 +184,14 @@ struct DashboardView: View {
                                 statusPageURL: provider.flatMap { URL(string: $0.baseURL) },
                                 isExpanded: expandedProvider == snapshot.id,
                                 onTap: {
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        expandedProvider = expandedProvider == snapshot.id ? nil : snapshot.id
+                                    if snapshot.components.count >= detailViewComponentThreshold {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            selectedProviderId = snapshot.id
+                                        }
+                                    } else {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            expandedProvider = expandedProvider == snapshot.id ? nil : snapshot.id
+                                        }
                                     }
                                 }
                             )
@@ -174,19 +220,6 @@ struct DashboardView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-        }
-        .frame(width: 420, height: 520)
-        .background(Color(nsColor: .windowBackgroundColor))
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-                .environment(manager)
-        }
-        .sheet(isPresented: $showCatalogPicker) {
-            CatalogPickerView(isOnboarding: false) {
-                showCatalogPicker = false
-            }
-            .environment(manager)
-            .frame(width: 400, height: 480)
         }
     }
 }

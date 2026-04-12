@@ -18,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var popover: NSPopover!
     let statusManager = StatusManager()
     private var eventMonitor: Any?
+    private var feedbackWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Hide dock icon — menu bar only
@@ -180,14 +181,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func sendFeedback() {
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
-        let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
-        let body = "**App Version:** \(version)\n**macOS:** \(osVersion)\n\n**Describe the issue or suggestion:**\n\n"
-        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let urlString = "https://github.com/moollaza/status-monitor/issues/new?title=Feedback&body=\(encodedBody)"
-        if let url = URL(string: urlString) {
-            NSWorkspace.shared.open(url)
-        }
+        // Close existing feedback window if open
+        feedbackWindow?.close()
+        feedbackWindow = nil
+
+        let feedbackView = FeedbackView()
+        let controller = NSHostingController(rootView: feedbackView)
+        let window = NSWindow(contentViewController: controller)
+        window.title = "Send Feedback"
+        window.styleMask = [.titled, .closable]
+        window.isReleasedWhenClosed = false
+        window.setContentSize(controller.sizeThatFits(in: NSSize(width: 420, height: 600)))
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        feedbackWindow = window
     }
 
     @objc private func quitApp() {

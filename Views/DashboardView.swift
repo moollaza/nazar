@@ -12,12 +12,24 @@ struct DashboardView: View {
     var onOpenSettings: (() -> Void)?
     @State private var selectedProviderId: UUID?
     @State private var searchText = ""
+    @State private var showIssuesOnly = false
     @AppStorage("dashboardSort") private var sortOrder: DashboardSort = .severity
     @State private var isRefreshing = false
 
     private var filteredSnapshots: [ProviderSnapshot] {
-        guard !searchText.isEmpty else { return manager.snapshots }
-        return manager.snapshots.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        var result = manager.snapshots
+        if !searchText.isEmpty {
+            result = result.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+        if showIssuesOnly {
+            result = result.filter { $0.overallStatus != .operational || $0.error != nil }
+        }
+        return result
+    }
+
+    /// True when the app has no connectivity (all snapshots are errors)
+    private var isOffline: Bool {
+        !manager.snapshots.isEmpty && manager.snapshots.allSatisfy { $0.error != nil }
     }
 
     private var sortedSnapshots: [ProviderSnapshot] {
@@ -75,8 +87,19 @@ struct DashboardView: View {
                 Text("Status Monitor")
                     .font(.headline)
                 Spacer()
+                // Issues only filter
+                Button(action: { showIssuesOnly.toggle() }) {
+                    Image(systemName: showIssuesOnly ? "exclamationmark.triangle.fill" : "exclamationmark.triangle")
+                        .font(.system(size: 11))
+                        .foregroundStyle(showIssuesOnly ? .orange : .secondary)
+                        .frame(width: 24, height: 24)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(showIssuesOnly ? "Show all services" : "Show issues only")
+
                 Picker("Sort", selection: $sortOrder) {
-                    Image(systemName: "exclamationmark.triangle")
+                    Image(systemName: "arrow.up.arrow.down")
                         .tag(DashboardSort.severity)
                     Image(systemName: "textformat.abc")
                         .tag(DashboardSort.alphabetical)
@@ -166,13 +189,29 @@ struct DashboardView: View {
             Divider()
 
             // Footer
-            HStack {
-                Circle()
-                    .fill(Color(nsColor: manager.worstStatus.color))
-                    .frame(width: 8, height: 8)
-                Text(manager.worstStatus.label)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            HStack(spacing: 6) {
+                if isOffline {
+                    Image(systemName: "wifi.slash")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                    Text("Offline")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                } else {
+                    Circle()
+                        .fill(Color(nsColor: manager.worstStatus.color))
+                        .frame(width: 8, height: 8)
+                    let issueCount = manager.snapshots.filter { $0.error == nil && $0.overallStatus != .operational }.count
+                    if issueCount > 0 {
+                        Text("\(issueCount) issue\(issueCount == 1 ? "" : "s")")
+                            .font(.caption)
+                            .foregroundStyle(Color(nsColor: manager.worstStatus.color))
+                    } else {
+                        Text("All operational")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 Spacer()
                 if let lastUpdate = manager.snapshots.map(\.lastUpdated).max() {
                     Text("Updated \(lastUpdate, style: .relative) ago")

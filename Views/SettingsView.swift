@@ -1,4 +1,5 @@
 import SwiftUI
+import ServiceManagement
 
 private let pollIntervalOptions: [(label: String, seconds: Int)] = [
     ("30s", 30),
@@ -119,6 +120,13 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
+                Toggle("Launch at Login", isOn: Binding(
+                    get: { SMAppService.mainApp.status == .enabled },
+                    set: { newValue in toggleLaunchAtLogin(newValue) }
+                ))
+                .toggleStyle(.checkbox)
+                .controlSize(.small)
+                Spacer()
                 Button("Done") { dismiss() }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
@@ -202,5 +210,17 @@ struct SettingsView: View {
         newName = ""
         newURL = ""
         newType = .statuspage
+    }
+
+    private func toggleLaunchAtLogin(_ enable: Bool) {
+        do {
+            if enable {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            print("Launch at login failed: \(error.localizedDescription)")
+        }
     }
 }

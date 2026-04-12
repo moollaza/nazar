@@ -13,6 +13,7 @@ class StatusManager {
     var isPolling = false
 
     var onWorstStatusChanged: ((ComponentStatus) -> Void)?
+    var onPollCycleComplete: (() -> Void)?
     private var timers: [UUID: Timer] = [:]
     private var previousStatuses: [UUID: ComponentStatus] = [:]
 
@@ -163,6 +164,7 @@ class StatusManager {
                     running += 1
                 }
             }
+            onPollCycleComplete?()
         }
     }
 

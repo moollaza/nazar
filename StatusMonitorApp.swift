@@ -46,6 +46,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         popover = NSPopover()
         popover.contentSize = NSSize(width: 420, height: 520)
         popover.behavior = .transient
+        popover.hasFullSizeContent = true
         popover.contentViewController = NSHostingController(
             rootView: DashboardView(onOpenSettings: { [weak self] in
                 self?.openSettings()
@@ -56,6 +57,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Close popover on outside click
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             self?.popover.performClose(nil)
+        }
+
+        // Keyboard shortcut: Cmd+R to refresh
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "r" {
+                self?.statusManager.pollAll()
+                return nil
+            }
+            return event
         }
 
         // Start polling
@@ -71,6 +81,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Status changes → update menu bar icon
         statusManager.onWorstStatusChanged = { [weak self] status in
             self?.updateMenuBarIcon(for: status)
+            self?.updateTooltip()
+        }
+
+        // Update tooltip after every poll cycle (not just worst-status changes)
+        statusManager.onPollCycleComplete = { [weak self] in
             self?.updateTooltip()
         }
 

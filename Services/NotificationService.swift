@@ -25,6 +25,12 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     }
 
     func notify(provider: String, from: ComponentStatus, to: ComponentStatus, incident: String?) {
+        guard UserDefaults.standard.object(forKey: "notificationsEnabled") == nil
+              || UserDefaults.standard.bool(forKey: "notificationsEnabled") else {
+            logger.debug("Notification suppressed (disabled in preferences)")
+            return
+        }
+
         let content = UNMutableNotificationContent()
         content.title = "\(provider): \(to.label)"
 

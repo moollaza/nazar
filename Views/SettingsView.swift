@@ -266,6 +266,15 @@ struct CatalogSettingsView: View {
 
     private var catalog: Catalog { Catalog.shared }
 
+    private static let popularIds: Set<String> = [
+        "github", "cloudflare", "vercel", "openai", "anthropic",
+        "stripe", "discord", "notion", "figma", "datadog"
+    ]
+
+    private var popularEntries: [CatalogEntry] {
+        catalog.entries.filter { Self.popularIds.contains($0.id) }
+    }
+
     private var monitoredIds: Set<String> {
         Set(manager.providers.compactMap(\.catalogEntryId))
     }
@@ -326,6 +335,32 @@ struct CatalogSettingsView: View {
 
             // Category list
             List {
+                // Popular services (shown when not searching)
+                if searchText.isEmpty && !popularEntries.isEmpty {
+                    Section("Popular") {
+                        ForEach(popularEntries) { entry in
+                            let isMonitored = monitoredIds.contains(entry.id)
+                            Toggle(isOn: Binding(
+                                get: { isMonitored },
+                                set: { newValue in
+                                    if newValue {
+                                        manager.addProvider(Provider(from: entry))
+                                        logger.info("Added from popular: \(entry.name)")
+                                    } else {
+                                        if let provider = manager.providers.first(where: { $0.catalogEntryId == entry.id }) {
+                                            manager.removeProvider(provider)
+                                        }
+                                    }
+                                }
+                            )) {
+                                Text(entry.name)
+                                    .font(.body)
+                            }
+                            .toggleStyle(.checkbox)
+                        }
+                    }
+                }
+
                 ForEach(filteredEntries, id: \.0) { category, entries in
                     DisclosureGroup(
                         isExpanded: Binding(
@@ -376,6 +411,8 @@ struct CatalogSettingsView: View {
 // MARK: - Preferences Tab
 
 struct PreferencesSettingsView: View {
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
+
     var body: some View {
         Form {
             Section("General") {
@@ -396,7 +433,8 @@ struct PreferencesSettingsView: View {
             }
 
             Section("Notifications") {
-                Text("Notifications are sent when a service status changes.")
+                Toggle("Send notifications on status changes", isOn: $notificationsEnabled)
+                Text("You'll be notified when a monitored service's status changes.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

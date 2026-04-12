@@ -88,15 +88,14 @@ struct DashboardView: View {
                     .font(.headline)
                 Spacer()
                 // Issues only filter
-                Button(action: { showIssuesOnly.toggle() }) {
-                    Image(systemName: showIssuesOnly ? "exclamationmark.triangle.fill" : "exclamationmark.triangle")
-                        .font(.system(size: 11))
-                        .foregroundStyle(showIssuesOnly ? .orange : .secondary)
-                        .frame(width: 24, height: 24)
-                        .contentShape(Rectangle())
+                HoverButton(
+                    icon: showIssuesOnly ? "exclamationmark.triangle.fill" : "exclamationmark.triangle",
+                    isActive: showIssuesOnly,
+                    activeColor: .orange,
+                    help: showIssuesOnly ? "Show all services" : "Show issues only"
+                ) {
+                    showIssuesOnly.toggle()
                 }
-                .buttonStyle(.plain)
-                .help(showIssuesOnly ? "Show all services" : "Show issues only")
 
                 Picker("Sort", selection: $sortOrder) {
                     Image(systemName: "arrow.up.arrow.down")
@@ -109,36 +108,26 @@ struct DashboardView: View {
                 .labelsHidden()
 
                 // Refresh button with spin feedback
-                Button(action: {
+                HoverButton(
+                    icon: "arrow.clockwise",
+                    fontSize: 12,
+                    help: "Refresh all"
+                ) {
                     logger.info("Manual refresh triggered")
                     isRefreshing = true
                     manager.pollAll()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                         isRefreshing = false
                     }
-                }) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 12))
-                        .rotationEffect(.degrees(isRefreshing ? 360 : 0))
-                        .animation(isRefreshing ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .default, value: isRefreshing)
-                        .frame(width: 24, height: 24)
-                        .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .help("Refresh all")
+                .rotationEffect(.degrees(isRefreshing ? 360 : 0))
+                .animation(isRefreshing ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .default, value: isRefreshing)
 
                 // Settings button — opens the Settings window
-                Button(action: {
+                HoverButton(icon: "gearshape", fontSize: 12, help: "Settings") {
                     logger.info("Opening Settings window")
                     onOpenSettings?()
-                }) {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 12))
-                        .frame(width: 24, height: 24)
-                        .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .help("Settings")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
@@ -388,5 +377,34 @@ struct StatusBadge: View {
             .padding(.vertical, 3)
             .background(color.opacity(0.12))
             .clipShape(Capsule())
+    }
+}
+
+// MARK: - Hover Button
+
+struct HoverButton: View {
+    let icon: String
+    var fontSize: CGFloat = 11
+    var isActive: Bool = false
+    var activeColor: Color = .orange
+    var help: String = ""
+    let action: () -> Void
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: fontSize))
+                .foregroundStyle(isActive ? activeColor : .secondary)
+                .frame(width: 24, height: 24)
+                .background(
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor) : .clear)
+                )
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
+        .help(help)
     }
 }

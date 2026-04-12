@@ -9,6 +9,7 @@ enum DashboardSort: String {
 
 struct DashboardView: View {
     @Environment(StatusManager.self) var manager
+    var onOpenSettings: (() -> Void)?
     @State private var selectedProviderId: UUID?
     @State private var searchText = ""
     @AppStorage("dashboardSort") private var sortOrder: DashboardSort = .severity
@@ -106,8 +107,7 @@ struct DashboardView: View {
                 // Settings button — opens the Settings window
                 Button(action: {
                     logger.info("Opening Settings window")
-                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                    NSApp.activate(ignoringOtherApps: true)
+                    onOpenSettings?()
                 }) {
                     Image(systemName: "gearshape")
                         .font(.system(size: 12))

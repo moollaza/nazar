@@ -1,5 +1,8 @@
 import Foundation
 import Observation
+import OSLog
+
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "StatusMonitor", category: "polling")
 
 @MainActor
 @Observable
@@ -10,6 +13,7 @@ class StatusManager {
     var isPolling = false
 
     var onWorstStatusChanged: ((ComponentStatus) -> Void)?
+    var onPollCycleComplete: (() -> Void)?
     private var timers: [UUID: Timer] = [:]
     private var previousStatuses: [UUID: ComponentStatus] = [:]
 
@@ -20,6 +24,18 @@ class StatusManager {
         return URLSession(configuration: config)
     }()
 
+    private static let iso8601: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    private static let iso8601NoFraction: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
     init() {
         loadProviders()
     }
@@ -28,11 +44,19 @@ class StatusManager {
 
     func loadProviders() {
         if let data = UserDefaults.standard.data(forKey: "providers"),
-           let saved = try? JSONDecoder().decode([Provider].self, from: data) {
+           let saved = try? JSONDecoder().decode([Provider].self, from: data),
+           !saved.isEmpty {
             providers = saved
+            // Migration: existing users who haven't seen onboarding
+            if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+                UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+            }
+        } else if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+            // User completed onboarding but removed all providers
+            providers = []
         } else {
-            providers = Provider.defaults
-            saveProviders()
+            // First launch — onboarding will handle provider selection
+            providers = []
         }
     }
 
@@ -47,6 +71,27 @@ class StatusManager {
         saveProviders()
         schedulePolling(for: provider)
         Task { await poll(provider: provider) }
+        // Mark onboarding complete when first provider is added
+        if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        }
+        logger.info("Added provider: \(provider.name)")
+    }
+
+    func updatePollInterval(for provider: Provider, seconds: Int) {
+        guard let idx = providers.firstIndex(where: { $0.id == provider.id }) else { return }
+        providers[idx].pollIntervalSeconds = max(30, seconds)
+        saveProviders()
+        if isPolling {
+            schedulePolling(for: providers[idx])
+        }
+    }
+
+    func toggleMute(for provider: Provider) {
+        guard let idx = providers.firstIndex(where: { $0.id == provider.id }) else { return }
+        providers[idx].isMuted.toggle()
+        saveProviders()
+        recalcWorstStatus()
     }
 
     func removeProvider(_ provider: Provider) {
@@ -63,9 +108,25 @@ class StatusManager {
 
     func startPolling() {
         isPolling = true
-        for provider in providers where provider.isEnabled {
+        let enabled = providers.filter(\.isEnabled)
+        for provider in enabled {
             schedulePolling(for: provider)
-            Task { await poll(provider: provider) }
+        }
+        // Initial poll with concurrency cap
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                var running = 0
+                for provider in enabled {
+                    if running >= maxConcurrentPolls {
+                        await group.next()
+                        running -= 1
+                    }
+                    group.addTask { @MainActor [weak self] in
+                        await self?.poll(provider: provider)
+                    }
+                    running += 1
+                }
+            }
         }
     }
 
@@ -85,9 +146,25 @@ class StatusManager {
         timers[provider.id] = timer
     }
 
+    private let maxConcurrentPolls = 6
+
     func pollAll() {
-        for provider in providers where provider.isEnabled {
-            Task { await poll(provider: provider) }
+        let enabled = providers.filter(\.isEnabled)
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                var running = 0
+                for provider in enabled {
+                    if running >= maxConcurrentPolls {
+                        await group.next()
+                        running -= 1
+                    }
+                    group.addTask { @MainActor [weak self] in
+                        await self?.poll(provider: provider)
+                    }
+                    running += 1
+                }
+            }
+            onPollCycleComplete?()
         }
     }
 
@@ -100,7 +177,7 @@ class StatusManager {
         do {
             let (data, response) = try await session.data(from: url)
             guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-                updateSnapshot(for: provider, error: "HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)")
+                updateSnapshot(for: provider, error: "Unable to reach status page")
                 return
             }
 
@@ -111,28 +188,48 @@ class StatusManager {
                 try parseRSS(data: data, provider: provider)
             }
         } catch {
-            updateSnapshot(for: provider, error: error.localizedDescription)
+            logger.error("Poll failed for \(provider.name): \(error.localizedDescription)")
+            updateSnapshot(for: provider, error: "Unable to read status page")
         }
     }
 
     // MARK: - Statuspage JSON Parsing
+
+    private static func parseDate(_ string: String) -> Date? {
+        iso8601.date(from: string) ?? iso8601NoFraction.date(from: string)
+    }
 
     private func parseStatuspage(data: Data, provider: Provider) throws {
         let decoder = JSONDecoder()
         let summary = try decoder.decode(StatuspageSummary.self, from: data)
 
         let overall = ComponentStatus(fromIndicator: summary.status.indicator)
-        let components = summary.components.map {
-            ComponentSnapshot(id: $0.id, name: $0.name, status: ComponentStatus(fromStatuspage: $0.status))
+
+        // Build group name lookup for child components (e.g., Asana has US, EU, Japan groups)
+        var groupNames: [String: String] = [:]
+        for comp in summary.components {
+            if comp.group == true {
+                groupNames[comp.id] = comp.name
+            }
         }
-        let incidents = summary.incidents.prefix(5).map { incident in
+
+        let components = summary.components
+            .filter { $0.group != true }  // exclude group headers, keep children
+            .map { comp -> ComponentSnapshot in
+                var displayName = comp.name
+                if let groupId = comp.groupId, let groupName = groupNames[groupId] {
+                    displayName = "\(comp.name) (\(groupName))"
+                }
+                return ComponentSnapshot(id: comp.id, name: displayName, status: ComponentStatus(fromStatuspage: comp.status))
+            }
+        let incidents = (summary.incidents ?? []).prefix(5).map { incident in
             IncidentSnapshot(
                 id: incident.id,
                 name: incident.name,
                 impact: ComponentStatus(fromIndicator: incident.impact),
                 status: incident.status,
-                latestUpdate: incident.incidentUpdates.first?.body,
-                updatedAt: ISO8601DateFormatter().date(from: incident.updatedAt)
+                latestUpdate: incident.incidentUpdates?.first?.body,
+                updatedAt: Self.parseDate(incident.updatedAt)
             )
         }
 
@@ -151,26 +248,31 @@ class StatusManager {
 
     // MARK: - RSS Parsing (basic)
 
+    static func rssStatusHeuristic(title: String, description: String) -> ComponentStatus {
+        let text = (title + " " + description).lowercased()
+        if text.contains("major") || text.contains("outage") { return .majorOutage }
+        if text.contains("partial") { return .partialOutage }
+        if text.contains("degraded") || text.contains("elevated") { return .degradedPerformance }
+        if text.contains("resolved") || text.contains("operational") { return .operational }
+        return .unknown
+    }
+
     private func parseRSS(data: Data, provider: Provider) throws {
         let parser = RSSStatusParser(data: data)
         let items = parser.parse()
 
         // Heuristic: check titles/descriptions for outage keywords
         let overall: ComponentStatus = items.first.map { item in
-            let text = (item.title + " " + item.description).lowercased()
-            if text.contains("major") || text.contains("outage") { return .majorOutage }
-            if text.contains("partial") { return .partialOutage }
-            if text.contains("degraded") || text.contains("elevated") { return .degradedPerformance }
-            if text.contains("resolved") || text.contains("operational") { return .operational }
-            return .unknown
+            Self.rssStatusHeuristic(title: item.title, description: item.description)
         } ?? .unknown
 
-        let incidents = items.prefix(5).map { item in
-            IncidentSnapshot(
+        let incidents = items.prefix(5).map { item -> IncidentSnapshot in
+            let itemStatus = Self.rssStatusHeuristic(title: item.title, description: item.description)
+            return IncidentSnapshot(
                 id: item.guid ?? item.title,
                 name: item.title,
-                impact: overall,
-                status: "rss",
+                impact: itemStatus,
+                status: itemStatus.label,
                 latestUpdate: item.description,
                 updatedAt: item.pubDate
             )
@@ -200,8 +302,8 @@ class StatusManager {
             snapshots.append(snapshot)
         }
 
-        // Notify on status change (not on first poll)
-        if let prev = previousStatus, prev != snapshot.overallStatus {
+        // Notify on status change (not on first poll, skip if muted)
+        if !provider.isMuted, let prev = previousStatus, prev != snapshot.overallStatus {
             NotificationService.shared.notify(
                 provider: provider.name,
                 from: prev,
@@ -232,8 +334,10 @@ class StatusManager {
         recalcWorstStatus()
     }
 
-    private func recalcWorstStatus() {
+    func recalcWorstStatus() {
+        let mutedIds = Set(providers.filter(\.isMuted).map(\.id))
         let newStatus = snapshots
+            .filter { $0.error == nil && !mutedIds.contains($0.id) }
             .map(\.overallStatus)
             .max() ?? .operational
         if newStatus != worstStatus {

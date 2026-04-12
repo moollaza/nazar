@@ -1,9 +1,15 @@
 import Foundation
 import UserNotifications
 import AppKit
+import OSLog
+
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "StatusMonitor", category: "notifications")
 
 class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
+
+    /// Called when user taps a notification; set by AppDelegate to open the popover.
+    var onNotificationTapped: (@MainActor @Sendable () -> Void)?
 
     private override init() {
         super.init()
@@ -13,17 +19,22 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     func requestPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error {
-                print("Notification permission error: \(error)")
+                logger.error("Notification permission error: \(error.localizedDescription)")
             }
         }
     }
 
     func notify(provider: String, from: ComponentStatus, to: ComponentStatus, incident: String?) {
+        guard UserDefaults.standard.bool(forKey: "notificationsEnabled") else {
+            logger.debug("Notification suppressed (disabled in preferences)")
+            return
+        }
+
         let content = UNMutableNotificationContent()
         content.title = "\(provider): \(to.label)"
 
         if let incident = incident {
-            content.body = incident
+            content.body = String(incident.prefix(200))
         } else if to.severity > from.severity {
             content.body = "Status degraded from \(from.label) to \(to.label)"
         } else {
@@ -54,5 +65,15 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         completionHandler([.banner, .sound])
+    }
+
+    // Open popover when user taps a notification
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        Task { @MainActor in onNotificationTapped?() }
+        completionHandler()
     }
 }

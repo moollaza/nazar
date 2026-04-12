@@ -1,23 +1,99 @@
 import Foundation
 import AppKit
 
+// MARK: - Catalog Entry (read-only reference data)
+
+struct CatalogEntry: Identifiable, Codable, Equatable {
+    let id: String          // kebab-case slug, e.g. "github"
+    let name: String        // Display name, e.g. "GitHub"
+    let baseURL: String     // Status page base URL
+    let type: ProviderType  // .statuspage or .rss
+    let category: String    // e.g. "Developer Tools"
+    let platform: String?   // "atlassian", "incident.io", etc.
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, type, category, platform
+        case baseURL = "base_url"
+    }
+}
+
+// MARK: - Catalog (static bundled data)
+
+struct Catalog {
+    let entries: [CatalogEntry]
+    let categories: [String]
+
+    static let shared: Catalog = {
+        guard let url = Bundle.main.url(forResource: "catalog", withExtension: "json"),
+              let data = try? Data(contentsOf: url) else {
+            return Catalog(entries: [], categories: [])
+        }
+        let decoder = JSONDecoder()
+        let entries = (try? decoder.decode([CatalogEntry].self, from: data)) ?? []
+        let categories = Array(Set(entries.map(\.category))).sorted()
+        return Catalog(entries: entries, categories: categories)
+    }()
+
+    func entries(in category: String) -> [CatalogEntry] {
+        entries.filter { $0.category == category }
+    }
+
+    func search(_ query: String) -> [CatalogEntry] {
+        guard !query.isEmpty else { return entries }
+        return entries.filter { $0.name.localizedCaseInsensitiveContains(query) }
+    }
+}
+
 // MARK: - Provider Configuration
 
 struct Provider: Identifiable, Codable, Equatable {
     let id: UUID
     var name: String
-    var baseURL: String          // e.g. "https://status.anthropic.com"
+    var baseURL: String
     var type: ProviderType
     var pollIntervalSeconds: Int
     var isEnabled: Bool
+    var catalogEntryId: String?  // matches CatalogEntry.id if created from catalog
+    var isMuted: Bool
 
-    init(name: String, baseURL: String, type: ProviderType = .statuspage, pollIntervalSeconds: Int = 60, isEnabled: Bool = true) {
+    enum CodingKeys: String, CodingKey {
+        case id, name, baseURL, type, pollIntervalSeconds, isEnabled, catalogEntryId, isMuted
+    }
+
+    init(name: String, baseURL: String, type: ProviderType = .statuspage, pollIntervalSeconds: Int = 60, isEnabled: Bool = true, catalogEntryId: String? = nil, isMuted: Bool = false) {
         self.id = UUID()
         self.name = name
         self.baseURL = baseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         self.type = type
-        self.pollIntervalSeconds = pollIntervalSeconds
+        self.pollIntervalSeconds = max(30, pollIntervalSeconds)
         self.isEnabled = isEnabled
+        self.catalogEntryId = catalogEntryId
+        self.isMuted = isMuted
+    }
+
+    init(from entry: CatalogEntry) {
+        self.init(name: entry.name, baseURL: entry.baseURL, type: entry.type, catalogEntryId: entry.id)
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        baseURL = try container.decode(String.self, forKey: .baseURL)
+        type = try container.decode(ProviderType.self, forKey: .type)
+        pollIntervalSeconds = try container.decode(Int.self, forKey: .pollIntervalSeconds)
+        isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
+        catalogEntryId = try container.decodeIfPresent(String.self, forKey: .catalogEntryId)
+        isMuted = try container.decodeIfPresent(Bool.self, forKey: .isMuted) ?? false
+    }
+
+    var hasValidURL: Bool {
+        guard let url = URL(string: baseURL),
+              let scheme = url.scheme?.lowercased(),
+              ["https", "http"].contains(scheme) else {
+            return false
+        }
+        return true
     }
 
     var apiURL: URL? {
@@ -29,14 +105,7 @@ struct Provider: Identifiable, Codable, Equatable {
         }
     }
 
-    static let defaults: [Provider] = [
-        Provider(name: "Anthropic", baseURL: "https://status.anthropic.com"),
-        Provider(name: "Asana", baseURL: "https://status.asana.com"),
-        Provider(name: "GitHub", baseURL: "https://www.githubstatus.com"),
-        Provider(name: "OpenAI", baseURL: "https://status.openai.com"),
-        // Slack uses a custom status page, not Atlassian Statuspage
-        Provider(name: "Vercel", baseURL: "https://www.vercel-status.com"),
-    ]
+    static let defaults: [Provider] = []
 }
 
 enum ProviderType: String, Codable, CaseIterable {
@@ -50,7 +119,13 @@ struct StatuspageSummary: Codable {
     let page: StatuspagePage
     let status: StatuspageOverall
     let components: [StatuspageComponent]
-    let incidents: [StatuspageIncident]
+    let incidents: [StatuspageIncident]?
+    let scheduledMaintenances: [StatuspageIncident]?
+
+    enum CodingKeys: String, CodingKey {
+        case page, status, components, incidents
+        case scheduledMaintenances = "scheduled_maintenances"
+    }
 }
 
 struct StatuspagePage: Codable {
@@ -72,13 +147,17 @@ struct StatuspageOverall: Codable {
 struct StatuspageComponent: Codable, Identifiable {
     let id: String
     let name: String
-    let status: String         // "operational", "degraded_performance", "partial_outage", "major_outage"
+    let status: String
     let description: String?
     let updatedAt: String?
+    let group: Bool?
+    let groupId: String?
 
     enum CodingKeys: String, CodingKey {
         case id, name, status, description
         case updatedAt = "updated_at"
+        case group
+        case groupId = "group_id"
     }
 
     init(from decoder: Decoder) throws {
@@ -88,17 +167,19 @@ struct StatuspageComponent: Codable, Identifiable {
         status = try container.decode(String.self, forKey: .status)
         description = try container.decodeIfPresent(String.self, forKey: .description)
         updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt)
+        group = try container.decodeIfPresent(Bool.self, forKey: .group)
+        groupId = try container.decodeIfPresent(String.self, forKey: .groupId)
     }
 }
 
 struct StatuspageIncident: Codable, Identifiable {
     let id: String
     let name: String
-    let status: String         // "investigating", "identified", "monitoring", "resolved"
-    let impact: String         // "none", "minor", "major", "critical"
-    let createdAt: String
+    let status: String
+    let impact: String
+    let createdAt: String?
     let updatedAt: String
-    let incidentUpdates: [StatuspageIncidentUpdate]
+    let incidentUpdates: [StatuspageIncidentUpdate]?
 
     enum CodingKeys: String, CodingKey {
         case id, name, status, impact
@@ -127,12 +208,14 @@ enum ComponentStatus: String, Codable, Comparable {
     case degradedPerformance = "degraded_performance"
     case partialOutage = "partial_outage"
     case majorOutage = "major_outage"
+    case underMaintenance = "under_maintenance"
     case unknown
 
     var severity: Int {
         switch self {
         case .operational: return 0
         case .degradedPerformance: return 1
+        case .underMaintenance: return 1
         case .partialOutage: return 2
         case .majorOutage: return 3
         case .unknown: return -1
@@ -149,6 +232,7 @@ enum ComponentStatus: String, Codable, Comparable {
         case .degradedPerformance: return "Degraded"
         case .partialOutage: return "Partial Outage"
         case .majorOutage: return "Major Outage"
+        case .underMaintenance: return "Maintenance"
         case .unknown: return "Unknown"
         }
     }
@@ -157,6 +241,7 @@ enum ComponentStatus: String, Codable, Comparable {
         switch self {
         case .operational: return .systemGreen
         case .degradedPerformance: return .systemYellow
+        case .underMaintenance: return .systemYellow
         case .partialOutage: return .systemOrange
         case .majorOutage: return .systemRed
         case .unknown: return .systemGray
@@ -167,6 +252,7 @@ enum ComponentStatus: String, Codable, Comparable {
         switch self {
         case .operational: return ("checkmark.circle.fill", .systemGreen)
         case .degradedPerformance: return ("exclamationmark.triangle.fill", .systemYellow)
+        case .underMaintenance: return ("wrench.fill", .systemYellow)
         case .partialOutage: return ("exclamationmark.triangle.fill", .systemOrange)
         case .majorOutage: return ("xmark.circle.fill", .systemRed)
         case .unknown: return ("questionmark.circle.fill", .systemGray)
@@ -183,6 +269,7 @@ enum ComponentStatus: String, Codable, Comparable {
         case "minor": self = .degradedPerformance
         case "major": self = .partialOutage
         case "critical": self = .majorOutage
+        case "maintenance": self = .underMaintenance
         default: self = .unknown
         }
     }

@@ -15,6 +15,10 @@
 		8673B2812F884C760063B14E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2712F884C760063B14E /* Models.swift */; };
 		8673B2822F884C760063B14E /* StatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2752F884C760063B14E /* StatusManager.swift */; };
 		8673B2832F884C760063B14E /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8673B2702F884C760063B14E /* Info.plist */; };
+		AA00000100000006000SIVEW /* ServiceIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000007000SIVEW /* ServiceIconView.swift */; };
+		AA00000100000008000FBVEW /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000009000FBVEW /* FeedbackView.swift */; };
+		AA0000010000000A000SDVEW /* ServiceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000B000SDVEW /* ServiceDetailView.swift */; };
+		AA00000100000001000CATJN /* catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = AA00000100000002000CATJN /* catalog.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +32,10 @@
 		8673B2782F884C760063B14E /* StatusMonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusMonitorApp.swift; sourceTree = "<group>"; };
 		8673B2792F884C760063B14E /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		8673B27A2F884C760063B14E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AA00000100000002000CATJN /* catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = catalog.json; sourceTree = "<group>"; };
+		AA00000100000007000SIVEW /* ServiceIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceIconView.swift; sourceTree = "<group>"; };
+		AA00000100000009000FBVEW /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
+		AA0000010000000B000SDVEW /* ServiceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +55,7 @@
 				8673B25D2F884BFF0063B14E /* Products */,
 				8673B2702F884C760063B14E /* Info.plist */,
 				8673B2722F884C760063B14E /* Models */,
+				AA00000100000003000RESRC /* Resources */,
 				8673B2762F884C760063B14E /* Services */,
 				8673B2772F884C760063B14E /* StatusMonitor.entitlements */,
 				8673B2782F884C760063B14E /* StatusMonitorApp.swift */,
@@ -84,9 +93,20 @@
 			isa = PBXGroup;
 			children = (
 				8673B2792F884C760063B14E /* DashboardView.swift */,
+				AA00000100000009000FBVEW /* FeedbackView.swift */,
+				AA0000010000000B000SDVEW /* ServiceDetailView.swift */,
+				AA00000100000007000SIVEW /* ServiceIconView.swift */,
 				8673B27A2F884C760063B14E /* SettingsView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		AA00000100000003000RESRC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000100000002000CATJN /* catalog.json */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -151,6 +171,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8673B2832F884C760063B14E /* Info.plist in Resources */,
+				AA00000100000001000CATJN /* catalog.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +189,9 @@
 				8673B2802F884C760063B14E /* StatusMonitorApp.swift in Sources */,
 				8673B2812F884C760063B14E /* Models.swift in Sources */,
 				8673B2822F884C760063B14E /* StatusManager.swift in Sources */,
+				AA00000100000008000FBVEW /* FeedbackView.swift in Sources */,
+				AA0000010000000A000SDVEW /* ServiceDetailView.swift in Sources */,
+				AA00000100000006000SIVEW /* ServiceIconView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,7 +352,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MoollApps.StatusMonitor;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -374,7 +398,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MoollApps.StatusMonitor;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

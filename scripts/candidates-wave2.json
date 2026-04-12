@@ -1,0 +1,92 @@
+[
+  {"name": "Cursor", "domain": "cursor.com", "slug": "cursor", "category": "AI & ML"},
+  {"name": "Groq", "domain": "groq.com", "slug": "groq", "category": "AI & ML"},
+  {"name": "ElevenLabs", "domain": "elevenlabs.io", "slug": "elevenlabs", "category": "AI & ML"},
+  {"name": "Together AI", "domain": "together.ai", "slug": "together", "category": "AI & ML"},
+
+  {"name": "JFrog", "domain": "jfrog.io", "slug": "jfrog", "category": "Developer Tools"},
+  {"name": "Depot", "domain": "depot.dev", "slug": "depot", "category": "Developer Tools"},
+  {"name": "GitLab", "url": "https://status.gitlab.com", "category": "Developer Tools"},
+
+  {"name": "Heroku", "url": "https://status.heroku.com", "category": "Cloud & Hosting"},
+  {"name": "Fastly", "url": "https://status.fastly.com", "category": "Cloud & Hosting"},
+  {"name": "WP Engine", "url": "https://wpenginestatus.com", "category": "Cloud & Hosting"},
+  {"name": "Hetzner", "url": "https://status.hetzner.com", "category": "Cloud & Hosting"},
+
+  {"name": "Neon", "url": "https://neonstatus.com", "category": "Databases"},
+  {"name": "Databricks", "url": "https://status.databricks.com", "category": "Databases"},
+  {"name": "dbt Cloud", "url": "https://status.getdbt.com", "category": "Databases"},
+  {"name": "Fivetran", "url": "https://status.fivetran.com", "category": "Databases"},
+  {"name": "Hasura", "domain": "hasura.io", "slug": "hasura", "category": "Databases"},
+  {"name": "Timescale", "domain": "timescale.com", "slug": "timescale", "category": "Databases"},
+
+  {"name": "Slack", "url": "https://status.slack.com", "category": "Communication"},
+  {"name": "Zendesk", "url": "https://status.zendesk.com", "category": "Communication"},
+  {"name": "Mailchimp", "url": "https://status.mailchimp.com", "category": "Communication"},
+  {"name": "Postmark", "url": "https://status.postmarkapp.com", "category": "Communication"},
+  {"name": "Pusher", "domain": "pusher.com", "slug": "pusher", "category": "Communication"},
+  {"name": "Stream", "url": "https://status.getstream.io", "category": "Communication"},
+  {"name": "Resend", "url": "https://status.resend.com", "category": "Communication"},
+
+  {"name": "Salesforce", "url": "https://status.salesforce.com", "category": "CRM"},
+  {"name": "Freshworks", "url": "https://status.freshworks.com", "category": "CRM"},
+  {"name": "Front", "url": "https://status.frontapp.com", "category": "CRM"},
+  {"name": "Help Scout", "url": "https://status.helpscout.com", "category": "CRM"},
+
+  {"name": "Stripe", "url": "https://status.stripe.com", "category": "Payments"},
+  {"name": "Square", "url": "https://status.squareup.com", "category": "Payments"},
+  {"name": "Brex", "url": "https://status.brex.com", "category": "Payments"},
+  {"name": "Chargebee", "url": "https://status.chargebee.com", "category": "Payments"},
+  {"name": "Recurly", "url": "https://status.recurly.com", "category": "Payments"},
+  {"name": "Paddle", "url": "https://status.paddle.com", "category": "Payments"},
+  {"name": "GoCardless", "url": "https://status.gocardless.com", "category": "Payments"},
+
+  {"name": "Squarespace", "url": "https://status.squarespace.com", "category": "E-commerce"},
+  {"name": "Wix", "url": "https://status.wix.com", "category": "E-commerce"},
+  {"name": "Gumroad", "url": "https://gumroad.statuspage.io", "category": "E-commerce"},
+
+  {"name": "Okta", "url": "https://status.okta.com", "category": "Security"},
+  {"name": "Duo Security", "url": "https://status.duo.com", "category": "Security"},
+  {"name": "Vanta", "url": "https://status.vanta.com", "category": "Security"},
+  {"name": "Tailscale", "url": "https://status.tailscale.com", "category": "Security"},
+  {"name": "JumpCloud", "url": "https://status.jumpcloud.com", "category": "Security"},
+  {"name": "Bitwarden", "url": "https://status.bitwarden.com", "category": "Security"},
+
+  {"name": "PagerDuty", "url": "https://status.pagerduty.com", "category": "Monitoring"},
+  {"name": "BetterStack", "url": "https://status.betterstack.com", "category": "Monitoring"},
+  {"name": "Checkly", "url": "https://status.checklyhq.com", "category": "Monitoring"},
+  {"name": "Cronitor", "url": "https://status.cronitor.io", "category": "Monitoring"},
+
+  {"name": "Typeform", "url": "https://status.typeform.com", "category": "Productivity"},
+  {"name": "Jotform", "url": "https://status.jotform.com", "category": "Productivity"},
+  {"name": "Coda", "url": "https://status.coda.io", "category": "Productivity"},
+  {"name": "Pitch", "url": "https://status.pitch.com", "category": "Productivity"},
+
+  {"name": "Vimeo", "url": "https://status.vimeo.com", "category": "Social & Media"},
+  {"name": "Bluesky", "url": "https://status.bsky.app", "category": "Social & Media"},
+
+  {"name": "Epic Games", "url": "https://status.epicgames.com", "category": "Gaming"},
+  {"name": "Unity", "url": "https://status.unity.com", "category": "Gaming"},
+
+  {"name": "Storyblok", "url": "https://status.storyblok.com", "category": "CMS"},
+  {"name": "Ghost", "url": "https://status.ghost.org", "category": "CMS"},
+
+  {"name": "Heap", "url": "https://status.heap.io", "category": "Analytics"},
+  {"name": "FullStory", "url": "https://status.fullstory.com", "category": "Analytics"},
+  {"name": "PostHog", "url": "https://status.posthog.com", "category": "Analytics"},
+  {"name": "Pendo", "url": "https://status.pendo.io", "category": "Analytics"},
+  {"name": "Hotjar", "url": "https://status.hotjar.com", "category": "Analytics"},
+
+  {"name": "Clever", "url": "https://status.clever.com", "category": "Education"},
+  {"name": "Coursera", "url": "https://status.coursera.org", "category": "Education"},
+
+  {"name": "BambooHR", "url": "https://status.bamboohr.com", "category": "HR"},
+  {"name": "Deel", "url": "https://status.deel.com", "category": "HR"},
+  {"name": "Lattice", "url": "https://status.lattice.com", "category": "HR"},
+
+  {"name": "Framer", "url": "https://status.framer.com", "category": "Design"},
+  {"name": "InVision", "url": "https://status.invisionapp.com", "category": "Design"},
+
+  {"name": "Spacelift", "url": "https://status.spacelift.io", "category": "Developer Tools"},
+  {"name": "Liveblocks", "url": "https://status.liveblocks.io", "category": "Developer Tools"}
+]

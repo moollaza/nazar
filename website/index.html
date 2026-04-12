@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Status Monitor — Know before your users do</title>
+    <meta name="description" content="A free, open-source macOS menu bar app that monitors 1,600+ SaaS service status pages and alerts you on outages before your users notice." />
+    <meta property="og:title" content="Status Monitor — Know before your users do" />
+    <meta property="og:description" content="Free, open-source macOS menu bar app. Monitor 1,600+ SaaS services and get instant alerts on outages." />
+    <meta property="og:type" content="website" />
+    <!-- TODO: og:image — add screenshot or social card -->
+    <!-- TODO: favicon — add favicon.ico or emoji favicon -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.2"
+      integrity="sha384-qKt1F1k7v69ebd7q6Na1d2FGVMI+43GgA5hpfz7i+zDfrz8rIjXYu7majL1fXSeS"
+      crossorigin="anonymous"
+    ></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-surface: #0a0a0f;
+        --color-surface-raised: #12121a;
+        --color-surface-overlay: #1a1a26;
+        --color-border-subtle: #1e1e2e;
+        --color-accent: #6366f1;
+        --color-accent-hover: #818cf8;
+        --color-text-primary: #f0f0f5;
+        --color-text-secondary: #9090a8;
+        --color-text-tertiary: #606078;
+        --color-green: #22c55e;
+        --color-yellow: #eab308;
+        --color-orange: #f97316;
+        --color-red: #ef4444;
+      }
+    </style>
+  </head>
+  <body class="bg-surface text-text-primary antialiased">
+
+    <!-- Nav -->
+    <header class="fixed top-0 z-50 w-full border-b border-border-subtle bg-surface/80 backdrop-blur-lg">
+      <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href="#" class="flex items-center gap-2 text-lg font-semibold tracking-tight">
+          <span class="inline-flex h-7 w-7 items-center justify-center rounded-md bg-accent text-sm text-white">S</span>
+          Status Monitor
+        </a>
+        <div class="hidden items-center gap-8 text-sm text-text-secondary sm:flex">
+          <a href="#features" class="transition hover:text-text-primary">Features</a>
+          <a href="#how-it-works" class="transition hover:text-text-primary">How It Works</a>
+          <a href="#services" class="transition hover:text-text-primary">Services</a>
+          <a href="#faq" class="transition hover:text-text-primary">FAQ</a>
+          <a href="https://github.com/moollaza/status-monitor" class="transition hover:text-text-primary" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <a href="https://github.com/moollaza/status-monitor/releases" class="hidden rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-hover sm:inline-block" target="_blank" rel="noopener">
+          Download
+        </a>
+      </nav>
+    </header>
+
+    <main>
+
+      <!-- Hero -->
+      <section class="relative flex min-h-screen items-center overflow-hidden pt-20">
+        <!-- Background gradient -->
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.12)_0%,_transparent_60%)]"></div>
+        <div class="relative mx-auto grid max-w-6xl gap-12 px-6 py-24 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <div class="max-w-xl">
+            <p class="mb-4 inline-block rounded-full border border-border-subtle bg-surface-raised px-4 py-1.5 text-xs font-medium tracking-wide text-text-secondary">
+              Free &amp; Open Source for macOS
+            </p>
+            <h1 class="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+              Know before<br />your users do.
+            </h1>
+            <p class="mt-6 text-lg leading-relaxed text-text-secondary sm:text-xl">
+              A macOS menu bar app that monitors 1,600+ SaaS service status pages and alerts you the moment something goes down.
+            </p>
+            <div class="mt-10 flex flex-wrap items-center gap-4">
+              <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-hover" target="_blank" rel="noopener">
+                <span>&#8595;</span> Download for macOS
+              </a>
+              <a href="https://github.com/moollaza/status-monitor" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener">
+                View on GitHub
+              </a>
+            </div>
+            <p class="mt-4 text-xs text-text-tertiary">Requires macOS 13 (Ventura) or later. Free &amp; source-available (FSL 1.1).</p>
+          </div>
+          <!-- App Screenshot Placeholder -->
+          <div class="flex items-center justify-center">
+            <div class="relative w-full max-w-md overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-2xl">
+              <div class="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
+                <span class="h-3 w-3 rounded-full bg-red"></span>
+                <span class="h-3 w-3 rounded-full bg-yellow"></span>
+                <span class="h-3 w-3 rounded-full bg-green"></span>
+                <span class="ml-auto text-xs text-text-tertiary">Status Monitor</span>
+              </div>
+              <div class="space-y-3 p-5">
+                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
+                  <span class="text-sm">GitHub</span>
+                  <span class="flex items-center gap-1.5 text-xs text-green">&#9679; Operational</span>
+                </div>
+                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
+                  <span class="text-sm">Vercel</span>
+                  <span class="flex items-center gap-1.5 text-xs text-green">&#9679; Operational</span>
+                </div>
+                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
+                  <span class="text-sm">OpenAI</span>
+                  <span class="flex items-center gap-1.5 text-xs text-yellow">&#9679; Degraded</span>
+                </div>
+                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
+                  <span class="text-sm">Cloudflare</span>
+                  <span class="flex items-center gap-1.5 text-xs text-green">&#9679; Operational</span>
+                </div>
+                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
+                  <span class="text-sm">Datadog</span>
+                  <span class="flex items-center gap-1.5 text-xs text-orange">&#9679; Partial Outage</span>
+                </div>
+              </div>
+              <div class="border-t border-border-subtle px-5 py-3 text-center text-xs text-text-tertiary">
+                App Screenshot — will be replaced with actual image
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section id="features" class="scroll-mt-20 border-t border-border-subtle py-24">
+        <div class="mx-auto max-w-6xl px-6">
+          <div class="mx-auto max-w-2xl text-center">
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Built for developers who ship</h2>
+            <p class="mt-4 text-lg text-text-secondary">Everything you need to stay ahead of outages. Nothing you don't.</p>
+          </div>
+          <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128218;</div>
+              <h3 class="text-lg font-semibold">1,600+ Services</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+                Built-in catalog of popular SaaS providers. Pick the services you depend on and start monitoring in seconds.
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128276;</div>
+              <h3 class="text-lg font-semibold">Real-Time Alerts</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+                Native macOS notifications the moment a service changes status. No browser tab required.
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#9776;</div>
+              <h3 class="text-lg font-semibold">Menu Bar Native</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+                Lives in your menu bar with a color-coded icon. Green means all clear. Yellow, orange, or red means something needs attention.
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128274;</div>
+              <h3 class="text-lg font-semibold">Privacy First</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+                No accounts, no tracking, no analytics. Polls public status pages directly. Your data never leaves your Mac.
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128736;</div>
+              <h3 class="text-lg font-semibold">Open Source</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+                Free forever, source-available. Inspect the code, contribute features, or fork it for your team.
+              </p>
+            </div>
+
+            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128269;</div>
+              <h3 class="text-lg font-semibold">Drill-Down Detail</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+                Component-level status for each service. Search, filter, and see exactly what's affected.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works -->
+      <section id="how-it-works" class="scroll-mt-20 border-t border-border-subtle py-24">
+        <div class="mx-auto max-w-6xl px-6">
+          <div class="mx-auto max-w-2xl text-center">
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Up and running in 60 seconds</h2>
+            <p class="mt-4 text-lg text-text-secondary">Three steps. No configuration files, no API keys, no sign-up.</p>
+          </div>
+          <div class="mt-16 grid gap-8 sm:grid-cols-3">
+
+            <div class="text-center">
+              <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">1</div>
+              <h3 class="text-lg font-semibold">Install</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+                Download the app from GitHub Releases and drag it to Applications. That's it.
+              </p>
+            </div>
+
+            <div class="text-center">
+              <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">2</div>
+              <h3 class="text-lg font-semibold">Pick Services</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+                Browse the built-in catalog and toggle on the services your team depends on.
+              </p>
+            </div>
+
+            <div class="text-center">
+              <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">3</div>
+              <h3 class="text-lg font-semibold">Monitor</h3>
+              <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+                Status Monitor polls each service and notifies you when something changes. Sit back and ship.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Service Catalog Preview -->
+      <section id="services" class="scroll-mt-20 border-t border-border-subtle py-24">
+        <div class="mx-auto max-w-6xl px-6">
+          <div class="mx-auto max-w-2xl text-center">
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">1,600+ services and growing</h2>
+            <p class="mt-4 text-lg text-text-secondary">From infrastructure to productivity tools, we've got your stack covered.</p>
+          </div>
+          <div class="mt-12 flex flex-wrap justify-center gap-3">
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">GitHub</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Cloudflare</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">OpenAI</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Anthropic / Claude</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Vercel</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Netlify</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Supabase</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Datadog</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Figma</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Notion</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Asana</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">1Password</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Twilio</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Sentry</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Linear</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Docker</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">MongoDB</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Jira</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Grafana</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Fly.io</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Zapier</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Zoom</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">HubSpot</span>
+            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Clerk</span>
+          </div>
+          <p class="mt-8 text-center text-sm text-text-tertiary">
+            Plus Snowflake, Elastic, Plaid, New Relic, Amplitude, Mixpanel, Render, DigitalOcean, and many more.
+          </p>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="scroll-mt-20 border-t border-border-subtle py-24">
+        <div class="mx-auto max-w-3xl px-6">
+          <h2 class="text-center text-3xl font-bold tracking-tight sm:text-4xl">Frequently asked questions</h2>
+          <div class="mt-12 space-y-8">
+
+            <details class="group rounded-xl border border-border-subtle bg-surface-raised" open>
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+                What services are supported?
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+              </summary>
+              <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
+                Status Monitor ships with a catalog of 1,600+ services covering developer tools, cloud hosting, databases, productivity apps, monitoring, payments, and more. It supports any service that uses an Atlassian Statuspage or publishes an RSS/Atom status feed.
+              </div>
+            </details>
+
+            <details class="group rounded-xl border border-border-subtle bg-surface-raised">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+                Is it really free?
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+              </summary>
+              <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
+                Yes. Status Monitor is free and source-available under the Functional Source License (FSL 1.1). No subscriptions, no premium tiers, no data harvesting. The source code is on GitHub. The license converts to Apache 2.0 after two years.
+              </div>
+            </details>
+
+            <details class="group rounded-xl border border-border-subtle bg-surface-raised">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+                Does it work offline?
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+              </summary>
+              <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
+                Status Monitor needs an internet connection to poll status pages. If your connection drops, it retains the last known status for each service and resumes polling when you're back online.
+              </div>
+            </details>
+
+            <details class="group rounded-xl border border-border-subtle bg-surface-raised">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+                How often does it check?
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+              </summary>
+              <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
+                The default poll interval is 60 seconds per service. You can configure the interval per-service in the app settings, with a minimum of 30 seconds.
+              </div>
+            </details>
+
+            <details class="group rounded-xl border border-border-subtle bg-surface-raised">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+                Can I add custom services?
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+              </summary>
+              <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
+                Yes. Beyond the built-in catalog, you can add any service by providing its Atlassian Statuspage URL or RSS/Atom feed URL. If a service uses a proprietary status page format, it's not supported yet.
+              </div>
+            </details>
+
+            <details class="group rounded-xl border border-border-subtle bg-surface-raised">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+                Is my data private?
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+              </summary>
+              <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
+                Completely. Status Monitor runs in the macOS App Sandbox with only outbound network access. It polls public status pages directly — no intermediary servers, no telemetry, no analytics. Your configuration is stored locally in UserDefaults.
+              </div>
+            </details>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom CTA -->
+      <section class="border-t border-border-subtle py-24">
+        <div class="mx-auto max-w-3xl px-6 text-center">
+          <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Stop checking status pages manually</h2>
+          <p class="mt-4 text-lg text-text-secondary">Download Status Monitor and know the moment something goes down.</p>
+          <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-hover" target="_blank" rel="noopener">
+              <span>&#8595;</span> Download for macOS
+            </a>
+            <a href="https://github.com/moollaza/status-monitor" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener">
+              View on GitHub
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-border-subtle py-10">
+      <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-sm text-text-tertiary sm:flex-row sm:justify-between">
+        <p>Made by <a href="https://github.com/moollaza" class="text-text-secondary transition hover:text-text-primary" target="_blank" rel="noopener">MoollApps</a></p>
+        <p>
+          <a href="https://github.com/moollaza/status-monitor/blob/main/LICENSE" class="transition hover:text-text-secondary" target="_blank" rel="noopener">FSL 1.1 License</a>
+          <span class="mx-2">&#183;</span>
+          <a href="https://github.com/moollaza/status-monitor" class="transition hover:text-text-secondary" target="_blank" rel="noopener">GitHub</a>
+        </p>
+      </div>
+    </footer>
+
+  </body>
+</html>

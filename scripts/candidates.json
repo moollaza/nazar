@@ -1,0 +1,136 @@
+[
+  {"name": "Stripe", "domain": "stripe.com", "slug": "stripe", "category": "Payments"},
+  {"name": "Square", "domain": "square.com", "slug": "square", "category": "Payments"},
+  {"name": "PayPal", "domain": "paypal.com", "slug": "paypal", "category": "Payments"},
+  {"name": "Braintree", "domain": "braintree.com", "slug": "braintree", "category": "Payments"},
+  {"name": "Adyen", "domain": "adyen.com", "slug": "adyen", "category": "Payments"},
+
+  {"name": "Shopify", "domain": "shopify.com", "slug": "shopify", "category": "E-commerce"},
+  {"name": "BigCommerce", "domain": "bigcommerce.com", "slug": "bigcommerce", "category": "E-commerce"},
+  {"name": "WooCommerce", "domain": "woocommerce.com", "slug": "woocommerce", "category": "E-commerce"},
+
+  {"name": "Slack", "domain": "slack.com", "slug": "slack", "category": "Communication"},
+  {"name": "Discord", "domain": "discord.com", "slug": "discord", "category": "Communication"},
+  {"name": "Intercom", "domain": "intercom.com", "slug": "intercom", "category": "Communication"},
+  {"name": "Zendesk", "domain": "zendesk.com", "slug": "zendesk", "category": "Communication"},
+  {"name": "Mailchimp", "domain": "mailchimp.com", "slug": "mailchimp", "category": "Communication"},
+  {"name": "Postmark", "domain": "postmarkapp.com", "slug": "postmark", "category": "Communication"},
+  {"name": "Mailgun", "domain": "mailgun.com", "slug": "mailgun", "category": "Communication"},
+
+  {"name": "Salesforce", "domain": "salesforce.com", "slug": "salesforce", "category": "CRM"},
+
+  {"name": "AWS", "url": "https://health.aws.amazon.com", "category": "Cloud & Hosting"},
+  {"name": "Google Cloud", "url": "https://status.cloud.google.com", "category": "Cloud & Hosting"},
+  {"name": "Microsoft Azure", "url": "https://status.azure.com", "category": "Cloud & Hosting"},
+  {"name": "Heroku", "domain": "heroku.com", "slug": "heroku", "category": "Cloud & Hosting"},
+  {"name": "Railway", "domain": "railway.app", "slug": "railway", "category": "Cloud & Hosting"},
+  {"name": "Fastly", "domain": "fastly.com", "slug": "fastly", "category": "Cloud & Hosting"},
+
+  {"name": "PlanetScale", "domain": "planetscale.com", "slug": "planetscale", "category": "Databases"},
+  {"name": "Redis Cloud", "url": "https://status.redis.io", "category": "Databases"},
+  {"name": "CockroachDB", "domain": "cockroachlabs.com", "slug": "cockroachlabs", "category": "Databases"},
+  {"name": "Neon", "domain": "neon.tech", "slug": "neon", "category": "Databases"},
+  {"name": "Fauna", "domain": "fauna.com", "slug": "fauna", "category": "Databases"},
+  {"name": "Turso", "domain": "turso.tech", "slug": "turso", "category": "Databases"},
+
+  {"name": "GitLab", "domain": "gitlab.com", "slug": "gitlab", "category": "Developer Tools"},
+  {"name": "Vercel", "domain": "vercel.com", "slug": "vercel", "category": "Developer Tools"},
+  {"name": "Docker", "domain": "docker.com", "slug": "docker", "category": "Developer Tools"},
+  {"name": "JetBrains", "domain": "jetbrains.com", "slug": "jetbrains", "category": "Developer Tools"},
+  {"name": "Postman", "domain": "postman.com", "slug": "postman", "category": "Developer Tools"},
+  {"name": "Snyk", "domain": "snyk.io", "slug": "snyk", "category": "Developer Tools"},
+  {"name": "Terraform Cloud", "url": "https://status.hashicorp.com", "category": "Developer Tools"},
+  {"name": "Expo", "domain": "expo.dev", "slug": "expo", "category": "Developer Tools"},
+  {"name": "Pulumi", "domain": "pulumi.com", "slug": "pulumi", "category": "Developer Tools"},
+  {"name": "Buildkite", "domain": "buildkite.com", "slug": "buildkite", "category": "Developer Tools"},
+  {"name": "Travis CI", "domain": "travis-ci.com", "slug": "travis-ci", "category": "Developer Tools"},
+  {"name": "Cypress", "domain": "cypress.io", "slug": "cypress", "category": "Developer Tools"},
+
+  {"name": "Auth0", "domain": "auth0.com", "slug": "auth0", "category": "Security"},
+  {"name": "Okta", "domain": "okta.com", "slug": "okta", "category": "Security"},
+  {"name": "CrowdStrike", "domain": "crowdstrike.com", "slug": "crowdstrike", "category": "Security"},
+  {"name": "Cloudflare Zero Trust", "url": "https://www.cloudflarestatus.com", "category": "Security"},
+  {"name": "LastPass", "domain": "lastpass.com", "slug": "lastpass", "category": "Security"},
+  {"name": "Bitwarden", "domain": "bitwarden.com", "slug": "bitwarden", "category": "Security"},
+
+  {"name": "PagerDuty", "domain": "pagerduty.com", "slug": "pagerduty", "category": "Monitoring"},
+  {"name": "OpsGenie", "domain": "opsgenie.com", "slug": "opsgenie", "category": "Monitoring"},
+  {"name": "Honeycomb", "domain": "honeycomb.io", "slug": "honeycomb", "category": "Monitoring"},
+  {"name": "LogRocket", "domain": "logrocket.com", "slug": "logrocket", "category": "Monitoring"},
+  {"name": "Splunk", "domain": "splunk.com", "slug": "splunk", "category": "Monitoring"},
+  {"name": "Lightstep", "domain": "lightstep.com", "slug": "lightstep", "category": "Monitoring"},
+
+  {"name": "Spotify", "domain": "spotify.com", "slug": "spotify", "category": "Social & Media"},
+  {"name": "Twitter/X", "url": "https://api.twitterstat.us", "category": "Social & Media"},
+  {"name": "Twitch", "url": "https://status.twitch.tv", "category": "Social & Media"},
+  {"name": "YouTube", "domain": "youtube.com", "slug": "youtube", "category": "Social & Media"},
+  {"name": "Pinterest", "domain": "pinterest.com", "slug": "pinterest", "category": "Social & Media"},
+  {"name": "TikTok", "domain": "tiktok.com", "slug": "tiktok", "category": "Social & Media"},
+  {"name": "LinkedIn", "domain": "linkedin.com", "slug": "linkedin", "category": "Social & Media"},
+  {"name": "Medium", "domain": "medium.com", "slug": "medium", "category": "Social & Media"},
+  {"name": "Tumblr", "domain": "tumblr.com", "slug": "tumblr", "category": "Social & Media"},
+
+  {"name": "Google Workspace", "url": "https://www.google.com/appsstatus", "category": "Productivity"},
+  {"name": "Microsoft 365", "url": "https://status.office365.com", "category": "Productivity"},
+  {"name": "Calendly", "domain": "calendly.com", "slug": "calendly", "category": "Productivity"},
+  {"name": "Loom", "domain": "loom.com", "slug": "loom", "category": "Productivity"},
+  {"name": "ClickUp", "domain": "clickup.com", "slug": "clickup", "category": "Productivity"},
+  {"name": "Todoist", "domain": "todoist.com", "slug": "todoist", "category": "Productivity"},
+  {"name": "DocuSign", "domain": "docusign.com", "slug": "docusign", "category": "Productivity"},
+  {"name": "Smartsheet", "domain": "smartsheet.com", "slug": "smartsheet", "category": "Productivity"},
+  {"name": "Canva", "domain": "canva.com", "slug": "canva", "category": "Productivity"},
+
+  {"name": "Cohere", "domain": "cohere.com", "slug": "cohere", "category": "AI & ML"},
+  {"name": "Hugging Face", "domain": "huggingface.co", "slug": "huggingface", "category": "AI & ML"},
+  {"name": "Stability AI", "domain": "stability.ai", "slug": "stability", "category": "AI & ML"},
+  {"name": "Mistral", "domain": "mistral.ai", "slug": "mistral", "category": "AI & ML"},
+  {"name": "Weights & Biases", "domain": "wandb.ai", "slug": "wandb", "category": "AI & ML"},
+  {"name": "Scale AI", "domain": "scale.com", "slug": "scale", "category": "AI & ML"},
+  {"name": "Google AI Studio", "url": "https://status.ai.google.dev", "category": "AI & ML"},
+
+  {"name": "Algolia", "domain": "algolia.com", "slug": "algolia", "category": "Developer Tools"},
+  {"name": "Twilio Segment", "url": "https://status.segment.com", "category": "Analytics"},
+  {"name": "LaunchDarkly", "url": "https://status.launchdarkly.com", "category": "Developer Tools"},
+
+  {"name": "Cloudinary", "domain": "cloudinary.com", "slug": "cloudinary", "category": "Media"},
+  {"name": "Imgix", "domain": "imgix.com", "slug": "imgix", "category": "Media"},
+  {"name": "Mux", "domain": "mux.com", "slug": "mux", "category": "Media"},
+
+  {"name": "Sportradar", "domain": "sportradar.com", "slug": "sportradar", "category": "Sports & Data"},
+
+  {"name": "Twilio SendGrid", "url": "https://status.sendgrid.com", "category": "Communication"},
+  {"name": "Vonage", "domain": "vonage.com", "slug": "vonage", "category": "Communication"},
+  {"name": "MessageBird", "domain": "messagebird.com", "slug": "messagebird", "category": "Communication"},
+
+  {"name": "Sanity", "domain": "sanity.io", "slug": "sanity", "category": "CMS"},
+  {"name": "Contentful", "domain": "contentful.com", "slug": "contentful", "category": "CMS"},
+  {"name": "Strapi", "domain": "strapi.io", "slug": "strapi", "category": "CMS"},
+  {"name": "Prismic", "domain": "prismic.io", "slug": "prismic", "category": "CMS"},
+  {"name": "Hygraph", "domain": "hygraph.com", "slug": "hygraph", "category": "CMS"},
+
+  {"name": "Mapbox", "domain": "mapbox.com", "slug": "mapbox", "category": "Developer Tools"},
+  {"name": "Samsara", "domain": "samsara.com", "slug": "samsara", "category": "IoT"},
+
+  {"name": "Retool", "domain": "retool.com", "slug": "retool", "category": "Developer Tools"},
+  {"name": "Appsmith", "domain": "appsmith.com", "slug": "appsmith", "category": "Developer Tools"},
+
+  {"name": "Resend", "domain": "resend.com", "slug": "resend", "category": "Communication"},
+  {"name": "Customer.io", "domain": "customer.io", "slug": "customer", "category": "Communication"},
+  {"name": "Brevo", "domain": "brevo.com", "slug": "brevo", "category": "Communication"},
+
+  {"name": "Temporal", "domain": "temporal.io", "slug": "temporal", "category": "Developer Tools"},
+  {"name": "Inngest", "domain": "inngest.com", "slug": "inngest", "category": "Developer Tools"},
+
+  {"name": "Sumo Logic", "domain": "sumologic.com", "slug": "sumologic", "category": "Monitoring"},
+
+  {"name": "Telnyx", "domain": "telnyx.com", "slug": "telnyx", "category": "Communication"},
+  {"name": "Bandwidth", "domain": "bandwidth.com", "slug": "bandwidth", "category": "Communication"},
+
+  {"name": "Xero", "domain": "xero.com", "slug": "xero", "category": "Finance"},
+  {"name": "QuickBooks", "domain": "quickbooks.intuit.com", "slug": "quickbooks", "category": "Finance"},
+  {"name": "Gusto", "domain": "gusto.com", "slug": "gusto", "category": "Finance"},
+  {"name": "Rippling", "domain": "rippling.com", "slug": "rippling", "category": "Finance"},
+
+  {"name": "Veriff", "domain": "veriff.com", "slug": "veriff", "category": "Security"},
+  {"name": "Persona", "domain": "withpersona.com", "slug": "persona", "category": "Security"}
+]

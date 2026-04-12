@@ -249,12 +249,13 @@ class StatusManager {
             Self.rssStatusHeuristic(title: item.title, description: item.description)
         } ?? .unknown
 
-        let incidents = items.prefix(5).map { item in
-            IncidentSnapshot(
+        let incidents = items.prefix(5).map { item -> IncidentSnapshot in
+            let itemStatus = Self.rssStatusHeuristic(title: item.title, description: item.description)
+            return IncidentSnapshot(
                 id: item.guid ?? item.title,
                 name: item.title,
-                impact: overall,
-                status: "rss",
+                impact: itemStatus,
+                status: itemStatus.label,
                 latestUpdate: item.description,
                 updatedAt: item.pubDate
             )

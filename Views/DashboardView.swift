@@ -226,8 +226,7 @@ struct DashboardView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             Button("Get Started") {
-                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                NSApp.activate(ignoringOtherApps: true)
+                onOpenSettings?()
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.regular)

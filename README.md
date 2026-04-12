@@ -7,7 +7,7 @@ macOS menu bar app that monitors SaaS service status pages and alerts on outages
 
 ## Features
 
-- Monitor 100+ SaaS services from your menu bar
+- Monitor 1,600+ SaaS services from your menu bar
 - Instant notifications on status changes
 - Built-in catalog with one-click setup (5 services in under 60 seconds)
 - Color-coded menu bar icon (green/yellow/orange/red)

@@ -9,9 +9,10 @@ struct CatalogEntry: Identifiable, Codable, Equatable {
     let baseURL: String     // Status page base URL
     let type: ProviderType  // .statuspage or .rss
     let category: String    // e.g. "Developer Tools"
+    let platform: String?   // "atlassian", "incident.io", etc.
 
     enum CodingKeys: String, CodingKey {
-        case id, name, type, category
+        case id, name, type, category, platform
         case baseURL = "base_url"
     }
 }

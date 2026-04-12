@@ -12,7 +12,6 @@ struct DashboardView: View {
     @State private var selectedProviderId: UUID?
     @State private var searchText = ""
     @AppStorage("dashboardSort") private var sortOrder: DashboardSort = .severity
-    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var isRefreshing = false
 
     private var filteredSnapshots: [ProviderSnapshot] {

@@ -1,6 +1,9 @@
 import Foundation
 import UserNotifications
 import AppKit
+import OSLog
+
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "StatusMonitor", category: "notifications")
 
 class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
@@ -16,7 +19,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     func requestPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error {
-                print("Notification permission error: \(error)")
+                logger.error("Notification permission error: \(error.localizedDescription)")
             }
         }
     }

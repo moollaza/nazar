@@ -15,7 +15,6 @@
 		8673B2812F884C760063B14E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2712F884C760063B14E /* Models.swift */; };
 		8673B2822F884C760063B14E /* StatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2752F884C760063B14E /* StatusManager.swift */; };
 		8673B2832F884C760063B14E /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8673B2702F884C760063B14E /* Info.plist */; };
-		AA00000100000004000CPVEW /* CatalogPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000005000CPVEW /* CatalogPickerView.swift */; };
 		AA00000100000006000SIVEW /* ServiceIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000007000SIVEW /* ServiceIconView.swift */; };
 		AA00000100000008000FBVEW /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000009000FBVEW /* FeedbackView.swift */; };
 		AA0000010000000A000SDVEW /* ServiceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000B000SDVEW /* ServiceDetailView.swift */; };
@@ -34,7 +33,6 @@
 		8673B2792F884C760063B14E /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		8673B27A2F884C760063B14E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AA00000100000002000CATJN /* catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = catalog.json; sourceTree = "<group>"; };
-		AA00000100000005000CPVEW /* CatalogPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogPickerView.swift; sourceTree = "<group>"; };
 		AA00000100000007000SIVEW /* ServiceIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceIconView.swift; sourceTree = "<group>"; };
 		AA00000100000009000FBVEW /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
 		AA0000010000000B000SDVEW /* ServiceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceDetailView.swift; sourceTree = "<group>"; };
@@ -94,7 +92,6 @@
 		8673B27B2F884C760063B14E /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				AA00000100000005000CPVEW /* CatalogPickerView.swift */,
 				8673B2792F884C760063B14E /* DashboardView.swift */,
 				AA00000100000009000FBVEW /* FeedbackView.swift */,
 				AA0000010000000B000SDVEW /* ServiceDetailView.swift */,
@@ -192,7 +189,6 @@
 				8673B2802F884C760063B14E /* StatusMonitorApp.swift in Sources */,
 				8673B2812F884C760063B14E /* Models.swift in Sources */,
 				8673B2822F884C760063B14E /* StatusManager.swift in Sources */,
-				AA00000100000004000CPVEW /* CatalogPickerView.swift in Sources */,
 				AA00000100000008000FBVEW /* FeedbackView.swift in Sources */,
 				AA0000010000000A000SDVEW /* ServiceDetailView.swift in Sources */,
 				AA00000100000006000SIVEW /* ServiceIconView.swift in Sources */,

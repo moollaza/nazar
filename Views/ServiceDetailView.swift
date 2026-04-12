@@ -105,11 +105,9 @@ struct ServiceDetailView: View {
                     }
                 }
 
-                if let lastUpdate = [snapshot.lastUpdated].first {
-                    Text("Updated \(lastUpdate, style: .relative) ago")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
+                Text("Updated \(snapshot.lastUpdated, style: .relative) ago")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)

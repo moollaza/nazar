@@ -70,6 +70,11 @@ class StatusManager {
         saveProviders()
         schedulePolling(for: provider)
         Task { await poll(provider: provider) }
+        // Mark onboarding complete when first provider is added
+        if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        }
+        logger.info("Added provider: \(provider.name)")
     }
 
     func updatePollInterval(for provider: Provider, seconds: Int) {

@@ -1,4 +1,7 @@
 import SwiftUI
+import OSLog
+
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "StatusMonitor", category: "ui")
 
 enum FeedbackType: String, CaseIterable {
     case bug = "Bug Report"
@@ -26,6 +29,7 @@ struct FeedbackView: View {
     @State private var feedbackType: FeedbackType = .bug
     @State private var title: String = ""
     @State private var description: String = ""
+    @State private var submitted = false
 
     private var appVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
@@ -37,73 +41,87 @@ struct FeedbackView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Header
             Text("Send Feedback")
                 .font(.headline)
 
-            // Feedback type picker
-            Picker("Type", selection: $feedbackType) {
-                ForEach(FeedbackType.allCases, id: \.self) { type in
-                    Text(type.rawValue).tag(type)
-                }
-            }
-            .pickerStyle(.segmented)
-
-            // Title field
-            TextField("Title", text: $title)
-                .textFieldStyle(.roundedBorder)
-
-            // Description editor
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Description")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                TextEditor(text: $description)
-                    .font(.body)
-                    .frame(minHeight: 100, maxHeight: 140)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                    )
-                    .overlay(alignment: .topLeading) {
-                        if description.isEmpty {
-                            Text(feedbackType.descriptionHint)
-                                .font(.body)
-                                .foregroundStyle(.tertiary)
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 8)
-                                .allowsHitTesting(false)
-                        }
+            if submitted {
+                // Success state
+                VStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(.green)
+                    Text("Thanks for your feedback!")
+                        .font(.headline)
+                    Text("A GitHub issue has been opened in your browser.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Button("Send Another") {
+                        submitted = false
+                        title = ""
+                        description = ""
                     }
-            }
-
-            // System info
-            HStack(spacing: 16) {
-                Label("App \(appVersion)", systemImage: "app")
-                Label("macOS \(macOSVersion)", systemImage: "desktopcomputer")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-            Divider()
-
-            // Buttons
-            HStack {
-                Button("Cancel") {
-                    NSApp.keyWindow?.close()
+                    .controlSize(.small)
                 }
-                .keyboardShortcut(.cancelAction)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                // Feedback type picker
+                Picker("Type", selection: $feedbackType) {
+                    ForEach(FeedbackType.allCases, id: \.self) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                // Title field
+                TextField("Title", text: $title)
+                    .textFieldStyle(.roundedBorder)
+
+                // Description editor
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Description")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    TextEditor(text: $description)
+                        .font(.body)
+                        .frame(minHeight: 100, maxHeight: 160)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                        )
+                        .overlay(alignment: .topLeading) {
+                            if description.isEmpty {
+                                Text(feedbackType.descriptionHint)
+                                    .font(.body)
+                                    .foregroundStyle(.tertiary)
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 8)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                }
+
+                // System info
+                HStack(spacing: 16) {
+                    Label("App \(appVersion)", systemImage: "app")
+                    Label("macOS \(macOSVersion)", systemImage: "desktopcomputer")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
                 Spacer()
-                Button("Submit") {
-                    submitFeedback()
+
+                // Submit button
+                HStack {
+                    Spacer()
+                    Button("Submit") {
+                        submitFeedback()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
-                .keyboardShortcut(.defaultAction)
-                .buttonStyle(.borderedProminent)
-                .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
             }
         }
-        .padding(20)
-        .frame(width: 420)
+        .padding(24)
     }
 
     private func submitFeedback() {
@@ -127,6 +145,7 @@ struct FeedbackView: View {
             NSWorkspace.shared.open(url)
         }
 
-        NSApp.keyWindow?.close()
+        logger.info("Feedback submitted: \(feedbackType.rawValue) - \(title)")
+        submitted = true
     }
 }

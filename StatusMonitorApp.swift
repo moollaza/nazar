@@ -124,10 +124,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Start polling
         statusManager.startPolling()
 
-        // Notification tap → open panel
-        NotificationService.shared.onNotificationTapped = { [weak self] in
+        // Notification tap → open panel and deep-link to service
+        NotificationService.shared.onNotificationTapped = { [weak self] providerId in
             if self?.isPanelShown != true {
                 self?.togglePanel()
+            }
+            if let providerId {
+                NotificationCenter.default.post(
+                    name: .init("DeepLinkToProvider"),
+                    object: nil,
+                    userInfo: ["providerId": providerId]
+                )
             }
         }
 

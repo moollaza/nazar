@@ -75,6 +75,13 @@ struct DashboardView: View {
         }
         .frame(width: 420, height: 520)
         .background(Color(nsColor: .windowBackgroundColor))
+        .onReceive(NotificationCenter.default.publisher(for: .init("DeepLinkToProvider"))) { notification in
+            if let id = notification.userInfo?["providerId"] as? UUID {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    selectedProviderId = id
+                }
+            }
+        }
     }
 
     // MARK: - Dashboard Content

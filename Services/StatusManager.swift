@@ -223,13 +223,22 @@ class StatusManager {
                 return ComponentSnapshot(id: comp.id, name: displayName, status: ComponentStatus(fromStatuspage: comp.status))
             }
         let incidents = (summary.incidents ?? []).prefix(5).map { incident in
-            IncidentSnapshot(
+            let updates = (incident.incidentUpdates ?? []).map { update in
+                IncidentUpdateSnapshot(
+                    id: update.id,
+                    status: update.status,
+                    body: update.body,
+                    createdAt: Self.parseDate(update.createdAt)
+                )
+            }
+            return IncidentSnapshot(
                 id: incident.id,
                 name: incident.name,
                 impact: ComponentStatus(fromIndicator: incident.impact),
                 status: incident.status,
                 latestUpdate: incident.incidentUpdates?.first?.body,
-                updatedAt: Self.parseDate(incident.updatedAt)
+                updatedAt: Self.parseDate(incident.updatedAt),
+                updates: updates
             )
         }
 
@@ -305,6 +314,7 @@ class StatusManager {
         // Notify on status change (not on first poll, skip if muted)
         if !provider.isMuted, let prev = previousStatus, prev != snapshot.overallStatus {
             NotificationService.shared.notify(
+                providerId: provider.id,
                 provider: provider.name,
                 from: prev,
                 to: snapshot.overallStatus,

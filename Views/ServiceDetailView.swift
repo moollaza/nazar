@@ -123,7 +123,7 @@ struct ServiceDetailView: View {
                         .textCase(.uppercase)
 
                     ForEach(snapshot.activeIncidents) { incident in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 6) {
                             HStack(spacing: 4) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .font(.caption2)
@@ -136,7 +136,33 @@ struct ServiceDetailView: View {
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
-                            if let update = incident.latestUpdate {
+
+                            // Incident timeline
+                            if !incident.updates.isEmpty {
+                                ForEach(incident.updates) { update in
+                                    HStack(alignment: .top, spacing: 6) {
+                                        Circle()
+                                            .fill(Color.secondary.opacity(0.4))
+                                            .frame(width: 4, height: 4)
+                                            .padding(.top, 5)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            HStack(spacing: 4) {
+                                                Text(update.status.capitalized)
+                                                    .font(.caption2)
+                                                    .fontWeight(.medium)
+                                                if let date = update.createdAt {
+                                                    Text(date, style: .relative)
+                                                        .font(.caption2)
+                                                        .foregroundStyle(.tertiary)
+                                                }
+                                            }
+                                            Text(update.body)
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
+                            } else if let update = incident.latestUpdate {
                                 Text(update)
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)

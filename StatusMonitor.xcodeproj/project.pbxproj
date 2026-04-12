@@ -19,7 +19,23 @@
 		AA00000100000008000FBVEW /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000009000FBVEW /* FeedbackView.swift */; };
 		AA0000010000000A000SDVEW /* ServiceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000B000SDVEW /* ServiceDetailView.swift */; };
 		AA00000100000001000CATJN /* catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = AA00000100000002000CATJN /* catalog.json */; };
+		BB00000100000001000CATTF /* CatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000002000CATTF /* CatalogTests.swift */; };
+		BB00000100000003000CODTF /* CodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000004000CODTF /* CodableTests.swift */; };
+		BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000CMPTF /* ComponentStatusTests.swift */; };
+		BB00000100000007000PRVTF /* ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000008000PRVTF /* ProviderTests.swift */; };
+		BB00000100000009000RSSTF /* RSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000A000RSSTF /* RSSParserTests.swift */; };
+		BB0000010000000B000SMGTF /* StatusManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000C000SMGTF /* StatusManagerTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BB0000010000000D000PROXY /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8673B2542F884BFF0063B14E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8673B25B2F884BFF0063B14E;
+			remoteInfo = StatusMonitor;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		8673B25C2F884BFF0063B14E /* StatusMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StatusMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -36,10 +52,24 @@
 		AA00000100000007000SIVEW /* ServiceIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceIconView.swift; sourceTree = "<group>"; };
 		AA00000100000009000FBVEW /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
 		AA0000010000000B000SDVEW /* ServiceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceDetailView.swift; sourceTree = "<group>"; };
+		BB00000100000002000CATTF /* CatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTests.swift; sourceTree = "<group>"; };
+		BB00000100000004000CODTF /* CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableTests.swift; sourceTree = "<group>"; };
+		BB00000100000006000CMPTF /* ComponentStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentStatusTests.swift; sourceTree = "<group>"; };
+		BB00000100000008000PRVTF /* ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderTests.swift; sourceTree = "<group>"; };
+		BB0000010000000A000RSSTF /* RSSParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParserTests.swift; sourceTree = "<group>"; };
+		BB0000010000000C000SMGTF /* StatusManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusManagerTests.swift; sourceTree = "<group>"; };
+		BB0000010000000E000XCTEST /* StatusMonitorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StatusMonitorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8673B2592F884BFF0063B14E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000010000000F000FRMWK /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -59,6 +89,7 @@
 				8673B2762F884C760063B14E /* Services */,
 				8673B2772F884C760063B14E /* StatusMonitor.entitlements */,
 				8673B2782F884C760063B14E /* StatusMonitorApp.swift */,
+				BB00000100000010000TGRPP /* StatusMonitorTests */,
 				8673B27B2F884C760063B14E /* Views */,
 			);
 			sourceTree = "<group>";
@@ -67,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				8673B25C2F884BFF0063B14E /* StatusMonitor.app */,
+				BB0000010000000E000XCTEST /* StatusMonitorTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -109,6 +141,19 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		BB00000100000010000TGRPP /* StatusMonitorTests */ = {
+			isa = PBXGroup;
+			children = (
+				BB00000100000002000CATTF /* CatalogTests.swift */,
+				BB00000100000004000CODTF /* CodableTests.swift */,
+				BB00000100000006000CMPTF /* ComponentStatusTests.swift */,
+				BB00000100000008000PRVTF /* ProviderTests.swift */,
+				BB0000010000000A000RSSTF /* RSSParserTests.swift */,
+				BB0000010000000C000SMGTF /* StatusManagerTests.swift */,
+			);
+			path = StatusMonitorTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -131,6 +176,26 @@
 			productReference = 8673B25C2F884BFF0063B14E /* StatusMonitor.app */;
 			productType = "com.apple.product-type.application";
 		};
+		BB00000100000011000TESTT /* StatusMonitorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB00000100000019000CFGLT /* Build configuration list for PBXNativeTarget "StatusMonitorTests" */;
+			buildPhases = (
+				BB00000100000012000SRCES /* Sources */,
+				BB0000010000000F000FRMWK /* Frameworks */,
+				BB00000100000013000RSRCS /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BB00000100000014000TGDEP /* PBXTargetDependency */,
+			);
+			name = StatusMonitorTests;
+			packageProductDependencies = (
+			);
+			productName = StatusMonitorTests;
+			productReference = BB0000010000000E000XCTEST /* StatusMonitorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -143,6 +208,10 @@
 				TargetAttributes = {
 					8673B25B2F884BFF0063B14E = {
 						CreatedOnToolsVersion = 26.4;
+					};
+					BB00000100000011000TESTT = {
+						CreatedOnToolsVersion = 26.4;
+						TestTargetID = 8673B25B2F884BFF0063B14E;
 					};
 				};
 			};
@@ -161,6 +230,7 @@
 			projectRoot = "";
 			targets = (
 				8673B25B2F884BFF0063B14E /* StatusMonitor */,
+				BB00000100000011000TESTT /* StatusMonitorTests */,
 			);
 		};
 /* End PBXProject section */
@@ -172,6 +242,13 @@
 			files = (
 				8673B2832F884C760063B14E /* Info.plist in Resources */,
 				AA00000100000001000CATJN /* catalog.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB00000100000013000RSRCS /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,7 +272,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BB00000100000012000SRCES /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB00000100000001000CATTF /* CatalogTests.swift in Sources */,
+				BB00000100000003000CODTF /* CodableTests.swift in Sources */,
+				BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */,
+				BB00000100000007000PRVTF /* ProviderTests.swift in Sources */,
+				BB00000100000009000RSSTF /* RSSParserTests.swift in Sources */,
+				BB0000010000000B000SMGTF /* StatusManagerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BB00000100000014000TGDEP /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8673B25B2F884BFF0063B14E /* StatusMonitor */;
+			targetProxy = BB0000010000000D000PROXY /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8673B2652F884C000063B14E /* Debug */ = {
@@ -410,6 +508,46 @@
 			};
 			name = Release;
 		};
+		BB00000100000015000DBGTF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W4HBM3A7DC;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StatusMonitor.app/Contents/MacOS/StatusMonitor";
+			};
+			name = Debug;
+		};
+		BB00000100000016000RELTF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W4HBM3A7DC;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StatusMonitor.app/Contents/MacOS/StatusMonitor";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -427,6 +565,15 @@
 			buildConfigurations = (
 				8673B2682F884C000063B14E /* Debug */,
 				8673B2692F884C000063B14E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB00000100000019000CFGLT /* Build configuration list for PBXNativeTarget "StatusMonitorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB00000100000015000DBGTF /* Debug */,
+				BB00000100000016000RELTF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

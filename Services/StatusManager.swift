@@ -222,18 +222,22 @@ class StatusManager {
 
     // MARK: - RSS Parsing (basic)
 
+    static func rssStatusHeuristic(title: String, description: String) -> ComponentStatus {
+        let text = (title + " " + description).lowercased()
+        if text.contains("major") || text.contains("outage") { return .majorOutage }
+        if text.contains("partial") { return .partialOutage }
+        if text.contains("degraded") || text.contains("elevated") { return .degradedPerformance }
+        if text.contains("resolved") || text.contains("operational") { return .operational }
+        return .unknown
+    }
+
     private func parseRSS(data: Data, provider: Provider) throws {
         let parser = RSSStatusParser(data: data)
         let items = parser.parse()
 
         // Heuristic: check titles/descriptions for outage keywords
         let overall: ComponentStatus = items.first.map { item in
-            let text = (item.title + " " + item.description).lowercased()
-            if text.contains("major") || text.contains("outage") { return .majorOutage }
-            if text.contains("partial") { return .partialOutage }
-            if text.contains("degraded") || text.contains("elevated") { return .degradedPerformance }
-            if text.contains("resolved") || text.contains("operational") { return .operational }
-            return .unknown
+            Self.rssStatusHeuristic(title: item.title, description: item.description)
         } ?? .unknown
 
         let incidents = items.prefix(5).map { item in
@@ -303,7 +307,7 @@ class StatusManager {
         recalcWorstStatus()
     }
 
-    private func recalcWorstStatus() {
+    func recalcWorstStatus() {
         let mutedIds = Set(providers.filter(\.isMuted).map(\.id))
         let newStatus = snapshots
             .filter { $0.error == nil && !mutedIds.contains($0.id) }

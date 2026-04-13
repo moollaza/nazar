@@ -231,6 +231,7 @@ struct DashboardView: View {
                         snapshot: snapshot,
                         catalogId: provider?.catalogEntryId,
                         isMuted: provider?.isMuted ?? false,
+                        statusPageURL: provider?.baseURL,
                         onTap: {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 selectedProviderId = snapshot.id
@@ -277,6 +278,7 @@ struct ProviderRowView: View {
     let snapshot: ProviderSnapshot
     var catalogId: String? = nil
     var isMuted: Bool = false
+    var statusPageURL: String? = nil
     let onTap: () -> Void
     var onToggleMute: (() -> Void)?
     @State private var isHovered = false
@@ -344,6 +346,14 @@ struct ProviderRowView: View {
         .accessibilityLabel("\(snapshot.name), \(snapshot.error != nil ? "Unavailable" : snapshot.overallStatus.label)\(isMuted ? ", muted" : "")")
         .accessibilityHint("Double-click to view details")
         .contextMenu {
+            if let url = statusPageURL {
+                Button {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(url, forType: .string)
+                } label: {
+                    Label("Copy Status Page URL", systemImage: "doc.on.doc")
+                }
+            }
             Button {
                 onToggleMute?()
             } label: {

@@ -407,6 +407,7 @@ struct CategoryChip: View {
 
 struct PreferencesSettingsView: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
+    @State private var systemNotificationsAllowed: Bool? = nil
 
     var body: some View {
         Form {
@@ -428,14 +429,37 @@ struct PreferencesSettingsView: View {
             }
 
             Section("Notifications") {
-                Toggle("Send notifications on status changes", isOn: $notificationsEnabled)
-                Text("You'll be notified when a monitored service's status changes.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if systemNotificationsAllowed == false {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                            .font(.body)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Notifications are disabled in System Settings")
+                                .font(.caption)
+                            Button("Open Notification Settings") {
+                                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings")!)
+                            }
+                            .font(.caption)
+                        }
+                    }
+                } else {
+                    Toggle("Send notifications on status changes", isOn: $notificationsEnabled)
+                    Text("You'll be notified when a monitored service's status changes.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .formStyle(.grouped)
         .padding()
+        .onAppear {
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                DispatchQueue.main.async {
+                    systemNotificationsAllowed = settings.authorizationStatus == .authorized
+                }
+            }
+        }
     }
 }
 

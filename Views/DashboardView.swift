@@ -309,13 +309,13 @@ struct ProviderRowView: View {
 
             // Status badge
             if snapshot.error != nil {
-                StatusBadge(label: "Unavailable", color: .gray)
+                StatusBadge(label: "Unavailable", status: .unknown)
             } else if snapshot.overallStatus == .operational {
                 Text("Operational")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                StatusBadge(label: snapshot.overallStatus.label, color: Color(nsColor: snapshot.overallStatus.color))
+                StatusBadge(label: snapshot.overallStatus.label, status: snapshot.overallStatus)
             }
 
             Image(systemName: "chevron.right")
@@ -373,16 +373,55 @@ struct ProviderRowView: View {
 
 struct StatusBadge: View {
     let label: String
-    let color: Color
+    let status: ComponentStatus
+
+    // Tailwind-inspired palettes: 800-shade text on 100-shade bg (light), 300-shade text on 900-shade bg (dark)
+    private var colors: (text: Color, bg: Color) {
+        switch status {
+        case .majorOutage:
+            // Red: red-800 on red-100 / red-300 on red-900
+            return (Color(red: 0.60, green: 0.04, blue: 0.04), Color(red: 0.996, green: 0.89, blue: 0.89)) // #991b1b, #fee2e2
+        case .partialOutage:
+            // Orange: orange-800 on orange-100 / orange-300 on orange-900
+            return (Color(red: 0.60, green: 0.22, blue: 0.02), Color(red: 1.0, green: 0.93, blue: 0.84)) // #9a3412, #ffedd5
+        case .degradedPerformance, .underMaintenance:
+            // Amber: amber-800 on amber-100 / amber-300 on amber-900
+            return (Color(red: 0.57, green: 0.29, blue: 0.01), Color(red: 0.996, green: 0.95, blue: 0.78)) // #92400e, #fef3c7
+        case .unknown:
+            // Gray: gray-700 on gray-100 / gray-300 on gray-800
+            return (Color(red: 0.22, green: 0.25, blue: 0.32), Color(red: 0.95, green: 0.96, blue: 0.96)) // #374151, #f3f4f6
+        case .operational:
+            // Green (shouldn't appear as badge, but just in case)
+            return (Color(red: 0.08, green: 0.40, blue: 0.15), Color(red: 0.86, green: 0.99, blue: 0.91)) // #166534, #dcfce7
+        }
+    }
+
+    private var darkColors: (text: Color, bg: Color) {
+        switch status {
+        case .majorOutage:
+            return (Color(red: 0.99, green: 0.68, blue: 0.68), Color(red: 0.45, green: 0.06, blue: 0.06)) // #fca5a5, #7f1d1d
+        case .partialOutage:
+            return (Color(red: 0.99, green: 0.73, blue: 0.47), Color(red: 0.49, green: 0.15, blue: 0.01)) // #fdba74, #7c2d12
+        case .degradedPerformance, .underMaintenance:
+            return (Color(red: 0.99, green: 0.82, blue: 0.36), Color(red: 0.47, green: 0.22, blue: 0.01)) // #fcd34d, #78350f
+        case .unknown:
+            return (Color(red: 0.61, green: 0.64, blue: 0.69), Color(red: 0.19, green: 0.22, blue: 0.26)) // #9ca3af, #1f2937
+        case .operational:
+            return (Color(red: 0.52, green: 0.90, blue: 0.60), Color(red: 0.08, green: 0.33, blue: 0.14)) // #86efac, #14532d
+        }
+    }
+
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        let palette = colorScheme == .dark ? darkColors : colors
         Text(label)
             .font(.caption2)
-            .fontWeight(.bold)
-            .foregroundColor(.white)
+            .fontWeight(.semibold)
+            .foregroundColor(palette.text)
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
-            .background(color)
+            .background(palette.bg)
             .clipShape(Capsule())
     }
 }

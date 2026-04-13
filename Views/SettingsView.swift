@@ -72,9 +72,10 @@ struct ServicesSettingsView: View {
     @Environment(StatusManager.self) var manager
     @State private var providerToRemove: Provider?
     @State private var showAddCustom = false
+    @State private var sortOrder = [KeyPathComparator(\Provider.name, comparator: .localizedStandard)]
 
     var sortedProviders: [Provider] {
-        manager.providers.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        manager.providers.sorted(using: sortOrder)
     }
 
     var body: some View {
@@ -103,29 +104,10 @@ struct ServicesSettingsView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                // Table header
-                HStack(spacing: 0) {
-                    Text("Service")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Text("Interval")
-                        .frame(width: 70, alignment: .center)
-                    Text("Muted")
-                        .frame(width: 50, alignment: .center)
-                    Text("")
-                        .frame(width: 30)
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 4)
-
-                Divider()
-
-                List {
-                    ForEach(sortedProviders) { provider in
+                Table(sortedProviders, sortOrder: $sortOrder) {
+                    TableColumn("Service", value: \.name) { provider in
                         HStack(spacing: 8) {
                             ServiceIconView(name: provider.name, catalogId: provider.catalogEntryId)
-
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(provider.name)
                                     .font(.system(.body, weight: .medium))
@@ -135,52 +117,53 @@ struct ServicesSettingsView: View {
                                     .lineLimit(1)
                                     .truncationMode(.middle)
                             }
-
-                            Spacer()
-
-                            // Poll interval
-                            Menu {
-                                ForEach(pollIntervalOptions, id: \.seconds) { option in
-                                    Button(option.label) {
-                                        manager.updatePollInterval(for: provider, seconds: option.seconds)
-                                    }
-                                }
-                            } label: {
-                                Text(intervalLabel(for: provider.pollIntervalSeconds))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .frame(width: 35)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .fixedSize()
-
-                            // Mute toggle
-                            Button {
-                                manager.toggleMute(for: provider)
-                            } label: {
-                                Image(systemName: provider.isMuted ? "speaker.slash.fill" : "speaker.wave.2")
-                                    .foregroundStyle(provider.isMuted ? .orange : .secondary)
-                                    .font(.system(size: 12))
-                            }
-                            .buttonStyle(.plain)
-                            .help(provider.isMuted ? "Unmute" : "Mute")
-                            .frame(width: 24)
-
-                            // Remove
-                            Button {
-                                providerToRemove = provider
-                            } label: {
-                                Image(systemName: "trash")
-                                    .foregroundStyle(.secondary)
-                                    .font(.system(size: 11))
-                            }
-                            .buttonStyle(.plain)
-                            .help("Remove service")
-                            .frame(width: 24)
                         }
                     }
+
+                    TableColumn("Interval") { provider in
+                        Menu {
+                            ForEach(pollIntervalOptions, id: \.seconds) { option in
+                                Button(option.label) {
+                                    manager.updatePollInterval(for: provider, seconds: option.seconds)
+                                }
+                            }
+                        } label: {
+                            Text(intervalLabel(for: provider.pollIntervalSeconds))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .menuStyle(.borderlessButton)
+                        .fixedSize()
+                    }
+                    .width(70)
+
+                    TableColumn("Muted") { provider in
+                        Button {
+                            manager.toggleMute(for: provider)
+                        } label: {
+                            Image(systemName: provider.isMuted ? "speaker.slash.fill" : "speaker.wave.2")
+                                .foregroundStyle(provider.isMuted ? .orange : .secondary)
+                                .font(.system(size: 12))
+                        }
+                        .buttonStyle(.plain)
+                        .help(provider.isMuted ? "Unmute" : "Mute")
+                    }
+                    .width(50)
+
+                    TableColumn("") { provider in
+                        Button {
+                            providerToRemove = provider
+                        } label: {
+                            Image(systemName: "trash")
+                                .foregroundStyle(.secondary)
+                                .font(.system(size: 11))
+                        }
+                        .buttonStyle(.plain)
+                        .help("Remove service")
+                    }
+                    .width(30)
                 }
-                .listStyle(.inset(alternatesRowBackgrounds: true))
+                .alternatingRowBackgrounds()
             }
         }
         .sheet(isPresented: $showAddCustom) {
@@ -262,33 +245,30 @@ struct AddCustomServiceView: View {
 struct CatalogSettingsView: View {
     @Environment(StatusManager.self) var manager
     @State private var searchText = ""
-    @State private var expandedCategories: Set<String> = Set(Catalog.shared.categories)
+    @State private var selectedCategory: String? = nil
 
     private var catalog: Catalog { Catalog.shared }
-
-    private static let popularIds: Set<String> = [
-        "github", "cloudflare", "vercel", "openai", "anthropic",
-        "stripe", "discord", "notion", "figma", "datadog"
-    ]
-
-    private var popularEntries: [CatalogEntry] {
-        catalog.entries.filter { Self.popularIds.contains($0.id) }
-    }
 
     private var monitoredIds: Set<String> {
         Set(manager.providers.compactMap(\.catalogEntryId))
     }
 
-    private var filteredEntries: [(String, [CatalogEntry])] {
-        catalog.categories.compactMap { category in
-            let entries: [CatalogEntry]
-            if searchText.isEmpty {
-                entries = catalog.entries(in: category)
-            } else {
-                entries = catalog.search(searchText).filter { $0.category == category }
-            }
-            return entries.isEmpty ? nil : (category, entries)
+    private var displayedEntries: [CatalogEntry] {
+        var entries: [CatalogEntry]
+        if !searchText.isEmpty {
+            entries = catalog.search(searchText)
+        } else if let category = selectedCategory {
+            entries = catalog.entries(in: category)
+        } else {
+            entries = catalog.entries
         }
+        return entries.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    private var categoriesWithCounts: [(String, Int)] {
+        catalog.categories.map { cat in
+            (cat, catalog.entries(in: cat).count)
+        }.sorted { $0.1 > $1.1 }
     }
 
     var body: some View {
@@ -331,64 +311,95 @@ struct CatalogSettingsView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 8)
 
-            Divider()
-
-            // Category list
-            List {
-                // Popular services (shown when not searching)
-                if searchText.isEmpty && !popularEntries.isEmpty {
-                    Section("Popular") {
-                        ForEach(popularEntries) { entry in
-                            catalogToggle(for: entry)
+            // Category chips (horizontal scroll)
+            if searchText.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        CategoryChip(label: "All", count: catalog.entries.count, isSelected: selectedCategory == nil) {
+                            selectedCategory = nil
+                        }
+                        ForEach(categoriesWithCounts, id: \.0) { category, count in
+                            CategoryChip(label: category, count: count, isSelected: selectedCategory == category) {
+                                selectedCategory = selectedCategory == category ? nil : category
+                            }
                         }
                     }
-                }
-
-                ForEach(filteredEntries, id: \.0) { category, entries in
-                    DisclosureGroup(
-                        isExpanded: Binding(
-                            get: { expandedCategories.contains(category) },
-                            set: { if $0 { expandedCategories.insert(category) } else { expandedCategories.remove(category) } }
-                        )
-                    ) {
-                        ForEach(entries) { entry in
-                            catalogToggle(for: entry)
-                        }
-                    } label: {
-                        HStack {
-                            Text(category)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                            Text("(\(entries.count))")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
                 }
             }
-            .listStyle(.inset)
+
+            Divider()
+
+            // Flat service list with lazy loading
+            List {
+                ForEach(displayedEntries) { entry in
+                    catalogToggle(for: entry)
+                }
+            }
+            .listStyle(.inset(alternatesRowBackgrounds: true))
         }
     }
 
     @ViewBuilder
     private func catalogToggle(for entry: CatalogEntry) -> some View {
         let isMonitored = monitoredIds.contains(entry.id)
-        Toggle(isOn: Binding(
-            get: { isMonitored },
-            set: { newValue in
-                if newValue {
-                    manager.addProvider(Provider(from: entry))
-                    logger.info("Added from catalog: \(entry.name)")
-                } else if let provider = manager.providers.first(where: { $0.catalogEntryId == entry.id }) {
-                    manager.removeProvider(provider)
-                    logger.info("Removed from catalog: \(entry.name)")
+        HStack {
+            Toggle(isOn: Binding(
+                get: { isMonitored },
+                set: { newValue in
+                    if newValue {
+                        manager.addProvider(Provider(from: entry))
+                        logger.info("Added from catalog: \(entry.name)")
+                    } else if let provider = manager.providers.first(where: { $0.catalogEntryId == entry.id }) {
+                        manager.removeProvider(provider)
+                        logger.info("Removed from catalog: \(entry.name)")
+                    }
                 }
+            )) {
+                Text(entry.name)
+                    .font(.body)
             }
-        )) {
-            Text(entry.name)
-                .font(.body)
+            .toggleStyle(.checkbox)
+
+            Spacer()
+
+            Text(entry.category)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
         }
-        .toggleStyle(.checkbox)
+    }
+}
+
+// MARK: - Category Chip
+
+struct CategoryChip: View {
+    let label: String
+    let count: Int
+    let isSelected: Bool
+    let action: () -> Void
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Text(label)
+                    .font(.caption)
+                    .fontWeight(isSelected ? .semibold : .regular)
+                Text("\(count)")
+                    .font(.caption2)
+                    .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(
+                Capsule()
+                    .fill(isSelected ? Color.accentColor : isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor) : Color(nsColor: .controlBackgroundColor))
+            )
+            .foregroundStyle(isSelected ? .white : .primary)
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
     }
 }
 
@@ -396,6 +407,7 @@ struct CatalogSettingsView: View {
 
 struct PreferencesSettingsView: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
+    @State private var systemNotificationsAllowed: Bool? = nil
 
     var body: some View {
         Form {
@@ -417,14 +429,37 @@ struct PreferencesSettingsView: View {
             }
 
             Section("Notifications") {
-                Toggle("Send notifications on status changes", isOn: $notificationsEnabled)
-                Text("You'll be notified when a monitored service's status changes.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if systemNotificationsAllowed == false {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                            .font(.body)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Notifications are disabled in System Settings")
+                                .font(.caption)
+                            Button("Open Notification Settings") {
+                                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings")!)
+                            }
+                            .font(.caption)
+                        }
+                    }
+                } else {
+                    Toggle("Send notifications on status changes", isOn: $notificationsEnabled)
+                    Text("You'll be notified when a monitored service's status changes.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .formStyle(.grouped)
         .padding()
+        .onAppear {
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                DispatchQueue.main.async {
+                    systemNotificationsAllowed = settings.authorizationStatus == .authorized
+                }
+            }
+        }
     }
 }
 

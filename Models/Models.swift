@@ -300,4 +300,22 @@ struct IncidentSnapshot: Identifiable {
     let status: String
     let latestUpdate: String?
     let updatedAt: Date?
+    let updates: [IncidentUpdateSnapshot]
+
+    init(id: String, name: String, impact: ComponentStatus, status: String, latestUpdate: String?, updatedAt: Date?, updates: [IncidentUpdateSnapshot] = []) {
+        self.id = id
+        self.name = name
+        self.impact = impact
+        self.status = status
+        self.latestUpdate = latestUpdate
+        self.updatedAt = updatedAt
+        self.updates = updates
+    }
+}
+
+struct IncidentUpdateSnapshot: Identifiable {
+    let id: String
+    let status: String
+    let body: String
+    let createdAt: Date?
 }

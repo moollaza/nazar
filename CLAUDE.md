@@ -1,30 +1,34 @@
 # StatusMonitor
 
-macOS menu bar app that monitors SaaS service status pages and alerts on outages. FOSS, free at launch.
+macOS menu bar app that monitors SaaS service status pages and alerts on outages. Source-available under FSL 1.1.
 
 ## Tech Stack
 
-- **App**: Swift 5.9+, SwiftUI, macOS 13+, `@Observable` (not `ObservableObject`)
-- **Architecture**: Menu bar accessory (`LSUIElement=true`), no Dock icon, popover UI
+- **App**: Swift 5.9+, SwiftUI, macOS 14+, `@Observable` (not `ObservableObject`)
+- **Architecture**: Menu bar accessory (`LSUIElement=true`), no Dock icon, floating NSPanel (not NSPopover)
 - **Persistence**: `UserDefaults` for provider list and preferences
 - **Network**: `URLSession` for polling; sandboxed (`com.apple.security.network.client`)
-- **Website**: Static HTML + Tailwind CSS CDN (no build step), GitHub Pages
+- **Website**: Static HTML + Tailwind CSS CDN (no build step), Cloudflare Pages
+- **License**: FSL 1.1 (converts to Apache 2.0 on 2028-04-12)
 
 ## Repo Layout
 
 ```
-app/           Xcode project (StatusMonitor.xcodeproj) — planned move from root
-website/       Marketing site — planned addition
-ai-docs/       AI context docs — planned addition
+StatusMonitor.xcodeproj   Xcode project
+Models/                   Data models (Provider, CatalogEntry, Statuspage API types)
+Views/                    SwiftUI views (Dashboard, Settings, Detail, Feedback, Icons)
+Services/                 StatusManager, NotificationService, RSSParser
+Resources/                catalog.json (1,683 verified services)
+scripts/                  Discovery, verification, and categorization tooling
+website/                  Marketing site (deployed to CF Pages)
 docs/
-  brainstorms/ Requirements docs
+  brainstorms/            Requirements docs
+  plans/                  Implementation plans
 ```
-
-> Note: Xcode project currently lives at the repo root (pre-monorepo). R12 tracks the reorganization.
 
 ## Build & Run
 
-Open `StatusMonitor.xcodeproj` in Xcode and run the `StatusMonitor` scheme. No CLI build needed for development.
+Open `StatusMonitor.xcodeproj` in Xcode and run the `StatusMonitor` scheme.
 
 ```bash
 # Build from CLI (CI)
@@ -35,9 +39,19 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 
 - Use `@Observable` / `@Environment` (Swift 5.9 macro), not `ObservableObject`/`@StateObject`
 - `StatusManager` is `@MainActor` — all snapshot mutations happen on main thread
-- New status page providers: add to `Provider.defaults` in `Models/Models.swift`
+- Dashboard uses a floating `NSPanel` (FloatingPanel class), NOT NSPopover (NSPopover has an arrow that can't be removed)
+- Settings is a standalone `NSWindow` with `NSHostingController` — NOT the SwiftUI `Settings` scene (broken with `.accessory` policy)
+- `@AppStorage` only in Views, never in `@Observable` classes (Apple bug causes infinite loops)
 - Two parser types: `statuspage` (Atlassian JSON API at `/api/v2/summary.json`) and `rss`
-- Bundle ID placeholder `com.yourname.StatusMonitor` — must be replaced before distribution
+- Bundle ID: `com.moollapps.StatusMonitor`
+- Catalog entries need `platform` field: `"atlassian"` or `"incident.io"`
+
+## Catalog
+
+1,683 verified services across 22 categories. All entries have working `/api/v2/summary.json` endpoints.
+
+To add services: use the `statuspage-discovery` skill or `scripts/discover-services.py`.
+To verify catalog: `python3 scripts/audit-catalog.py`
 
 ## Workflow
 
@@ -48,8 +62,7 @@ This project uses the compound engineering skill suite:
 ```
 
 - Requirements docs live in `docs/brainstorms/`
-- Plans will live in `docs/plans/`
-- Run `/cleanup` before committing; lint and test before every commit
+- Plans live in `docs/plans/`
 - Keep commits short and factual
 
 ## Issue Tracking (Linear — required)
@@ -60,15 +73,11 @@ All work is tracked in Linear. **The Linear MCP must be connected before plannin
 - **Team**: Side Projects (`ZPR` prefix)
 - **MCP**: `plugin:linear:linear` — connect via OAuth when starting a session
 
-Every non-trivial task should have a corresponding ZPR issue. Reference issue numbers in commit messages (e.g. `Fix Slack 404 (ZPR-4)`). When planning new features with `/ce:plan`, create or update the relevant Linear issues with milestone, priority, and blocking relationships.
+## Deployment
+
+- **Website**: `wrangler pages deploy website/ --project-name status-monitor --branch main --commit-dirty`
+- **App**: Distribution via signed DMG (not yet set up)
 
 ## Status Page Support
 
-Most catalog services use the Atlassian Statuspage JSON API. A few use RSS/Atom feeds. Services with custom proprietary status pages are out of scope for v1.
-
-## Known Issues (pre-v1)
-
-- `com.yourname.StatusMonitor` bundle ID is a placeholder
-- OpenAI status page returns a parse error (JSON schema mismatch)
-- Slack status page returns HTTP 404 (non-standard URL)
-- Poll interval per-provider is configurable but default (60s) is not exposed in UI
+Most catalog services use Atlassian Statuspage or incident.io (compatible JSON schema). RSS/Atom feeds supported for non-Statuspage services. Custom proprietary status pages are out of scope.

@@ -8,8 +8,8 @@ private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "StatusMo
 class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
 
-    /// Called when user taps a notification; set by AppDelegate to open the popover.
-    var onNotificationTapped: (@MainActor @Sendable () -> Void)?
+    /// Called when user taps a notification with the provider ID for deep-linking.
+    var onNotificationTapped: (@MainActor @Sendable (_ providerId: UUID?) -> Void)?
 
     private override init() {
         super.init()
@@ -24,7 +24,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         }
     }
 
-    func notify(provider: String, from: ComponentStatus, to: ComponentStatus, incident: String?) {
+    func notify(providerId: UUID, provider: String, from: ComponentStatus, to: ComponentStatus, incident: String?) {
         guard UserDefaults.standard.bool(forKey: "notificationsEnabled") else {
             logger.debug("Notification suppressed (disabled in preferences)")
             return
@@ -47,6 +47,9 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         } else if to.severity > ComponentStatus.operational.severity {
             content.sound = .default
         }
+
+        // Include provider ID for deep-linking on tap
+        content.userInfo = ["providerId": providerId.uuidString]
 
         // Distinct identifier per provider so notifications stack properly
         let request = UNNotificationRequest(
@@ -73,7 +76,8 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        Task { @MainActor in onNotificationTapped?() }
+        let providerId = (response.notification.request.content.userInfo["providerId"] as? String).flatMap(UUID.init)
+        Task { @MainActor in onNotificationTapped?(providerId) }
         completionHandler()
     }
 }

@@ -16,6 +16,8 @@ class StatusManager {
     var onPollCycleComplete: (() -> Void)?
     private var timers: [UUID: Timer] = [:]
     private var previousStatuses: [UUID: ComponentStatus] = [:]
+    private var failureCounts: [UUID: Int] = [:]
+    private var lastFailure: [UUID: Date] = [:]
 
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
@@ -169,6 +171,15 @@ class StatusManager {
     }
 
     private func poll(provider: Provider) async {
+        // Exponential backoff: skip if we failed recently
+        if let failures = failureCounts[provider.id], failures > 0,
+           let lastFail = lastFailure[provider.id] {
+            let backoffSeconds = min(Double(provider.pollIntervalSeconds) * pow(2, Double(min(failures, 5))), 3600)
+            if Date().timeIntervalSince(lastFail) < backoffSeconds {
+                return // still in backoff window
+            }
+        }
+
         guard let url = provider.apiURL else {
             updateSnapshot(for: provider, error: "Invalid URL")
             return
@@ -177,9 +188,13 @@ class StatusManager {
         do {
             let (data, response) = try await session.data(from: url)
             guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+                recordFailure(for: provider)
                 updateSnapshot(for: provider, error: "Unable to reach status page")
                 return
             }
+
+            // Success — reset backoff
+            failureCounts[provider.id] = 0
 
             switch provider.type {
             case .statuspage:
@@ -189,8 +204,17 @@ class StatusManager {
             }
         } catch {
             logger.error("Poll failed for \(provider.name): \(error.localizedDescription)")
+            recordFailure(for: provider)
             updateSnapshot(for: provider, error: "Unable to read status page")
         }
+    }
+
+    private func recordFailure(for provider: Provider) {
+        let count = (failureCounts[provider.id] ?? 0) + 1
+        failureCounts[provider.id] = count
+        lastFailure[provider.id] = Date()
+        let backoff = min(Double(provider.pollIntervalSeconds) * pow(2, Double(min(count, 5))), 3600)
+        logger.warning("Poll failure #\(count) for \(provider.name), backing off \(Int(backoff))s")
     }
 
     // MARK: - Statuspage JSON Parsing

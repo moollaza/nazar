@@ -340,6 +340,9 @@ struct ProviderRowView: View {
         )
         .onHover { hovering in isHovered = hovering }
         .opacity(isMuted ? 0.5 : 1.0)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(snapshot.name), \(snapshot.error != nil ? "Unavailable" : snapshot.overallStatus.label)\(isMuted ? ", muted" : "")")
+        .accessibilityHint("Double-click to view details")
         .contextMenu {
             Button {
                 onToggleMute?()

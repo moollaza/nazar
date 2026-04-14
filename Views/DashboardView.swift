@@ -201,7 +201,7 @@ struct DashboardView: View {
                     if issueCount > 0 {
                         Text("\(issueCount) issue\(issueCount == 1 ? "" : "s")")
                             .font(.caption)
-                            .foregroundStyle(Color(nsColor: manager.worstStatus.color))
+                            .foregroundStyle(Color(nsColor: manager.worstStatus.textColor))
                     } else {
                         Text("All operational")
                             .font(.caption)

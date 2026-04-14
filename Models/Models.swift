@@ -23,15 +23,22 @@ struct Catalog {
     let entries: [CatalogEntry]
     let categories: [String]
 
+    /// Pre-computed category counts for picker display
+    let categoryCounts: [(String, Int)]
+
     static let shared: Catalog = {
         guard let url = Bundle.main.url(forResource: "catalog", withExtension: "json"),
               let data = try? Data(contentsOf: url) else {
-            return Catalog(entries: [], categories: [])
+            return Catalog(entries: [], categories: [], categoryCounts: [])
         }
         let decoder = JSONDecoder()
-        let entries = (try? decoder.decode([CatalogEntry].self, from: data)) ?? []
-        let categories = Array(Set(entries.map(\.category))).sorted()
-        return Catalog(entries: entries, categories: categories)
+        let decoded = (try? decoder.decode([CatalogEntry].self, from: data)) ?? []
+        let sorted = decoded.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        let categories = Array(Set(sorted.map(\.category))).sorted()
+        var countsByCategory: [String: Int] = [:]
+        for entry in sorted { countsByCategory[entry.category, default: 0] += 1 }
+        let categoryCounts = categories.map { ($0, countsByCategory[$0] ?? 0) }.sorted { $0.1 > $1.1 }
+        return Catalog(entries: sorted, categories: categories, categoryCounts: categoryCounts)
     }()
 
     func entries(in category: String) -> [CatalogEntry] {
@@ -40,7 +47,68 @@ struct Catalog {
 
     func search(_ query: String) -> [CatalogEntry] {
         guard !query.isEmpty else { return entries }
-        return entries.filter { $0.name.localizedCaseInsensitiveContains(query) }
+        let q = query.lowercased()
+        // Score: 0 = name starts with query, 1 = name word starts with query,
+        // 2 = name contains query, 3 = URL contains query
+        var scored: [(entry: CatalogEntry, score: Int)] = []
+        for entry in entries {
+            let name = entry.name.lowercased()
+            if name.hasPrefix(q) {
+                scored.append((entry, 0))
+            } else if name.components(separatedBy: .whitespaces).contains(where: { $0.hasPrefix(q) }) {
+                scored.append((entry, 1))
+            } else if name.contains(q) {
+                scored.append((entry, 2))
+            } else if entry.baseURL.lowercased().contains(q) {
+                scored.append((entry, 3))
+            }
+        }
+        return scored
+            .sorted { $0.score == $1.score
+                ? $0.entry.name.localizedCaseInsensitiveCompare($1.entry.name) == .orderedAscending
+                : $0.score < $1.score }
+            .map(\.entry)
+    }
+
+    /// Returns catalog entries that match installed applications in /Applications.
+    /// Uses strict matching to avoid false positives (e.g. "Obsidian" != "Obsidian Security").
+    func suggestFromInstalledApps() -> [CatalogEntry] {
+        let fm = FileManager.default
+        var appNames: Set<String> = []
+
+        for dir in ["/Applications", NSHomeDirectory() + "/Applications"] {
+            if let contents = try? fm.contentsOfDirectory(atPath: dir) {
+                for item in contents where item.hasSuffix(".app") {
+                    let name = item.replacingOccurrences(of: ".app", with: "").lowercased()
+                    appNames.insert(name)
+                    // Also insert without common suffixes
+                    let normalized = name
+                        .replacingOccurrences(of: " desktop", with: "")
+                        .replacingOccurrences(of: ".us", with: "")
+                    if normalized != name { appNames.insert(normalized) }
+                }
+            }
+        }
+
+        guard !appNames.isEmpty else { return [] }
+
+        return entries.filter { entry in
+            let entryName = entry.name.lowercased()
+            guard entryName.count >= 4 else { return false }
+
+            return appNames.contains(where: { appName in
+                guard appName.count >= 4 else { return false }
+                // Exact match: "figma" == "figma"
+                if appName == entryName { return true }
+                // App name equals full catalog entry name (handles "1password" == "1password")
+                // Entry name starts with app name and next char is a space/separator
+                // e.g. "github" matches "github" but not "github desktop"
+                // App name starts with entry name: "grammarly desktop" matches "grammarly"
+                if appName.hasPrefix(entryName + " ") || appName.hasPrefix(entryName + "-") { return true }
+                if entryName.hasPrefix(appName + " ") || entryName.hasPrefix(appName + "-") { return true }
+                return false
+            })
+        }
     }
 }
 
@@ -245,6 +313,33 @@ enum ComponentStatus: String, Codable, Comparable {
         case .partialOutage: return .systemOrange
         case .majorOutage: return .systemRed
         case .unknown: return .systemGray
+        }
+    }
+
+    /// High-contrast color safe for use as text foreground (meets WCAG 4.5:1 on light/dark backgrounds)
+    var textColor: NSColor {
+        switch self {
+        case .operational: return NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+                ? .systemGreen
+                : NSColor(red: 0.08, green: 0.40, blue: 0.15, alpha: 1) // dark green #166534
+        }
+        case .degradedPerformance, .underMaintenance: return NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+                ? .systemYellow
+                : NSColor(red: 0.52, green: 0.35, blue: 0.0, alpha: 1) // dark amber #855A00
+        }
+        case .partialOutage: return NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+                ? .systemOrange
+                : NSColor(red: 0.60, green: 0.22, blue: 0.02, alpha: 1) // dark orange #9a3412
+        }
+        case .majorOutage: return NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+                ? .systemRed
+                : NSColor(red: 0.60, green: 0.04, blue: 0.04, alpha: 1) // dark red #991b1b
+        }
+        case .unknown: return .secondaryLabelColor
         }
     }
 

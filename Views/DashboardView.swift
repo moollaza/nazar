@@ -14,7 +14,6 @@ struct DashboardView: View {
     @State private var searchText = ""
     @State private var showIssuesOnly = false
     @AppStorage("dashboardSort") private var sortOrder: DashboardSort = .severity
-    @State private var isRefreshing = false
 
     private var filteredSnapshots: [ProviderSnapshot] {
         var result = manager.snapshots
@@ -131,21 +130,21 @@ struct DashboardView: View {
                 .frame(width: 72)
                 .labelsHidden()
 
-                // Refresh button with spin feedback
+                // Refresh button with spin feedback. Spinner is tied to
+                // `manager.isRefreshing` so it reflects actual poll completion
+                // rather than a wall-clock timer. `pollAll` coalesces repeat
+                // invocations so rapid clicks don't spawn overlapping cycles.
                 HoverButton(
                     icon: "arrow.clockwise",
                     fontSize: 12,
                     help: "Refresh all"
                 ) {
                     logger.info("Manual refresh triggered")
-                    isRefreshing = true
                     manager.pollAll()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        isRefreshing = false
-                    }
                 }
-                .rotationEffect(.degrees(isRefreshing ? 360 : 0))
-                .animation(isRefreshing ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .default, value: isRefreshing)
+                .disabled(manager.isRefreshing)
+                .rotationEffect(.degrees(manager.isRefreshing ? 360 : 0))
+                .animation(manager.isRefreshing ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .default, value: manager.isRefreshing)
 
                 // Settings button — opens the Settings window
                 HoverButton(icon: "gearshape", fontSize: 12, help: "Settings") {

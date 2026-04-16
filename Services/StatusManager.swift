@@ -1,8 +1,13 @@
 import Foundation
 import Observation
 import OSLog
+import AppKit
 
 private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "StatusMonitor", category: "polling")
+
+/// Maximum allowed response size in bytes. Guards against hostile or broken
+/// servers that return multi-GB blobs (or gzip bombs) from a status endpoint.
+private let maxResponseBytes = 5_000_000
 
 @MainActor
 @Observable
@@ -11,6 +16,9 @@ class StatusManager {
     var providers: [Provider] = []
     var worstStatus: ComponentStatus = .operational
     var isPolling = false
+    /// True while a manual pollAll() cycle is in flight. UI can bind to this
+    /// to show/hide a spinner tied to actual completion rather than a timer.
+    var isRefreshing = false
 
     var onWorstStatusChanged: ((ComponentStatus) -> Void)?
     var onPollCycleComplete: (() -> Void)?
@@ -18,11 +26,21 @@ class StatusManager {
     private var previousStatuses: [UUID: ComponentStatus] = [:]
     private var failureCounts: [UUID: Int] = [:]
     private var lastFailure: [UUID: Date] = [:]
+    private var sleepObserver: NSObjectProtocol?
+    private var wakeObserver: NSObjectProtocol?
 
     private let session: URLSession = {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 15
+        let config = URLSessionConfiguration.ephemeral   // no shared cookies / cache
+        config.timeoutIntervalForRequest = 15            // per-chunk timeout
+        config.timeoutIntervalForResource = 30           // total-request timeout (was 7 days default)
         config.waitsForConnectivity = true
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.httpCookieStorage = nil
+        config.urlCache = nil
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+        config.httpAdditionalHeaders = [
+            "User-Agent": "StatusMonitor/\(version) (+https://github.com/moollaza/status-monitor)"
+        ]
         return URLSession(configuration: config)
     }()
 
@@ -40,6 +58,41 @@ class StatusManager {
 
     init() {
         loadProviders()
+        observeSleepWake()
+    }
+
+    /// On sleep: invalidate timers so they don't fire wildly on wake.
+    /// On wake: reschedule and pollAll so any transitions we missed while
+    /// asleep are observed and notified. Without this, an outage that starts
+    /// and ends entirely during sleep goes undetected.
+    private func observeSleepWake() {
+        let nc = NSWorkspace.shared.notificationCenter
+        sleepObserver = nc.addObserver(
+            forName: NSWorkspace.willSleepNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self = self, self.isPolling else { return }
+                logger.info("System sleeping — pausing polls")
+                self.timers.values.forEach { $0.invalidate() }
+                self.timers.removeAll()
+            }
+        }
+        wakeObserver = nc.addObserver(
+            forName: NSWorkspace.didWakeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self = self, self.isPolling else { return }
+                logger.info("System woke — resuming polls")
+                for provider in self.providers where provider.isEnabled {
+                    self.schedulePolling(for: provider)
+                }
+                self.pollAll(force: true)
+            }
+        }
     }
 
     // MARK: - Provider Persistence
@@ -177,7 +230,17 @@ class StatusManager {
 
     private let maxConcurrentPolls = 6
 
-    func pollAll() {
+    /// Manually refresh every enabled provider. Coalesces concurrent invocations
+    /// via `isRefreshing` so rapid Cmd+R / button clicks don't spawn overlapping
+    /// task groups. `force: true` bypasses the per-provider backoff window so
+    /// a user-initiated refresh always tries, even for recently-failed
+    /// providers.
+    func pollAll(force: Bool = true) {
+        guard !isRefreshing else {
+            logger.debug("pollAll dropped: refresh already in flight")
+            return
+        }
+        isRefreshing = true
         let enabled = providers.filter(\.isEnabled)
         Task {
             await withTaskGroup(of: Void.self) { group in
@@ -188,22 +251,25 @@ class StatusManager {
                         running -= 1
                     }
                     group.addTask { @MainActor [weak self] in
-                        await self?.poll(provider: provider)
+                        await self?.poll(provider: provider, force: force)
                     }
                     running += 1
                 }
             }
+            isRefreshing = false
             onPollCycleComplete?()
         }
     }
 
-    private func poll(provider: Provider) async {
-        // Exponential backoff: skip if we failed recently.
+    private func poll(provider: Provider, force: Bool = false) async {
+        // Exponential backoff: skip if we failed recently, unless the caller
+        // is forcing (user-initiated refresh bypasses backoff).
         // `max(0, ...)` guards against wall-clock rollback (NTP/timezone) that
         // would otherwise leave the gate permanently closed.
-        if let failures = failureCounts[provider.id], failures > 0,
+        if !force,
+           let failures = failureCounts[provider.id], failures > 0,
            let lastFail = lastFailure[provider.id] {
-            let backoffSeconds = min(Double(provider.pollIntervalSeconds) * pow(2, Double(min(failures, 5))), 3600)
+            let backoffSeconds = backoffWindow(for: provider, failures: failures)
             let elapsed = max(0, Date().timeIntervalSince(lastFail))
             if elapsed < backoffSeconds {
                 return
@@ -227,6 +293,12 @@ class StatusManager {
                 logger.error("Poll HTTP \(http.statusCode) for \(provider.name)")
                 recordFailure(for: provider)
                 updateSnapshot(for: provider, error: httpErrorMessage(for: http.statusCode))
+                return
+            }
+            guard data.count <= maxResponseBytes else {
+                logger.error("Poll response too large for \(provider.name): \(data.count) bytes")
+                recordFailure(for: provider)
+                updateSnapshot(for: provider, error: "Response too large (\(data.count / 1_000_000) MB)")
                 return
             }
 
@@ -258,6 +330,12 @@ class StatusManager {
             recordFailure(for: provider)
             updateSnapshot(for: provider, error: "Unable to read status page")
         }
+    }
+
+    private func backoffWindow(for provider: Provider, failures: Int) -> Double {
+        let base = min(Double(provider.pollIntervalSeconds) * pow(2, Double(min(failures, 5))), 3600)
+        // Jitter in ±50% so many providers failing together don't retry in lockstep.
+        return base * Double.random(in: 0.5...1.5)
     }
 
     private func httpErrorMessage(for code: Int) -> String {
@@ -312,7 +390,7 @@ class StatusManager {
         }
 
         let components = summary.components
-            .filter { $0.group != true }  // exclude group headers, keep children
+            .filter { $0.group != true }
             .map { comp -> ComponentSnapshot in
                 var displayName = comp.name
                 if let groupId = comp.groupId, let groupName = groupNames[groupId] {
@@ -327,13 +405,20 @@ class StatusManager {
         let componentMax = components.map(\.status).max() ?? .operational
         let overall = max(indicatorStatus, componentMax)
 
-        let incidents = (summary.incidents ?? []).prefix(5).map { incident in
+        // Merge in-progress scheduled maintenances into active incidents so
+        // the UI reflects ongoing maintenance windows. Atlassian reports
+        // these in `scheduled_maintenances` with `status: "in_progress"`,
+        // not in `incidents`.
+        let inProgressMaint = (summary.scheduledMaintenances ?? []).filter { $0.status == "in_progress" }
+        let combinedIncidents = ((summary.incidents ?? []) + inProgressMaint).prefix(5)
+
+        let incidents = combinedIncidents.map { incident -> IncidentSnapshot in
             let updates = (incident.incidentUpdates ?? []).map { update in
                 IncidentUpdateSnapshot(
                     id: update.id,
                     status: update.status,
-                    body: update.body,
-                    createdAt: Self.parseDate(update.createdAt)
+                    body: update.body ?? "",
+                    createdAt: update.createdAt.flatMap(Self.parseDate)
                 )
             }
             return IncidentSnapshot(
@@ -356,7 +441,6 @@ class StatusManager {
             lastUpdated: Date(),
             error: nil
         )
-
         applySnapshot(snapshot, for: provider)
     }
 
@@ -380,8 +464,8 @@ class StatusManager {
         let items = try parser.parse()
 
         // Heuristic: check titles/descriptions for outage keywords.
-        // Empty feed is treated as operational — for status-page RSS, no recent
-        // items typically means no incidents.
+        // Empty feed → operational (no recent items on a status-page feed
+        // typically means no incidents).
         let overall: ComponentStatus = items.first.map { item in
             Self.rssStatusHeuristic(title: item.title, description: item.description)
         } ?? .operational
@@ -407,7 +491,6 @@ class StatusManager {
             lastUpdated: Date(),
             error: nil
         )
-
         applySnapshot(snapshot, for: provider)
     }
 

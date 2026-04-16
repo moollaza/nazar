@@ -134,6 +134,17 @@ final class StatusManagerTests: XCTestCase {
         XCTAssertEqual(manager.unreachableCount, 2)
     }
 
+    // MARK: - Refresh coalescing
+
+    func testPollAllCoalescesWhenAlreadyRefreshing() {
+        // Simulate an in-flight refresh. A second call must no-op rather than
+        // spawn an overlapping task group.
+        manager.isRefreshing = true
+        manager.pollAll()
+        XCTAssertTrue(manager.isRefreshing,
+                      "Second pollAll must not reset the flag nor start a new cycle")
+    }
+
     // MARK: - Muted providers
 
     func testWorstStatusExcludesMutedProviders() {

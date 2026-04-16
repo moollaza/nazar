@@ -308,8 +308,8 @@ struct StatuspageIncident: Codable, Identifiable {
 struct StatuspageIncidentUpdate: Codable, Identifiable {
     let id: String
     let status: String
-    let body: String
-    let createdAt: String
+    let body: String?        // optional — incident.io variants sometimes omit body
+    let createdAt: String?   // optional — some responses omit created_at on silently-created updates
 
     enum CodingKeys: String, CodingKey {
         case id, status, body

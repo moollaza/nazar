@@ -14,6 +14,16 @@
 
     <link rel="preload" href="catalog.json" as="fetch" type="application/json" crossorigin="anonymous" />
 
+    <script>
+      (function () {
+        try {
+          const saved = localStorage.getItem('theme') || 'auto';
+          if (saved === 'light') document.documentElement.style.colorScheme = 'light';
+          else if (saved === 'dark') document.documentElement.style.colorScheme = 'dark';
+        } catch {}
+      })();
+    </script>
+
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
@@ -103,9 +113,17 @@
           <a href="#faq" class="transition hover:text-text-primary">FAQ</a>
           <a href="https://github.com/moollaza/status-monitor" class="transition hover:text-text-primary" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
-        <a href="https://github.com/moollaza/status-monitor/releases" class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
-          Download
-        </a>
+        <div class="flex items-center gap-2">
+          <button type="button" id="theme-toggle" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-subtle bg-surface-raised text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" aria-label="Switch theme">
+            <svg data-theme-icon="auto" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+            <svg data-theme-icon="light" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg data-theme-icon="dark" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </button>
+          <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Download
+          </a>
+        </div>
       </nav>
     </header>
 
@@ -127,7 +145,7 @@
             </p>
             <div class="mt-10 flex flex-wrap items-center gap-4">
               <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
-                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 13l6 6 6-6"/></svg>
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 Download for macOS
               </a>
               <a href="https://github.com/moollaza/status-monitor" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener noreferrer">
@@ -547,6 +565,35 @@
         </p>
       </div>
     </footer>
+
+    <script>
+      (function () {
+        const btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        const order = ['auto', 'light', 'dark'];
+        const labels = { auto: 'Theme: auto (switch to light)', light: 'Theme: light (switch to dark)', dark: 'Theme: dark (switch to auto)' };
+
+        function apply(mode) {
+          if (mode === 'auto') document.documentElement.style.colorScheme = '';
+          else document.documentElement.style.colorScheme = mode;
+          btn.setAttribute('aria-label', labels[mode]);
+          btn.querySelectorAll('[data-theme-icon]').forEach((el) => {
+            el.classList.toggle('hidden', el.dataset.themeIcon !== mode);
+          });
+        }
+
+        let current;
+        try { current = localStorage.getItem('theme') || 'auto'; } catch { current = 'auto'; }
+        if (!order.includes(current)) current = 'auto';
+        apply(current);
+
+        btn.addEventListener('click', () => {
+          current = order[(order.indexOf(current) + 1) % order.length];
+          try { localStorage.setItem('theme', current); } catch {}
+          apply(current);
+        });
+      })();
+    </script>
 
     <script>
       (function () {

@@ -5,7 +5,14 @@ import OSLog
 
 private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "StatusMonitor", category: "notifications")
 
-class NotificationService: NSObject, UNUserNotificationCenterDelegate {
+/// Thin seam for tests to substitute a spy implementation. Production code
+/// wires `NotificationService.shared` into StatusManager; tests inject a spy.
+@MainActor
+protocol NotificationServicing: AnyObject {
+    func notify(providerId: UUID, provider: String, from: ComponentStatus, to: ComponentStatus, incident: String?)
+}
+
+class NotificationService: NSObject, UNUserNotificationCenterDelegate, NotificationServicing {
     static let shared = NotificationService()
 
     /// Called when user taps a notification with the provider ID for deep-linking.

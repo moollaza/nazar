@@ -29,7 +29,10 @@ class StatusManager {
     private var sleepObserver: NSObjectProtocol?
     private var wakeObserver: NSObjectProtocol?
 
-    private let session: URLSession = {
+    let session: URLSession
+    let notifier: NotificationServicing
+
+    static let defaultSession: URLSession = {
         let config = URLSessionConfiguration.ephemeral   // no shared cookies / cache
         config.timeoutIntervalForRequest = 15            // per-chunk timeout
         config.timeoutIntervalForResource = 30           // total-request timeout (was 7 days default)
@@ -56,7 +59,12 @@ class StatusManager {
         return f
     }()
 
-    init() {
+    init(
+        session: URLSession = StatusManager.defaultSession,
+        notifier: NotificationServicing = NotificationService.shared
+    ) {
+        self.session = session
+        self.notifier = notifier
         loadProviders()
         observeSleepWake()
     }
@@ -261,7 +269,9 @@ class StatusManager {
         }
     }
 
-    private func poll(provider: Provider, force: Bool = false) async {
+    // Internal (not private) so tests can drive the full pipeline end-to-end
+    // against an injected URLSession. Not public; still hidden outside the module.
+    func poll(provider: Provider, force: Bool = false) async {
         // Exponential backoff: skip if we failed recently, unless the caller
         // is forcing (user-initiated refresh bypasses backoff).
         // `max(0, ...)` guards against wall-clock rollback (NTP/timezone) that
@@ -512,7 +522,7 @@ class StatusManager {
         // Notify on status change (not on first poll, skip if muted).
         // Read mute from the current provider, not the captured one.
         if !current.isMuted, let prev = previousStatus, prev != snapshot.overallStatus {
-            NotificationService.shared.notify(
+            notifier.notify(
                 providerId: current.id,
                 provider: current.name,
                 from: prev,

@@ -26,6 +26,7 @@
 		BB00000100000007000PRVTF /* ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000008000PRVTF /* ProviderTests.swift */; };
 		BB00000100000009000RSSTF /* RSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000A000RSSTF /* RSSParserTests.swift */; };
 		BB0000010000000B000SMGTF /* StatusManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000C000SMGTF /* StatusManagerTests.swift */; };
+		BB0000010000000F000POLTF /* StatusManagerPollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000010000POLTF /* StatusManagerPollTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		BB00000100000008000PRVTF /* ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderTests.swift; sourceTree = "<group>"; };
 		BB0000010000000A000RSSTF /* RSSParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParserTests.swift; sourceTree = "<group>"; };
 		BB0000010000000C000SMGTF /* StatusManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusManagerTests.swift; sourceTree = "<group>"; };
+		BB00000100000010000POLTF /* StatusManagerPollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusManagerPollTests.swift; sourceTree = "<group>"; };
 		BB0000010000000E000XCTEST /* StatusMonitorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StatusMonitorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -153,6 +155,7 @@
 				BB00000100000008000PRVTF /* ProviderTests.swift */,
 				BB0000010000000A000RSSTF /* RSSParserTests.swift */,
 				BB0000010000000C000SMGTF /* StatusManagerTests.swift */,
+				BB00000100000010000POLTF /* StatusManagerPollTests.swift */,
 			);
 			path = StatusMonitorTests;
 			sourceTree = "<group>";
@@ -286,6 +289,7 @@
 				BB00000100000007000PRVTF /* ProviderTests.swift in Sources */,
 				BB00000100000009000RSSTF /* RSSParserTests.swift in Sources */,
 				BB0000010000000B000SMGTF /* StatusManagerTests.swift in Sources */,
+				BB0000010000000F000POLTF /* StatusManagerPollTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -25,3 +25,6 @@ Package.resolved
 *.swp
 *~
 .mockups/
+
+# Release artifacts
+releases/

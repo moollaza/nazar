@@ -28,3 +28,6 @@ Package.resolved
 
 # Release artifacts
 releases/
+
+# Website build artifacts (catalog.json is copied from Resources/ at deploy time)
+website/catalog.json

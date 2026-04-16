@@ -8,9 +8,11 @@
     <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)" />
 
     <title>Status Monitor — Stop wondering if it's just you</title>
-    <meta name="description" content="A free, open-source macOS menu bar app that tells you the moment the tools your team depends on — Claude, GitHub, Asana, Slack, and 1,600+ more — go down." />
+    <meta name="description" content="The fastest way to stay on top of outages and service updates. A free, open-source macOS menu bar app that watches 1,600+ services — Claude, GitHub, Asana, Slack, and more — so you don't have to." />
 
     <link rel="canonical" href="https://moollaza.github.io/status-monitor/" />
+
+    <link rel="preload" href="catalog.json" as="fetch" type="application/json" crossorigin="anonymous" />
 
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
@@ -20,7 +22,7 @@
     <meta property="og:url" content="https://moollaza.github.io/status-monitor/" />
     <meta property="og:site_name" content="Status Monitor" />
     <meta property="og:title" content="Status Monitor — Stop wondering if it's just you" />
-    <meta property="og:description" content="Free, open-source macOS menu bar app. Know the moment Claude, GitHub, Asana, Slack, or 1,600+ other services your team depends on go down." />
+    <meta property="og:description" content="The fastest way to stay on top of outages and service updates. A free, open-source macOS menu bar app watching 1,600+ services so you don't have to." />
     <meta property="og:image" content="https://moollaza.github.io/status-monitor/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -28,7 +30,7 @@
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Status Monitor — Stop wondering if it's just you" />
-    <meta name="twitter:description" content="Free, open-source macOS menu bar app. Know the moment Claude, GitHub, Asana, Slack, or 1,600+ other services your team depends on go down." />
+    <meta name="twitter:description" content="The fastest way to stay on top of outages and service updates. A free, open-source macOS menu bar app watching 1,600+ services so you don't have to." />
     <meta name="twitter:image" content="https://moollaza.github.io/status-monitor/og-image.png" />
 
     <script type="application/ld+json">
@@ -36,7 +38,7 @@
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "Status Monitor",
-      "description": "A free, open-source macOS menu bar app that monitors 1,600+ SaaS status pages and alerts you the moment a tool your team depends on goes down.",
+      "description": "The fastest way to stay on top of outages and service updates. A free, open-source macOS menu bar app that monitors 1,600+ SaaS status pages and alerts you the moment something you depend on goes down.",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "macOS 14 Sonoma or later",
       "url": "https://moollaza.github.io/status-monitor/",
@@ -121,7 +123,7 @@
               Stop wondering<br class="hidden sm:inline" /> if it's just you.
             </h1>
             <p class="mt-6 text-lg leading-relaxed text-text-secondary sm:text-xl">
-              A macOS menu bar app that tells you the moment the tools your team depends on — Claude, GitHub, Asana, Slack, and 1,600+ more — go down.
+              The fastest way to stay on top of outages and service updates for the tools you depend on — Claude, GitHub, Asana, Slack, and 1,600+ more. Right in your menu bar.
             </p>
             <div class="mt-10 flex flex-wrap items-center gap-4">
               <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
@@ -146,7 +148,7 @@
                 <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 4l4 4 4-4z"/></svg>
               </div>
 
-              <div role="img" aria-label="Status Monitor dashboard showing nine team tools with operational, degraded, and outage statuses." class="overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-[0_24px_64px_-12px_rgba(17,17,19,0.18)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+              <div role="img" aria-label="Status Monitor dashboard showing nine services with operational, degraded, and outage statuses." class="overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-[0_24px_64px_-12px_rgba(17,17,19,0.18)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
                 <!-- Dashboard header -->
                 <div class="flex items-center gap-2 px-4 py-2.5">
                   <span class="text-sm font-semibold text-text-primary">Status Monitor</span>
@@ -297,7 +299,7 @@
         <div class="mx-auto max-w-6xl px-6">
           <div class="mx-auto max-w-2xl text-center">
             <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">A calm way to watch your stack</h2>
-            <p class="mt-4 text-lg text-text-secondary">Everything you need to spot outages in the tools your team relies on. Nothing you don't.</p>
+            <p class="mt-4 text-lg text-text-secondary">Everything you need to spot outages in the tools you rely on. Nothing you don't.</p>
           </div>
           <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
@@ -307,7 +309,7 @@
               </div>
               <h3 class="text-lg font-semibold">1,600+ Services</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Built-in catalog covering the SaaS tools teams actually use — AI, dev, design, productivity, ops, finance.
+                Built-in catalog covering the SaaS tools you actually use — AI, dev, design, productivity, ops, finance.
               </p>
             </article>
 
@@ -347,7 +349,7 @@
               </div>
               <h3 class="text-lg font-semibold">Open Source</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Source-available under FSL 1.1. Read the code, contribute, or fork it for your team. Converts to Apache 2.0 in 2028.
+                Source-available under FSL 1.1. Read the code, contribute, or fork it. Converts to Apache 2.0 in 2028.
               </p>
             </article>
 
@@ -398,19 +400,40 @@
         </div>
       </section>
 
-      <!-- Service Catalog Preview -->
+      <!-- Service Catalog Browser -->
       <section id="services" class="scroll-mt-20 border-t border-border-subtle py-24">
         <div class="mx-auto max-w-6xl px-6">
           <div class="mx-auto max-w-2xl text-center">
-            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">The tools your team depends on</h2>
-            <p class="mt-4 text-lg text-text-secondary">Over 1,600 services — AI, dev, design, productivity, ops. If it has a status page, we've probably got it.</p>
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">The tools you depend on</h2>
+            <p class="mt-4 text-lg text-text-secondary">Browse <span id="catalog-total">1,600+</span> supported services across <span id="catalog-cat-count">22</span> categories.</p>
           </div>
-          <ul class="mt-12 flex flex-wrap justify-center gap-3 [&>li]:rounded-lg [&>li]:border [&>li]:border-border-subtle [&>li]:bg-surface-raised [&>li]:px-4 [&>li]:py-2 [&>li]:text-sm [&>li]:text-text-secondary [&>li]:transition hover:[&>li]:border-text-tertiary hover:[&>li]:text-text-primary">
-            <li>Claude</li><li>GitHub</li><li>Cloudflare</li><li>OpenAI</li><li>Slack</li><li>Vercel</li><li>Netlify</li><li>Supabase</li><li>Datadog</li><li>Figma</li><li>Notion</li><li>Asana</li><li>1Password</li><li>Twilio</li><li>Sentry</li><li>Linear</li><li>Docker</li><li>Jira</li><li>Grafana</li><li>Fly.io</li><li>Zapier</li><li>Zoom</li><li>HubSpot</li><li>Stripe</li>
-          </ul>
-          <p class="mt-8 text-center text-sm text-text-tertiary">
-            Plus Snowflake, Elastic, Plaid, New Relic, Amplitude, Mixpanel, Render, DigitalOcean, and many more.
-          </p>
+
+          <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+            <label class="relative flex-1">
+              <span class="sr-only">Search services</span>
+              <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="catalog-search" type="search" autocomplete="off" placeholder="Search 1,600+ services…" class="w-full rounded-lg border border-border-subtle bg-surface-raised py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30" />
+            </label>
+            <a id="catalog-submit" href="https://github.com/moollaza/status-monitor/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              Request a service
+            </a>
+          </div>
+
+          <div id="catalog-categories" class="mt-6 flex flex-wrap gap-2" role="tablist" aria-label="Service categories">
+            <button type="button" data-category="all" class="category-chip rounded-full border border-border-subtle bg-surface-raised px-3.5 py-1.5 text-xs font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent" aria-pressed="true">All</button>
+          </div>
+
+          <div id="catalog-results" class="mt-8 min-h-[320px]">
+            <div id="catalog-loading" class="py-16 text-center text-sm text-text-tertiary">Loading catalog…</div>
+            <ul id="catalog-list" class="hidden grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"></ul>
+            <p id="catalog-empty" class="hidden py-16 text-center text-sm text-text-tertiary">No services match. <a id="catalog-empty-submit" class="text-accent underline-offset-2 hover:underline" href="https://github.com/moollaza/status-monitor/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer">Request it on GitHub →</a></p>
+          </div>
+
+          <div id="catalog-footer" class="mt-8 flex flex-col items-center gap-3 text-sm text-text-tertiary sm:flex-row sm:justify-between">
+            <p><span id="catalog-showing">Showing all services</span></p>
+            <button type="button" id="catalog-more" class="hidden rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">Show more</button>
+          </div>
         </div>
       </section>
 
@@ -498,7 +521,7 @@
       <section class="border-t border-border-subtle py-24">
         <div class="mx-auto max-w-3xl px-6 text-center">
           <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Never guess again</h2>
-          <p class="mt-4 text-lg text-text-secondary">Download Status Monitor and know the moment your team's tools go down.</p>
+          <p class="mt-4 text-lg text-text-secondary">The fastest way to stay on top of outages and service updates for everything you depend on.</p>
           <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
             <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 13l6 6 6-6"/></svg>
@@ -516,7 +539,7 @@
     <!-- Footer -->
     <footer class="border-t border-border-subtle py-10">
       <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-sm text-text-tertiary sm:flex-row sm:justify-between">
-        <p>Made by <a href="https://github.com/moollaza" class="text-text-secondary transition hover:text-text-primary" target="_blank" rel="noopener noreferrer">MoollApps</a></p>
+        <p>Made by <a href="https://zaahir.ca" class="text-text-secondary transition hover:text-text-primary" target="_blank" rel="noopener noreferrer">Zaahir Moolla</a></p>
         <p>
           <a href="https://github.com/moollaza/status-monitor/blob/main/LICENSE" class="transition hover:text-text-secondary" target="_blank" rel="noopener noreferrer">FSL 1.1 License</a>
           <span class="mx-2" aria-hidden="true">&middot;</span>
@@ -524,6 +547,170 @@
         </p>
       </div>
     </footer>
+
+    <script>
+      (function () {
+        const PAGE_SIZE = 60;
+        const els = {
+          search: document.getElementById('catalog-search'),
+          categories: document.getElementById('catalog-categories'),
+          loading: document.getElementById('catalog-loading'),
+          list: document.getElementById('catalog-list'),
+          empty: document.getElementById('catalog-empty'),
+          showing: document.getElementById('catalog-showing'),
+          more: document.getElementById('catalog-more'),
+          total: document.getElementById('catalog-total'),
+          catCount: document.getElementById('catalog-cat-count'),
+        };
+
+        let catalog = [];
+        let activeCategory = 'all';
+        let query = '';
+        let limit = PAGE_SIZE;
+
+        const CHIP_CLASS = 'category-chip rounded-full border border-border-subtle bg-surface-raised px-3.5 py-1.5 text-xs font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent';
+        const CARD_CLASS = 'group flex items-center gap-3 rounded-lg border border-border-subtle bg-surface-raised px-3.5 py-2.5 transition hover:border-accent';
+
+        function filter() {
+          const q = query.trim().toLowerCase();
+          return catalog.filter((s) => {
+            if (activeCategory !== 'all' && s.category !== activeCategory) return false;
+            if (!q) return true;
+            return s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q);
+          });
+        }
+
+        function hostFromUrl(url) {
+          try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; }
+        }
+
+        function buildCard(service) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = service.base_url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.className = CARD_CLASS;
+
+          const info = document.createElement('span');
+          info.className = 'flex min-w-0 flex-1 items-baseline gap-2';
+
+          const name = document.createElement('span');
+          name.className = 'truncate text-sm font-medium text-text-primary';
+          name.textContent = service.name;
+
+          const host = document.createElement('span');
+          host.className = 'truncate text-xs text-text-tertiary';
+          host.textContent = hostFromUrl(service.base_url);
+
+          info.append(name, host);
+
+          const cat = document.createElement('span');
+          cat.className = 'shrink-0 text-xs text-text-tertiary';
+          cat.textContent = service.category;
+
+          a.append(info, cat);
+          li.append(a);
+          return li;
+        }
+
+        function render() {
+          const results = filter();
+          const shown = results.slice(0, limit);
+
+          els.list.replaceChildren();
+
+          if (results.length === 0) {
+            els.list.classList.add('hidden');
+            els.list.classList.remove('grid');
+            els.empty.classList.remove('hidden');
+            els.more.classList.add('hidden');
+            els.showing.textContent = '0 services';
+            return;
+          }
+
+          els.empty.classList.add('hidden');
+          els.list.classList.remove('hidden');
+          els.list.classList.add('grid');
+
+          const frag = document.createDocumentFragment();
+          for (const s of shown) frag.append(buildCard(s));
+          els.list.append(frag);
+
+          const countLabel = results.length === catalog.length ? `all ${results.length.toLocaleString()} services` : `${results.length.toLocaleString()} of ${catalog.length.toLocaleString()} services`;
+          els.showing.textContent = `Showing ${Math.min(limit, results.length).toLocaleString()} of ${countLabel}`;
+
+          els.more.classList.toggle('hidden', results.length <= limit);
+        }
+
+        function buildCategoryChips() {
+          const counts = {};
+          for (const s of catalog) counts[s.category] = (counts[s.category] || 0) + 1;
+          const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+          els.total.textContent = catalog.length.toLocaleString();
+          els.catCount.textContent = sorted.length;
+          els.search.placeholder = `Search ${catalog.length.toLocaleString()} services…`;
+
+          for (const [cat, count] of sorted) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.dataset.category = cat;
+            btn.className = CHIP_CLASS;
+            btn.setAttribute('aria-pressed', 'false');
+
+            btn.append(document.createTextNode(cat + ' '));
+            const badge = document.createElement('span');
+            badge.className = 'ml-1 opacity-60';
+            badge.textContent = String(count);
+            btn.append(badge);
+
+            els.categories.append(btn);
+          }
+        }
+
+        function setCategory(cat) {
+          activeCategory = cat;
+          limit = PAGE_SIZE;
+          els.categories.querySelectorAll('.category-chip').forEach((b) => {
+            b.setAttribute('aria-pressed', b.dataset.category === cat ? 'true' : 'false');
+          });
+          render();
+        }
+
+        els.categories.addEventListener('click', (e) => {
+          const btn = e.target.closest('.category-chip');
+          if (btn) setCategory(btn.dataset.category);
+        });
+
+        let searchTimer;
+        els.search.addEventListener('input', (e) => {
+          clearTimeout(searchTimer);
+          searchTimer = setTimeout(() => {
+            query = e.target.value;
+            limit = PAGE_SIZE;
+            render();
+          }, 100);
+        });
+
+        els.more.addEventListener('click', () => {
+          limit += PAGE_SIZE;
+          render();
+        });
+
+        fetch('catalog.json')
+          .then((r) => r.json())
+          .then((data) => {
+            catalog = data.slice().sort((a, b) => a.name.localeCompare(b.name));
+            els.loading.classList.add('hidden');
+            buildCategoryChips();
+            render();
+          })
+          .catch(() => {
+            els.loading.textContent = 'Failed to load catalog. Please refresh.';
+          });
+      })();
+    </script>
 
   </body>
 </html>

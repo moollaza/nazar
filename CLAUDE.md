@@ -8,7 +8,7 @@ macOS menu bar app that monitors SaaS service status pages and alerts on outages
 - **Architecture**: Menu bar accessory (`LSUIElement=true`), no Dock icon, floating NSPanel (not NSPopover)
 - **Persistence**: `UserDefaults` for provider list and preferences
 - **Network**: `URLSession` for polling; sandboxed (`com.apple.security.network.client`)
-- **Website**: Static HTML + Tailwind CSS CDN (no build step), Cloudflare Pages
+- **Website**: Static HTML + Tailwind CSS CDN (no build step), GitHub Pages
 - **License**: FSL 1.1 (converts to Apache 2.0 on 2028-04-12)
 
 ## Repo Layout
@@ -20,7 +20,7 @@ Views/                    SwiftUI views (Dashboard, Settings, Detail, Feedback, 
 Services/                 StatusManager, NotificationService, RSSParser
 Resources/                catalog.json (1,683 verified services)
 scripts/                  Discovery, verification, and categorization tooling
-website/                  Marketing site (deployed to CF Pages)
+website/                  Marketing site (deployed to GitHub Pages)
 docs/
   brainstorms/            Requirements docs
   plans/                  Implementation plans
@@ -75,7 +75,7 @@ All work is tracked in Linear. **The Linear MCP must be connected before plannin
 
 ## Deployment
 
-- **Website**: `wrangler pages deploy website/ --project-name status-monitor --branch main --commit-dirty`
+- **Website**: Deploys automatically on push to `main` via `.github/workflows/deploy-website.yml` → https://moollaza.github.io/status-monitor/
 - **App**: Distribution via signed DMG (not yet set up)
 
 ## Status Page Support

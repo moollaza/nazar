@@ -3,13 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0f" />
+
     <title>Status Monitor — Know before your users do</title>
-    <meta name="description" content="A free, open-source macOS menu bar app that monitors 1,600+ SaaS service status pages and alerts you on outages before your users notice." />
+    <meta name="description" content="Free, open-source macOS menu bar app that monitors 1,600+ SaaS status pages and sends native notifications the moment a service degrades." />
+
+    <link rel="canonical" href="https://moollaza.github.io/status-monitor/" />
+
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://moollaza.github.io/status-monitor/" />
+    <meta property="og:site_name" content="Status Monitor" />
     <meta property="og:title" content="Status Monitor — Know before your users do" />
     <meta property="og:description" content="Free, open-source macOS menu bar app. Monitor 1,600+ SaaS services and get instant alerts on outages." />
-    <meta property="og:type" content="website" />
-    <!-- TODO: og:image — add screenshot or social card -->
-    <!-- TODO: favicon — add favicon.ico or emoji favicon -->
+    <meta property="og:image" content="https://moollaza.github.io/status-monitor/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Status Monitor — a macOS menu bar app with the tagline 'Know before your users do.'" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Status Monitor — Know before your users do" />
+    <meta name="twitter:description" content="Free, open-source macOS menu bar app. Monitor 1,600+ SaaS services and get instant alerts on outages." />
+    <meta name="twitter:image" content="https://moollaza.github.io/status-monitor/og-image.png" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Status Monitor",
+      "description": "A free, open-source macOS menu bar app that monitors 1,600+ SaaS service status pages and sends native notifications on outages.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "macOS 14 Sonoma or later",
+      "url": "https://moollaza.github.io/status-monitor/",
+      "downloadUrl": "https://github.com/moollaza/status-monitor/releases",
+      "sameAs": "https://github.com/moollaza/status-monitor",
+      "license": "https://github.com/moollaza/status-monitor/blob/main/LICENSE",
+      "author": { "@type": "Organization", "name": "MoollApps", "url": "https://github.com/moollaza" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+
     <script
       src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.2"
       integrity="sha384-qKt1F1k7v69ebd7q6Na1d2FGVMI+43GgA5hpfz7i+zDfrz8rIjXYu7majL1fXSeS"
@@ -20,26 +56,38 @@
         --color-surface: #0a0a0f;
         --color-surface-raised: #12121a;
         --color-surface-overlay: #1a1a26;
-        --color-border-subtle: #1e1e2e;
+        --color-border-subtle: #23233a;
         --color-accent: #6366f1;
         --color-accent-hover: #818cf8;
         --color-text-primary: #f0f0f5;
-        --color-text-secondary: #9090a8;
-        --color-text-tertiary: #606078;
+        --color-text-secondary: #a0a0b8;
+        --color-text-tertiary: #7a7a94;
         --color-green: #22c55e;
         --color-yellow: #eab308;
         --color-orange: #f97316;
         --color-red: #ef4444;
       }
+
+      @layer base {
+        :focus-visible {
+          outline: 2px solid var(--color-accent);
+          outline-offset: 2px;
+          border-radius: 6px;
+        }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+      }
     </style>
   </head>
   <body class="bg-surface text-text-primary antialiased">
 
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white">Skip to content</a>
+
     <!-- Nav -->
     <header class="fixed top-0 z-50 w-full border-b border-border-subtle bg-surface/80 backdrop-blur-lg">
-      <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <a href="#" class="flex items-center gap-2 text-lg font-semibold tracking-tight">
-          <span class="inline-flex h-7 w-7 items-center justify-center rounded-md bg-accent text-sm text-white">S</span>
+      <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4" aria-label="Primary">
+        <a href="#" class="flex items-center gap-2 text-lg font-semibold tracking-tight" aria-label="Status Monitor home">
+          <img src="favicon.svg" alt="" width="28" height="28" class="h-7 w-7 rounded-md" />
           Status Monitor
         </a>
         <div class="hidden items-center gap-8 text-sm text-text-secondary sm:flex">
@@ -47,74 +95,164 @@
           <a href="#how-it-works" class="transition hover:text-text-primary">How It Works</a>
           <a href="#services" class="transition hover:text-text-primary">Services</a>
           <a href="#faq" class="transition hover:text-text-primary">FAQ</a>
-          <a href="https://github.com/moollaza/status-monitor" class="transition hover:text-text-primary" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/moollaza/status-monitor" class="transition hover:text-text-primary" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
-        <a href="https://github.com/moollaza/status-monitor/releases" class="hidden rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-hover sm:inline-block" target="_blank" rel="noopener">
+        <a href="https://github.com/moollaza/status-monitor/releases" class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
           Download
         </a>
       </nav>
     </header>
 
-    <main>
+    <main id="main">
 
       <!-- Hero -->
-      <section class="relative flex min-h-screen items-center overflow-hidden pt-20">
-        <!-- Background gradient -->
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.12)_0%,_transparent_60%)]"></div>
-        <div class="relative mx-auto grid max-w-6xl gap-12 px-6 py-24 lg:grid-cols-2 lg:items-center lg:gap-16">
+      <section class="relative flex min-h-screen items-center overflow-hidden pt-24 sm:pt-20">
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.14)_0%,_transparent_60%)]"></div>
+        <div class="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 sm:py-24 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div class="max-w-xl">
             <p class="mb-4 inline-block rounded-full border border-border-subtle bg-surface-raised px-4 py-1.5 text-xs font-medium tracking-wide text-text-secondary">
               Free &amp; Open Source for macOS
             </p>
-            <h1 class="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Know before<br />your users do.
+            <h1 class="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+              Know before your users do.
             </h1>
             <p class="mt-6 text-lg leading-relaxed text-text-secondary sm:text-xl">
-              A macOS menu bar app that monitors 1,600+ SaaS service status pages and alerts you the moment something goes down.
+              A macOS menu bar app that monitors 1,600+ SaaS status pages and alerts you the moment something goes down.
             </p>
             <div class="mt-10 flex flex-wrap items-center gap-4">
-              <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-hover" target="_blank" rel="noopener">
-                <span>&#8595;</span> Download for macOS
+              <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 13l6 6 6-6"/></svg>
+                Download for macOS
               </a>
-              <a href="https://github.com/moollaza/status-monitor" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener">
+              <a href="https://github.com/moollaza/status-monitor" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener noreferrer">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.48 11.48 0 0 0 7.86 10.93c.58.1.79-.25.79-.55v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.13v3.16c0 .3.21.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
                 View on GitHub
               </a>
             </div>
-            <p class="mt-4 text-xs text-text-tertiary">Requires macOS 13 (Ventura) or later. Free &amp; source-available (FSL 1.1).</p>
+            <p class="mt-4 text-xs text-text-tertiary">Requires macOS 14 (Sonoma) or later. Free &amp; source-available (FSL 1.1).</p>
           </div>
-          <!-- App Screenshot Placeholder -->
+
+          <!-- Dashboard mock — mirrors Views/DashboardView.swift (420×520 panel). Keep in sync when UI changes. -->
           <div class="flex items-center justify-center">
-            <div class="relative w-full max-w-md overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-2xl">
-              <div class="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
-                <span class="h-3 w-3 rounded-full bg-red"></span>
-                <span class="h-3 w-3 rounded-full bg-yellow"></span>
-                <span class="h-3 w-3 rounded-full bg-green"></span>
-                <span class="ml-auto text-xs text-text-tertiary">Status Monitor</span>
+            <div class="relative w-full max-w-[420px]">
+              <!-- Menu bar chrome hint -->
+              <div class="mx-auto mb-3 flex w-fit items-center gap-2 rounded-md border border-border-subtle bg-surface-raised/80 px-3 py-1.5 text-xs text-text-tertiary" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M10 16a2 2 0 0 1 4 0"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/></svg>
+                <span class="font-medium text-text-secondary">in your menu bar</span>
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 4l4 4 4-4z"/></svg>
               </div>
-              <div class="space-y-3 p-5">
-                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
-                  <span class="text-sm">GitHub</span>
-                  <span class="flex items-center gap-1.5 text-xs text-green">&#9679; Operational</span>
+
+              <div role="img" aria-label="Status Monitor dashboard showing five services with operational, degraded, and outage statuses." class="overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+                <!-- Dashboard header -->
+                <div class="flex items-center gap-2 px-4 py-2.5">
+                  <span class="text-sm font-semibold text-text-primary">Status Monitor</span>
+                  <div class="ml-auto flex items-center gap-1.5 text-text-tertiary">
+                    <!-- Issues-only toggle (active) -->
+                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-md bg-surface-overlay text-orange">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2L1 21h22L12 2zm0 15a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4zm1-4h-2V9h2v4z"/></svg>
+                    </span>
+                    <!-- Sort segmented control -->
+                    <span class="inline-flex overflow-hidden rounded-md border border-border-subtle">
+                      <span class="inline-flex h-6 w-9 items-center justify-center bg-surface-overlay text-text-primary">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M7 4l-3 3M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg>
+                      </span>
+                      <span class="inline-flex h-6 w-9 items-center justify-center text-text-tertiary">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 6h14M5 12h10M5 18h6"/></svg>
+                      </span>
+                    </span>
+                    <!-- Refresh + settings -->
+                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-md">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+                    </span>
+                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-md">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+                    </span>
+                  </div>
                 </div>
-                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
-                  <span class="text-sm">Vercel</span>
-                  <span class="flex items-center gap-1.5 text-xs text-green">&#9679; Operational</span>
+
+                <!-- Search field -->
+                <div class="mx-4 mb-2 flex items-center gap-2 rounded-md bg-surface-overlay px-2.5 py-1.5 text-xs text-text-tertiary">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                  <span>Filter services…</span>
                 </div>
-                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
-                  <span class="text-sm">OpenAI</span>
-                  <span class="flex items-center gap-1.5 text-xs text-yellow">&#9679; Degraded</span>
+
+                <div class="border-t border-border-subtle"></div>
+
+                <!-- Service rows -->
+                <ul class="space-y-0.5 px-2 py-2">
+                  <!-- Row: GitHub — Operational -->
+                  <li class="flex items-center gap-2.5 rounded-md px-3 py-2">
+                    <span class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#161b22] text-sm font-semibold text-white" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.48 11.48 0 0 0 7.86 10.93c.58.1.79-.25.79-.55v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.13v3.16c0 .3.21.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+                      <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green ring-2 ring-surface-raised"></span>
+                    </span>
+                    <span class="text-sm font-medium">GitHub</span>
+                    <span class="ml-auto text-xs text-text-tertiary">Operational</span>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-text-tertiary" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                  </li>
+                  <!-- Row: Cloudflare — Operational -->
+                  <li class="flex items-center gap-2.5 rounded-md px-3 py-2">
+                    <span class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#f38020] text-sm font-bold text-white" aria-hidden="true">
+                      Cf
+                      <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green ring-2 ring-surface-raised"></span>
+                    </span>
+                    <span class="text-sm font-medium">Cloudflare</span>
+                    <span class="ml-auto text-xs text-text-tertiary">Operational</span>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-text-tertiary" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                  </li>
+                  <!-- Row: OpenAI — Degraded (muted) -->
+                  <li class="flex items-center gap-2.5 rounded-md bg-surface-overlay/60 px-3 py-2 opacity-60">
+                    <span class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#10a37f] text-sm font-bold text-white" aria-hidden="true">
+                      Ai
+                      <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-yellow ring-2 ring-surface-raised"></span>
+                    </span>
+                    <span class="text-sm font-medium">OpenAI</span>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="text-text-tertiary" aria-hidden="true"><path d="M16.5 12a4.5 4.5 0 0 0-2.5-4V6l-4 3H5v6h5l4 3v-2c1.5-.8 2.5-2.3 2.5-4zM20 4l1.4 1.4-16 16L4 20 20 4z"/></svg>
+                    <span class="ml-auto rounded-full bg-[#78350f] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#fcd34d]">Degraded</span>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-text-tertiary" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                  </li>
+                  <!-- Row: Vercel — Operational -->
+                  <li class="flex items-center gap-2.5 rounded-md px-3 py-2">
+                    <span class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-black text-sm font-bold text-white" aria-hidden="true">
+                      <svg width="16" height="14" viewBox="0 0 24 20" fill="currentColor"><path d="M12 2 24 20H0z"/></svg>
+                      <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green ring-2 ring-surface-raised"></span>
+                    </span>
+                    <span class="text-sm font-medium">Vercel</span>
+                    <span class="ml-auto text-xs text-text-tertiary">Operational</span>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-text-tertiary" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                  </li>
+                  <!-- Row: Datadog — Partial Outage -->
+                  <li class="flex items-center gap-2.5 rounded-md px-3 py-2">
+                    <span class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#632ca6] text-sm font-bold text-white" aria-hidden="true">
+                      Dd
+                      <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-orange ring-2 ring-surface-raised"></span>
+                    </span>
+                    <span class="text-sm font-medium">Datadog</span>
+                    <span class="ml-auto rounded-full bg-[#7c2d12] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#fdba74]">Partial Outage</span>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-text-tertiary" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                  </li>
+                  <!-- Row: Linear — Operational -->
+                  <li class="flex items-center gap-2.5 rounded-md px-3 py-2">
+                    <span class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#5e6ad2] text-sm font-bold text-white" aria-hidden="true">
+                      L
+                      <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green ring-2 ring-surface-raised"></span>
+                    </span>
+                    <span class="text-sm font-medium">Linear</span>
+                    <span class="ml-auto text-xs text-text-tertiary">Operational</span>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-text-tertiary" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                  </li>
+                </ul>
+
+                <div class="border-t border-border-subtle"></div>
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between px-4 py-2 text-xs">
+                  <span class="flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-orange"></span>
+                    <span class="font-medium text-orange">2 issues</span>
+                  </span>
+                  <span class="text-text-tertiary">Updated 3 minutes ago</span>
                 </div>
-                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
-                  <span class="text-sm">Cloudflare</span>
-                  <span class="flex items-center gap-1.5 text-xs text-green">&#9679; Operational</span>
-                </div>
-                <div class="flex items-center justify-between rounded-lg bg-surface-overlay px-4 py-3">
-                  <span class="text-sm">Datadog</span>
-                  <span class="flex items-center gap-1.5 text-xs text-orange">&#9679; Partial Outage</span>
-                </div>
-              </div>
-              <div class="border-t border-border-subtle px-5 py-3 text-center text-xs text-text-tertiary">
-                App Screenshot — will be replaced with actual image
               </div>
             </div>
           </div>
@@ -130,53 +268,65 @@
           </div>
           <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
-            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128218;</div>
+            <article class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M16 4v4h4"/><path d="M7 13h10M7 17h7"/></svg>
+              </div>
               <h3 class="text-lg font-semibold">1,600+ Services</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Built-in catalog of popular SaaS providers. Pick the services you depend on and start monitoring in seconds.
+                Built-in catalog of the SaaS providers your team depends on. Developer tools, cloud, databases, productivity — covered.
               </p>
-            </div>
+            </article>
 
-            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128276;</div>
+            <article class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+              </div>
               <h3 class="text-lg font-semibold">Real-Time Alerts</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Native macOS notifications the moment a service changes status. No browser tab required.
+                Native macOS notifications the moment a service changes status. Critical sound for major outages. Mute noisy services anytime.
               </p>
-            </div>
+            </article>
 
-            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#9776;</div>
+            <article class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M10 16a2 2 0 0 1 4 0"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+              </div>
               <h3 class="text-lg font-semibold">Menu Bar Native</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
                 Lives in your menu bar with a color-coded icon. Green means all clear. Yellow, orange, or red means something needs attention.
               </p>
-            </div>
+            </article>
 
-            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128274;</div>
+            <article class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+              </div>
               <h3 class="text-lg font-semibold">Privacy First</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                No accounts, no tracking, no analytics. Polls public status pages directly. Your data never leaves your Mac.
+                No accounts, no tracking, no analytics. Polls public status pages directly from your Mac. Runs in the macOS App Sandbox.
               </p>
-            </div>
+            </article>
 
-            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128736;</div>
+            <article class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>
+              </div>
               <h3 class="text-lg font-semibold">Open Source</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Free forever, source-available. Inspect the code, contribute features, or fork it for your team.
+                Source-available under FSL 1.1. Read the code, contribute features, or fork it for your team. Converts to Apache 2.0 in 2028.
               </p>
-            </div>
+            </article>
 
-            <div class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-xl">&#128269;</div>
+            <article class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
+              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              </div>
               <h3 class="text-lg font-semibold">Drill-Down Detail</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Component-level status for each service. Search, filter, and see exactly what's affected.
+                Component-level status, active incidents, and full resolution timelines for every service. Search and filter in one click.
               </p>
-            </div>
+            </article>
 
           </div>
         </div>
@@ -189,33 +339,29 @@
             <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Up and running in 60 seconds</h2>
             <p class="mt-4 text-lg text-text-secondary">Three steps. No configuration files, no API keys, no sign-up.</p>
           </div>
-          <div class="mt-16 grid gap-8 sm:grid-cols-3">
-
-            <div class="text-center">
+          <ol class="mt-16 grid gap-8 sm:grid-cols-3">
+            <li class="text-center">
               <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">1</div>
               <h3 class="text-lg font-semibold">Install</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
                 Download the app from GitHub Releases and drag it to Applications. That's it.
               </p>
-            </div>
-
-            <div class="text-center">
+            </li>
+            <li class="text-center">
               <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">2</div>
               <h3 class="text-lg font-semibold">Pick Services</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Browse the built-in catalog and toggle on the services your team depends on.
+                Browse the built-in catalog — Status Monitor even suggests services based on the apps you already have installed.
               </p>
-            </div>
-
-            <div class="text-center">
+            </li>
+            <li class="text-center">
               <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">3</div>
               <h3 class="text-lg font-semibold">Monitor</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Status Monitor polls each service and notifies you when something changes. Sit back and ship.
+                Status Monitor polls each service every 30–900 seconds and notifies you when something changes. Sit back and ship.
               </p>
-            </div>
-
-          </div>
+            </li>
+          </ol>
         </div>
       </section>
 
@@ -226,32 +372,9 @@
             <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">1,600+ services and growing</h2>
             <p class="mt-4 text-lg text-text-secondary">From infrastructure to productivity tools, we've got your stack covered.</p>
           </div>
-          <div class="mt-12 flex flex-wrap justify-center gap-3">
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">GitHub</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Cloudflare</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">OpenAI</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Anthropic / Claude</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Vercel</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Netlify</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Supabase</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Datadog</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Figma</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Notion</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Asana</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">1Password</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Twilio</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Sentry</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Linear</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Docker</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">MongoDB</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Jira</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Grafana</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Fly.io</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Zapier</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Zoom</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">HubSpot</span>
-            <span class="rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm text-text-secondary transition hover:border-text-tertiary hover:text-text-primary">Clerk</span>
-          </div>
+          <ul class="mt-12 flex flex-wrap justify-center gap-3 [&>li]:rounded-lg [&>li]:border [&>li]:border-border-subtle [&>li]:bg-surface-raised [&>li]:px-4 [&>li]:py-2 [&>li]:text-sm [&>li]:text-text-secondary [&>li]:transition hover:[&>li]:border-text-tertiary hover:[&>li]:text-text-primary">
+            <li>GitHub</li><li>Cloudflare</li><li>OpenAI</li><li>Anthropic / Claude</li><li>Vercel</li><li>Netlify</li><li>Supabase</li><li>Datadog</li><li>Figma</li><li>Notion</li><li>Asana</li><li>1Password</li><li>Twilio</li><li>Sentry</li><li>Linear</li><li>Docker</li><li>MongoDB</li><li>Jira</li><li>Grafana</li><li>Fly.io</li><li>Zapier</li><li>Zoom</li><li>HubSpot</li><li>Clerk</li>
+          </ul>
           <p class="mt-8 text-center text-sm text-text-tertiary">
             Plus Snowflake, Elastic, Plaid, New Relic, Amplitude, Mixpanel, Render, DigitalOcean, and many more.
           </p>
@@ -262,65 +385,65 @@
       <section id="faq" class="scroll-mt-20 border-t border-border-subtle py-24">
         <div class="mx-auto max-w-3xl px-6">
           <h2 class="text-center text-3xl font-bold tracking-tight sm:text-4xl">Frequently asked questions</h2>
-          <div class="mt-12 space-y-8">
+          <div class="mt-12 space-y-4">
 
             <details class="group rounded-xl border border-border-subtle bg-surface-raised" open>
-              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
                 What services are supported?
-                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Status Monitor ships with a catalog of 1,600+ services covering developer tools, cloud hosting, databases, productivity apps, monitoring, payments, and more. It supports any service that uses an Atlassian Statuspage or publishes an RSS/Atom status feed.
+                Status Monitor ships with a catalog of 1,600+ services covering developer tools, cloud hosting, databases, productivity apps, monitoring, payments, and more. It supports any service that uses an Atlassian Statuspage (or the incident.io equivalent) or publishes an RSS/Atom status feed.
               </div>
             </details>
 
             <details class="group rounded-xl border border-border-subtle bg-surface-raised">
-              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
                 Is it really free?
-                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Yes. Status Monitor is free and source-available under the Functional Source License (FSL 1.1). No subscriptions, no premium tiers, no data harvesting. The source code is on GitHub. The license converts to Apache 2.0 after two years.
+                Yes. Status Monitor is free and source-available under the Functional Source License (FSL 1.1). No subscriptions, no premium tiers, no data harvesting. The source is on GitHub, and the license converts to Apache 2.0 after two years.
               </div>
             </details>
 
             <details class="group rounded-xl border border-border-subtle bg-surface-raised">
-              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
                 Does it work offline?
-                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Status Monitor needs an internet connection to poll status pages. If your connection drops, it retains the last known status for each service and resumes polling when you're back online.
+                Status Monitor needs an internet connection to poll status pages. If your connection drops, it retains the last known status for each service, shows an offline indicator in the dashboard footer, and resumes polling automatically when you're back online.
               </div>
             </details>
 
             <details class="group rounded-xl border border-border-subtle bg-surface-raised">
-              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
                 How often does it check?
-                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                The default poll interval is 60 seconds per service. You can configure the interval per-service in the app settings, with a minimum of 30 seconds.
+                The default poll interval is 60 seconds per service, configurable per-service from 30 seconds to 15 minutes. When a status page stops responding, Status Monitor automatically backs off so it doesn't hammer services that are already struggling.
               </div>
             </details>
 
             <details class="group rounded-xl border border-border-subtle bg-surface-raised">
-              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
                 Can I add custom services?
-                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Yes. Beyond the built-in catalog, you can add any service by providing its Atlassian Statuspage URL or RSS/Atom feed URL. If a service uses a proprietary status page format, it's not supported yet.
+                Yes. Beyond the built-in catalog, you can add any service by pointing Status Monitor at its Atlassian Statuspage URL or RSS/Atom feed. Proprietary status page formats (custom HTML, JavaScript-rendered pages) aren't supported yet.
               </div>
             </details>
 
             <details class="group rounded-xl border border-border-subtle bg-surface-raised">
-              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent [&::-webkit-details-marker]:hidden">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
                 Is my data private?
-                <span class="ml-4 text-text-tertiary transition group-open:rotate-45">+</span>
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Completely. Status Monitor runs in the macOS App Sandbox with only outbound network access. It polls public status pages directly — no intermediary servers, no telemetry, no analytics. Your configuration is stored locally in UserDefaults.
+                Completely. Status Monitor runs in the macOS App Sandbox with only outbound network access. It polls public status pages directly — no intermediary servers, no telemetry, no analytics. Your list of monitored services stays in local UserDefaults.
               </div>
             </details>
 
@@ -334,10 +457,11 @@
           <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Stop checking status pages manually</h2>
           <p class="mt-4 text-lg text-text-secondary">Download Status Monitor and know the moment something goes down.</p>
           <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-hover" target="_blank" rel="noopener">
-              <span>&#8595;</span> Download for macOS
+            <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 13l6 6 6-6"/></svg>
+              Download for macOS
             </a>
-            <a href="https://github.com/moollaza/status-monitor" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener">
+            <a href="https://github.com/moollaza/status-monitor" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener noreferrer">
               View on GitHub
             </a>
           </div>
@@ -349,11 +473,11 @@
     <!-- Footer -->
     <footer class="border-t border-border-subtle py-10">
       <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-sm text-text-tertiary sm:flex-row sm:justify-between">
-        <p>Made by <a href="https://github.com/moollaza" class="text-text-secondary transition hover:text-text-primary" target="_blank" rel="noopener">MoollApps</a></p>
+        <p>Made by <a href="https://github.com/moollaza" class="text-text-secondary transition hover:text-text-primary" target="_blank" rel="noopener noreferrer">MoollApps</a></p>
         <p>
-          <a href="https://github.com/moollaza/status-monitor/blob/main/LICENSE" class="transition hover:text-text-secondary" target="_blank" rel="noopener">FSL 1.1 License</a>
-          <span class="mx-2">&#183;</span>
-          <a href="https://github.com/moollaza/status-monitor" class="transition hover:text-text-secondary" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/moollaza/status-monitor/blob/main/LICENSE" class="transition hover:text-text-secondary" target="_blank" rel="noopener noreferrer">FSL 1.1 License</a>
+          <span class="mx-2" aria-hidden="true">&middot;</span>
+          <a href="https://github.com/moollaza/status-monitor" class="transition hover:text-text-secondary" target="_blank" rel="noopener noreferrer">GitHub</a>
         </p>
       </div>
     </footer>

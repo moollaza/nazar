@@ -1,0 +1,55 @@
+name: Service Request
+description: Request a service to be added to the catalog
+title: "[Service]: "
+labels: ["service-request"]
+body:
+  - type: input
+    id: service-name
+    attributes:
+      label: Service name
+      placeholder: "e.g. Acme Corp"
+    validations:
+      required: true
+  - type: input
+    id: status-url
+    attributes:
+      label: Status page URL
+      description: Link to the service's public status page
+      placeholder: "https://status.example.com"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - AI & ML
+        - Analytics
+        - Atlassian
+        - CMS
+        - CRM
+        - Cloud & Hosting
+        - Communication
+        - Databases
+        - Developer Tools
+        - E-commerce
+        - Education
+        - Finance
+        - Gaming
+        - HR
+        - Healthcare
+        - IoT
+        - Media
+        - Monitoring
+        - Payments
+        - Productivity
+        - Security
+        - Social & Media
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything else helpful to know? (Uses Statuspage/incident.io/RSS?)

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Status Monitor">
+  <rect width="512" height="512" rx="96" ry="96" fill="#16a34a"/>
+  <g fill="#ffffff" transform="translate(256 256)">
+    <!-- Center antenna -->
+    <circle cx="0" cy="-104" r="34"/>
+    <rect x="-18" y="-80" width="36" height="220" rx="14"/>
+    <!-- Inner waves -->
+    <path d="M-78 -140 q-40 40 0 100" fill="none" stroke="#ffffff" stroke-width="28" stroke-linecap="round"/>
+    <path d="M78 -140 q40 40 0 100" fill="none" stroke="#ffffff" stroke-width="28" stroke-linecap="round"/>
+    <!-- Outer waves -->
+    <path d="M-140 -166 q-56 64 0 152" fill="none" stroke="#ffffff" stroke-width="28" stroke-linecap="round"/>
+    <path d="M140 -166 q56 64 0 152" fill="none" stroke="#ffffff" stroke-width="28" stroke-linecap="round"/>
+  </g>
+</svg>

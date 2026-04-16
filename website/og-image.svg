@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="0%" r="80%">
+      <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.08"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <rect width="1200" height="630" fill="url(#g)"/>
+
+  <!-- App icon tile -->
+  <g transform="translate(96 160)">
+    <rect width="160" height="160" rx="36" ry="36" fill="#16a34a"/>
+    <g fill="#ffffff" transform="translate(80 80) scale(0.28)">
+      <circle cx="0" cy="-104" r="34"/>
+      <rect x="-18" y="-80" width="36" height="220" rx="14"/>
+    </g>
+    <g fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" transform="translate(80 80) scale(0.28)">
+      <path d="M-78 -140 q-40 40 0 100"/>
+      <path d="M78 -140 q40 40 0 100"/>
+      <path d="M-140 -166 q-56 64 0 152"/>
+      <path d="M140 -166 q56 64 0 152"/>
+    </g>
+  </g>
+
+  <!-- Wordmark + tagline -->
+  <text x="288" y="212" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-size="38" font-weight="500" fill="#4a4a52" letter-spacing="0.5">Status Monitor</text>
+  <text x="288" y="300" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-size="76" font-weight="700" fill="#111113" letter-spacing="-1.5">Stop wondering</text>
+  <text x="288" y="380" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-size="76" font-weight="700" fill="#111113" letter-spacing="-1.5">if it's just you.</text>
+
+  <!-- Feature row -->
+  <g transform="translate(96 478)" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif" font-size="24" fill="#4a4a52">
+    <g transform="translate(0 0)">
+      <circle cx="14" cy="14" r="6" fill="#16a34a"/>
+      <text x="32" y="22" font-weight="500">1,600+ services</text>
+    </g>
+    <g transform="translate(310 0)">
+      <circle cx="14" cy="14" r="6" fill="#ca8a04"/>
+      <text x="32" y="22" font-weight="500">Native macOS menu bar</text>
+    </g>
+    <g transform="translate(740 0)">
+      <circle cx="14" cy="14" r="6" fill="#dc2626"/>
+      <text x="32" y="22" font-weight="500">Free &amp; open source</text>
+    </g>
+  </g>
+
+  <!-- Footer URL -->
+  <text x="96" y="578" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace" font-size="20" fill="#4a4a52">github.com/moollaza/status-monitor</text>
+
+  <!-- Card border -->
+  <rect x="0" y="0" width="1200" height="630" fill="none" stroke="#e5e5ea" stroke-width="2"/>
+</svg>

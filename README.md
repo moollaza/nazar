@@ -1,8 +1,9 @@
 # StatusMonitor
 
-macOS menu bar app that monitors SaaS service status pages and alerts on outages.
+The fastest way to stay on top of outages and service updates for 1,600+ SaaS tools — right from your macOS menu bar.
 
-<!-- TODO: Replace with actual screenshot after UI is finalized -->
+[**moollaza.github.io/status-monitor**](https://moollaza.github.io/status-monitor/) · [Download](https://github.com/moollaza/status-monitor/releases) · [Request a service](https://github.com/moollaza/status-monitor/issues/new?template=service_request.yml)
+
 ![StatusMonitor Screenshot](docs/assets/screenshot.png)
 
 ## Features
@@ -11,7 +12,7 @@ macOS menu bar app that monitors SaaS service status pages and alerts on outages
 - Instant notifications on status changes
 - Built-in catalog with one-click setup (5 services in under 60 seconds)
 - Color-coded menu bar icon (green/yellow/orange/red)
-- Supports Atlassian Statuspage and RSS/Atom feeds
+- Supports Atlassian Statuspage, incident.io, and RSS/Atom feeds
 - Configurable per-service poll intervals
 - Native macOS app (SwiftUI, no Electron)
 - Free and source-available ([FSL 1.1](https://fsl.software/), converts to Apache 2.0 in 2028)
@@ -20,11 +21,11 @@ macOS menu bar app that monitors SaaS service status pages and alerts on outages
 
 Download the latest `.dmg` from [GitHub Releases](https://github.com/moollaza/status-monitor/releases).
 
-Requires macOS 13 (Ventura) or later.
+Requires macOS 14 (Sonoma) or later.
 
 ## Development Setup
 
-**Prerequisites:** Xcode 15+, macOS 13+
+**Prerequisites:** Xcode 15+, macOS 14+
 
 ```bash
 git clone https://github.com/moollaza/status-monitor.git
@@ -50,7 +51,7 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. To request a missing service, use the [Service Request issue template](https://github.com/moollaza/status-monitor/issues/new?template=service_request.yml).
 
 ## License
 

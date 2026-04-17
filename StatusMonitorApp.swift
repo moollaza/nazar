@@ -69,8 +69,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         logger.info("App launching")
 
+        // Launch arguments for UI tests. A menu-bar app is hard to drive via
+        // XCUITest because the status item lives in a separate process; these
+        // hooks let tests land directly on an inspectable window.
+        let args = ProcessInfo.processInfo.arguments
+        let uiTestMode = args.contains("-UITestMode")
+        if uiTestMode {
+            // Start clean each run so onboarding / provider state doesn't leak
+            // across tests.
+            UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier ?? "com.moollapps.StatusMonitor")
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        }
+
         UserDefaults.standard.register(defaults: ["notificationsEnabled": true])
-        NSApp.setActivationPolicy(.accessory)
+        // Menu-bar apps use .accessory in production (no Dock icon, no foreground
+        // state). That isolation prevents XCUITest from enumerating windows, so
+        // we promote to .regular during UI tests — the status item still shows,
+        // but the app becomes a regular foreground process the test harness
+        // can drive.
+        NSApp.setActivationPolicy(uiTestMode ? .regular : .accessory)
 
         UNUserNotificationCenter.current().delegate = NotificationService.shared
         NotificationService.shared.requestPermission()
@@ -193,6 +210,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         #endif
 
         logger.info("App launch complete — \(self.statusManager.providers.count) providers")
+
+        // UI tests: auto-open the window they need so we don't have to drive
+        // the status bar item via Accessibility APIs (which don't work in CI).
+        if args.contains("-UITestOpenSettings") {
+            DispatchQueue.main.async { [weak self] in self?.openSettings() }
+        }
+        if args.contains("-UITestOpenSettingsAt") {
+            if let idx = args.firstIndex(of: "-UITestOpenSettingsAt"),
+               idx + 1 < args.count,
+               let tab = SettingsTab(rawValue: args[idx + 1]) {
+                DispatchQueue.main.async { [weak self] in self?.openSettings(tab: tab) }
+            }
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {

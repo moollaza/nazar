@@ -44,7 +44,6 @@
   {"id": "together-ai", "name": "Together AI", "base_url": "https://together.statuspage.io", "type": "statuspage", "category": "AI & ML", "platform": "incident.io"},
   {"id": "trayai", "name": "Tray.ai", "base_url": "https://status.tray.io", "type": "statuspage", "category": "AI & ML", "platform": "incident.io"},
   {"id": "wordtune", "name": "Wordtune", "base_url": "https://status.wordtune.com", "type": "statuspage", "category": "AI & ML", "platform": "incident.io"},
-
   {"id": "adjust", "name": "Adjust", "base_url": "https://status.adjust.com", "type": "statuspage", "category": "Analytics", "platform": "incident.io"},
   {"id": "adtraction", "name": "Adtraction", "base_url": "https://status.adtraction.com", "type": "statuspage", "category": "Analytics", "platform": "incident.io"},
   {"id": "alteryx-one", "name": "Alteryx One", "base_url": "https://status.trifacta.com", "type": "statuspage", "category": "Analytics", "platform": "incident.io"},
@@ -122,7 +121,6 @@
   {"id": "xandr", "name": "Xandr", "base_url": "https://status.xandr.com", "type": "statuspage", "category": "Analytics", "platform": "atlassian"},
   {"id": "ycharts", "name": "YCharts", "base_url": "https://status.ycharts.com", "type": "statuspage", "category": "Analytics", "platform": "incident.io"},
   {"id": "zeotap", "name": "Zeotap", "base_url": "https://status.zeotap.com", "type": "statuspage", "category": "Analytics", "platform": "incident.io"},
-
   {"id": "atlas", "name": "Atlas", "base_url": "https://atlas.status.atlassian.com", "type": "statuspage", "category": "Atlassian", "platform": "incident.io"},
   {"id": "atlassian", "name": "Atlassian", "base_url": "https://status.atlassian.com", "type": "statuspage", "category": "Atlassian", "platform": "incident.io"},
   {"id": "atlassian-partners", "name": "Atlassian Partners", "base_url": "https://partners.status.atlassian.com", "type": "statuspage", "category": "Atlassian", "platform": "incident.io"},
@@ -142,7 +140,6 @@
   {"id": "trello", "name": "Trello", "base_url": "https://trello.status.atlassian.com", "type": "statuspage", "category": "Atlassian", "platform": "atlassian"},
   {"id": "xporter", "name": "Xporter", "base_url": "https://xporter.statuspage.io", "type": "statuspage", "category": "Atlassian", "platform": "incident.io"},
   {"id": "yasoon", "name": "yasoon", "base_url": "https://status.yasoon.com", "type": "statuspage", "category": "Atlassian", "platform": "atlassian"},
-
   {"id": "10web", "name": "10Web", "base_url": "https://status.10web.io", "type": "statuspage", "category": "Cloud & Hosting", "platform": "incident.io"},
   {"id": "11:11-systems", "name": "11:11 Systems", "base_url": "https://status.grncld.net", "type": "statuspage", "category": "Cloud & Hosting", "platform": "atlassian"},
   {"id": "3dsoutscale-status-page", "name": "3DSOutscale Status page", "base_url": "https://status.outscale.com", "type": "statuspage", "category": "Cloud & Hosting", "platform": "atlassian"},
@@ -302,7 +299,6 @@
   {"id": "websolr", "name": "Websolr", "base_url": "https://status.websolr.com", "type": "statuspage", "category": "Cloud & Hosting", "platform": "incident.io"},
   {"id": "workspot", "name": "Workspot", "base_url": "https://status.workspot.com", "type": "statuspage", "category": "Cloud & Hosting", "platform": "atlassian"},
   {"id": "zephyr-cloud", "name": "Zephyr Cloud", "base_url": "https://zephyr-scale.status.smartbear.com", "type": "statuspage", "category": "Cloud & Hosting", "platform": "incident.io"},
-
   {"id": "acquia-inc", "name": "Acquia Inc", "base_url": "https://status.acquia.com", "type": "statuspage", "category": "CMS", "platform": "incident.io"},
   {"id": "akeneo", "name": "Akeneo", "base_url": "https://status.akeneo.com", "type": "statuspage", "category": "CMS", "platform": "incident.io"},
   {"id": "amplience", "name": "Amplience", "base_url": "https://status.amplience.com", "type": "statuspage", "category": "CMS", "platform": "incident.io"},
@@ -338,7 +334,6 @@
   {"id": "unbounce", "name": "Unbounce", "base_url": "https://status.unbounce.com", "type": "statuspage", "category": "CMS", "platform": "incident.io"},
   {"id": "uscreen", "name": "Uscreen", "base_url": "https://status.uscreen.tv", "type": "statuspage", "category": "CMS", "platform": "atlassian"},
   {"id": "webdam", "name": "Webdam", "base_url": "https://webdam-status.bynder.com", "type": "statuspage", "category": "CMS", "platform": "incident.io"},
-
   {"id": "activecampaign", "name": "ActiveCampaign", "base_url": "https://status.activecampaign.com", "type": "statuspage", "category": "CRM", "platform": "incident.io"},
   {"id": "bloomerang", "name": "Bloomerang", "base_url": "https://bloomerang.statuspage.io", "type": "statuspage", "category": "CRM", "platform": "incident.io"},
   {"id": "braze-inc", "name": "Braze, Inc.", "base_url": "https://status.braze.com", "type": "statuspage", "category": "CRM", "platform": "atlassian"},
@@ -388,7 +383,6 @@
   {"id": "voyado", "name": "Voyado", "base_url": "https://status.voyado.com", "type": "statuspage", "category": "CRM", "platform": "incident.io"},
   {"id": "yesware", "name": "Yesware", "base_url": "https://status.yesware.com", "type": "statuspage", "category": "CRM", "platform": "incident.io"},
   {"id": "zoominfo", "name": "ZoomInfo", "base_url": "https://status.zoominfo.com", "type": "statuspage", "category": "CRM", "platform": "atlassian"},
-
   {"id": "aircall", "name": "Aircall", "base_url": "https://status.aircall.io", "type": "statuspage", "category": "Communication", "platform": "incident.io"},
   {"id": "airmeet", "name": "Airmeet", "base_url": "https://status.airmeet.com", "type": "statuspage", "category": "Communication", "platform": "incident.io"},
   {"id": "alohi", "name": "Alohi", "base_url": "https://status.fax.plus", "type": "statuspage", "category": "Communication", "platform": "incident.io"},
@@ -531,7 +525,6 @@
   {"id": "voximplant", "name": "Voximplant", "base_url": "https://status.voximplant.com", "type": "statuspage", "category": "Communication", "platform": "incident.io"},
   {"id": "webpushr", "name": "Webpushr", "base_url": "https://status.webpushr.com", "type": "statuspage", "category": "Communication", "platform": "incident.io"},
   {"id": "woodpeckerco", "name": "Woodpecker.co", "base_url": "https://status.woodpecker.co", "type": "statuspage", "category": "Communication", "platform": "atlassian"},
-
   {"id": "cockroachdb", "name": "CockroachDB", "base_url": "https://cockroachlabs.statuspage.io", "type": "statuspage", "category": "Databases", "platform": "incident.io"},
   {"id": "confluent", "name": "Confluent", "base_url": "https://status.confluent.cloud", "type": "statuspage", "category": "Databases", "platform": "atlassian"},
   {"id": "datastax-astra", "name": "DataStax Astra", "base_url": "https://status.astra.datastax.com", "type": "statuspage", "category": "Databases", "platform": "incident.io"},
@@ -551,7 +544,6 @@
   {"id": "supabase", "name": "Supabase", "base_url": "https://status.supabase.com", "type": "statuspage", "category": "Databases", "platform": "atlassian"},
   {"id": "upstash", "name": "Upstash", "base_url": "https://status.upstash.com", "type": "statuspage", "category": "Databases", "platform": "atlassian"},
   {"id": "zilliz", "name": "Zilliz", "base_url": "https://status.zilliz.com", "type": "statuspage", "category": "Databases", "platform": "incident.io"},
-
   {"id": "ably", "name": "Ably", "base_url": "https://status.ably.com", "type": "statuspage", "category": "Developer Tools", "platform": "incident.io"},
   {"id": "addigy", "name": "Addigy", "base_url": "https://status.addigy.com", "type": "statuspage", "category": "Developer Tools", "platform": "atlassian"},
   {"id": "airbnb-api", "name": "Airbnb API", "base_url": "https://airbnbapi.statuspage.io", "type": "statuspage", "category": "Developer Tools", "platform": "atlassian"},
@@ -748,7 +740,6 @@
   {"id": "xmatters", "name": "xMatters", "base_url": "https://status.xmatters.com", "type": "statuspage", "category": "Developer Tools", "platform": "incident.io"},
   {"id": "yelp-developer-apis-and-services", "name": "Yelp Developer APIs and Services", "base_url": "https://status.developer.yelp.com", "type": "statuspage", "category": "Developer Tools", "platform": "incident.io"},
   {"id": "zyte", "name": "Zyte", "base_url": "https://status.zyte.com", "type": "statuspage", "category": "Developer Tools", "platform": "incident.io"},
-
   {"id": "acuity-scheduling", "name": "Acuity Scheduling", "base_url": "https://status.acuityscheduling.com", "type": "statuspage", "category": "E-commerce", "platform": "incident.io"},
   {"id": "aftership", "name": "AfterShip", "base_url": "https://www.aftershipstatus.com", "type": "statuspage", "category": "E-commerce", "platform": "atlassian"},
   {"id": "amsoil-web-properties", "name": "AMSOIL Web Properties", "base_url": "https://status.amsoil.com", "type": "statuspage", "category": "E-commerce", "platform": "incident.io"},
@@ -859,7 +850,6 @@
   {"id": "xplor-spot", "name": "Xplor Spot", "base_url": "https://status.spotpos.com", "type": "statuspage", "category": "E-commerce", "platform": "incident.io"},
   {"id": "yotpo", "name": "Yotpo", "base_url": "https://status.yotpo.com", "type": "statuspage", "category": "E-commerce", "platform": "incident.io"},
   {"id": "zenoti", "name": "Zenoti", "base_url": "https://status.zenoti.com", "type": "statuspage", "category": "E-commerce", "platform": "atlassian"},
-
   {"id": "360learning", "name": "360Learning", "base_url": "https://status.360learning.com", "type": "statuspage", "category": "Education", "platform": "incident.io"},
   {"id": "aarnet-support", "name": "AARNet Support", "base_url": "https://status.aarnet.edu.au", "type": "statuspage", "category": "Education", "platform": "incident.io"},
   {"id": "accredible", "name": "Accredible", "base_url": "https://status.accredible.com", "type": "statuspage", "category": "Education", "platform": "incident.io"},
@@ -944,7 +934,6 @@
   {"id": "wevideo", "name": "WeVideo", "base_url": "https://status.wevideo.com", "type": "statuspage", "category": "Education", "platform": "incident.io"},
   {"id": "workramp", "name": "WorkRamp", "base_url": "https://workramp.statuspage.io", "type": "statuspage", "category": "Education", "platform": "incident.io"},
   {"id": "zearn", "name": "Zearn", "base_url": "https://status.zearn.org", "type": "statuspage", "category": "Education", "platform": "incident.io"},
-
   {"id": "aca-compliancealpha", "name": "ACA ComplianceAlpha", "base_url": "https://status.acats.com", "type": "statuspage", "category": "Finance", "platform": "incident.io"},
   {"id": "airbase", "name": "Airbase", "base_url": "https://status.airbase.com", "type": "statuspage", "category": "Finance", "platform": "incident.io"},
   {"id": "alpaca", "name": "Alpaca", "base_url": "https://status.alpaca.markets", "type": "statuspage", "category": "Finance", "platform": "incident.io"},
@@ -1074,7 +1063,6 @@
   {"id": "xero-ltd-api", "name": "Xero Ltd - API", "base_url": "https://status.developer.xero.com", "type": "statuspage", "category": "Finance", "platform": "incident.io"},
   {"id": "ynab", "name": "YNAB", "base_url": "https://ynabstatus.com", "type": "statuspage", "category": "Finance", "platform": "atlassian"},
   {"id": "zero-hash", "name": "Zero Hash", "base_url": "https://status.zerohash.com", "type": "statuspage", "category": "Finance", "platform": "atlassian"},
-
   {"id": "enjin", "name": "Enjin", "base_url": "https://www.enjinstatus.com", "type": "statuspage", "category": "Gaming", "platform": "incident.io"},
   {"id": "epic-games", "name": "Epic Games", "base_url": "https://status.epicgames.com", "type": "statuspage", "category": "Gaming", "platform": "incident.io"},
   {"id": "eve-online", "name": "EVE Online", "base_url": "https://status.eveonline.com", "type": "statuspage", "category": "Gaming", "platform": "incident.io"},
@@ -1093,7 +1081,6 @@
   {"id": "vrchat", "name": "VRChat", "base_url": "https://status.vrchat.com", "type": "statuspage", "category": "Gaming", "platform": "atlassian"},
   {"id": "xsolla", "name": "Xsolla", "base_url": "https://status.xsolla.com", "type": "statuspage", "category": "Gaming", "platform": "incident.io"},
   {"id": "zwift-inc", "name": "Zwift, Inc", "base_url": "https://status.zwift.com", "type": "statuspage", "category": "Gaming", "platform": "atlassian"},
-
   {"id": "7shifts", "name": "7shifts", "base_url": "https://status.7shifts.com", "type": "statuspage", "category": "HR", "platform": "incident.io"},
   {"id": "ashby", "name": "Ashby", "base_url": "https://status.ashbyhq.com", "type": "statuspage", "category": "HR", "platform": "incident.io"},
   {"id": "bonusly", "name": "bonusly", "base_url": "https://status.bonus.ly", "type": "statuspage", "category": "HR", "platform": "incident.io"},
@@ -1139,7 +1126,6 @@
   {"id": "truework", "name": "Truework", "base_url": "https://truework.statuspage.io", "type": "statuspage", "category": "HR", "platform": "incident.io"},
   {"id": "workable", "name": "Workable", "base_url": "https://workable.statuspage.io", "type": "statuspage", "category": "HR", "platform": "incident.io"},
   {"id": "zenegy", "name": "Zenegy", "base_url": "https://status.zenegy.com", "type": "statuspage", "category": "HR", "platform": "incident.io"},
-
   {"id": "abc-trainerize", "name": "ABC Trainerize", "base_url": "https://status.trainerize.com", "type": "statuspage", "category": "Healthcare", "platform": "incident.io"},
   {"id": "bodi-by-beachbody", "name": "BODi by Beachbody", "base_url": "https://status.beachbodyondemand.com", "type": "statuspage", "category": "Healthcare", "platform": "incident.io"},
   {"id": "calmcom", "name": "Calm.com", "base_url": "https://status.calm.com", "type": "statuspage", "category": "Healthcare", "platform": "incident.io"},
@@ -1179,7 +1165,6 @@
   {"id": "virtuagym", "name": "Virtuagym", "base_url": "https://status.virtuagym.com", "type": "statuspage", "category": "Healthcare", "platform": "incident.io"},
   {"id": "whoop", "name": "WHOOP", "base_url": "https://status.whoop.com", "type": "statuspage", "category": "Healthcare", "platform": "incident.io"},
   {"id": "zenqms", "name": "ZenQMS", "base_url": "https://status.zenqms.com", "type": "statuspage", "category": "Healthcare", "platform": "atlassian"},
-
   {"id": "axis", "name": "Axis", "base_url": "https://status.axis.com", "type": "statuspage", "category": "IoT", "platform": "incident.io"},
   {"id": "bambu-lab", "name": "Bambu Lab", "base_url": "https://status.bambulab.com", "type": "statuspage", "category": "IoT", "platform": "incident.io"},
   {"id": "brivo", "name": "Brivo", "base_url": "https://status.brivo.com", "type": "statuspage", "category": "IoT", "platform": "incident.io"},
@@ -1214,7 +1199,6 @@
   {"id": "ubidots", "name": "Ubidots", "base_url": "https://status.ubidots.com", "type": "statuspage", "category": "IoT", "platform": "incident.io"},
   {"id": "ubiquiti-system", "name": "Ubiquiti System", "base_url": "https://status.ui.com", "type": "statuspage", "category": "IoT", "platform": "incident.io"},
   {"id": "verkada-command", "name": "Verkada Command", "base_url": "https://status.verkada.com", "type": "statuspage", "category": "IoT", "platform": "incident.io"},
-
   {"id": "aiir", "name": "Aiir", "base_url": "https://status.aiir.com", "type": "statuspage", "category": "Media", "platform": "incident.io"},
   {"id": "applicaster", "name": "Applicaster", "base_url": "https://status.applicaster.com", "type": "statuspage", "category": "Media", "platform": "incident.io"},
   {"id": "artsy", "name": "Artsy", "base_url": "https://status.artsy.net", "type": "statuspage", "category": "Media", "platform": "incident.io"},
@@ -1265,7 +1249,6 @@
   {"id": "wetransfer", "name": "WeTransfer", "base_url": "https://status.wetransfer.com", "type": "statuspage", "category": "Media", "platform": "incident.io"},
   {"id": "wp-media", "name": "WP Media", "base_url": "https://status.wp-rocket.me", "type": "statuspage", "category": "Media", "platform": "incident.io"},
   {"id": "zenfolio", "name": "Zenfolio", "base_url": "https://status.zenfolio.com", "type": "statuspage", "category": "Media", "platform": "incident.io"},
-
   {"id": "accuweather", "name": "AccuWeather", "base_url": "https://status.accuweather.com", "type": "statuspage", "category": "Monitoring", "platform": "incident.io"},
   {"id": "activtrak", "name": "ActivTrak", "base_url": "https://status.activtrak.com", "type": "statuspage", "category": "Monitoring", "platform": "incident.io"},
   {"id": "airbrake", "name": "Airbrake", "base_url": "https://status.airbrake.io", "type": "statuspage", "category": "Monitoring", "platform": "incident.io"},
@@ -1318,7 +1301,6 @@
   {"id": "sysdig-us-east-1", "name": "Sysdig US-East-1", "base_url": "https://status.sysdigcloud.com", "type": "statuspage", "category": "Monitoring", "platform": "incident.io"},
   {"id": "thousandeyes", "name": "ThousandEyes", "base_url": "https://status.thousandeyes.com", "type": "statuspage", "category": "Monitoring", "platform": "atlassian"},
   {"id": "xurrent-imr-formerly-zenduty", "name": "Xurrent IMR formerly Zenduty", "base_url": "https://status.zenduty.com", "type": "statuspage", "category": "Monitoring", "platform": "incident.io"},
-
   {"id": "access-worldpay", "name": "Access Worldpay", "base_url": "https://status.access.worldpay.com", "type": "statuspage", "category": "Payments", "platform": "incident.io"},
   {"id": "authorizenet", "name": "Authorize.net", "base_url": "https://status.authorize.net", "type": "statuspage", "category": "Payments", "platform": "incident.io"},
   {"id": "banked", "name": "Banked", "base_url": "https://status.banked.com", "type": "statuspage", "category": "Payments", "platform": "incident.io"},
@@ -1390,7 +1372,6 @@
   {"id": "worldline", "name": "Worldline", "base_url": "https://onlinestatus.bambora.com", "type": "statuspage", "category": "Payments", "platform": "incident.io"},
   {"id": "xendit", "name": "Xendit", "base_url": "https://status.xendit.co", "type": "statuspage", "category": "Payments", "platform": "atlassian"},
   {"id": "zettle-status-page", "name": "Zettle Status Page", "base_url": "https://status.zettle.com", "type": "statuspage", "category": "Payments", "platform": "incident.io"},
-
   {"id": "3-step-it-group-oy-public", "name": "3 Step IT Group Oy Public", "base_url": "https://status.3stepit.com", "type": "statuspage", "category": "Productivity", "platform": "incident.io"},
   {"id": "37signals", "name": "37signals", "base_url": "https://www.37status.com", "type": "statuspage", "category": "Productivity", "platform": "incident.io"},
   {"id": "actionstep-practice-management", "name": "Actionstep Practice Management", "base_url": "https://status.actionstep.com", "type": "statuspage", "category": "Productivity", "platform": "atlassian"},
@@ -1548,7 +1529,6 @@
   {"id": "zapier", "name": "Zapier", "base_url": "https://status.zapier.com", "type": "statuspage", "category": "Productivity", "platform": "incident.io"},
   {"id": "zoom", "name": "Zoom", "base_url": "https://www.zoomstatus.com", "type": "statuspage", "category": "Productivity", "platform": "atlassian"},
   {"id": "zylo", "name": "Zylo", "base_url": "https://status.zylo.com", "type": "statuspage", "category": "Productivity", "platform": "incident.io"},
-
   {"id": "1password", "name": "1Password", "base_url": "https://status.1password.com", "type": "statuspage", "category": "Security", "platform": "atlassian"},
   {"id": "42crunch", "name": "42Crunch", "base_url": "https://42crunch.statuspage.io", "type": "statuspage", "category": "Security", "platform": "incident.io"},
   {"id": "adguard", "name": "AdGuard", "base_url": "https://status.adguard.com", "type": "statuspage", "category": "Security", "platform": "incident.io"},
@@ -1676,7 +1656,6 @@
   {"id": "withsecure-services", "name": "WithSecure services", "base_url": "https://status.withsecure.com", "type": "statuspage", "category": "Security", "platform": "incident.io"},
   {"id": "wiz", "name": "Wiz", "base_url": "https://status.wiz.io", "type": "statuspage", "category": "Security", "platform": "atlassian"},
   {"id": "workos", "name": "WorkOS", "base_url": "https://status.workos.com", "type": "statuspage", "category": "Security", "platform": "atlassian"},
-
   {"id": "bottled", "name": "Bottled", "base_url": "https://bottled.statuspage.io", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"},
   {"id": "chaturbate", "name": "Chaturbate", "base_url": "https://status.chaturbate.com", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"},
   {"id": "coffee-meets-bagel", "name": "Coffee Meets Bagel", "base_url": "https://status.coffeemeetsbagel.com", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"},
@@ -1702,5 +1681,7 @@
   {"id": "twitch", "name": "Twitch", "base_url": "https://status.twitch.tv", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"},
   {"id": "untappd", "name": "Untappd", "base_url": "https://status.untappd.com", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"},
   {"id": "vimeo", "name": "Vimeo", "base_url": "https://status.vimeo.com", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"},
-  {"id": "wikimedia", "name": "Wikimedia", "base_url": "https://www.wikimediastatus.net", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"}
+  {"id": "wikimedia", "name": "Wikimedia", "base_url": "https://www.wikimediastatus.net", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"},
+  {"id": "aws", "name": "Amazon Web Services", "base_url": "https://status.aws.amazon.com/rss/all.rss", "type": "rss", "category": "Cloud & Hosting", "platform": "aws"},
+  {"id": "azure", "name": "Microsoft Azure", "base_url": "https://azure.status.microsoft/en-us/status/feed/", "type": "rss", "category": "Cloud & Hosting", "platform": "azure"}
 ]

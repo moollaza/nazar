@@ -28,8 +28,9 @@ class RSSStatusParser: NSObject, XMLParserDelegate {
 
     private static let dateFormatters: [DateFormatter] = {
         let formats = [
-            "EEE, dd MMM yyyy HH:mm:ss Z",    // RFC 822
-            "yyyy-MM-dd'T'HH:mm:ssZ",          // ISO 8601
+            "EEE, dd MMM yyyy HH:mm:ss Z",      // RFC 822, numeric offset (+0000)
+            "EEE, dd MMM yyyy HH:mm:ss zzz",    // RFC 822, named zone (PST, UTC) — AWS style
+            "yyyy-MM-dd'T'HH:mm:ssZ",           // ISO 8601
             "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
         ]
         return formats.map { fmt in

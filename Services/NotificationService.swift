@@ -29,15 +29,26 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate, Notificat
     /// requests that the system will silently drop.
     private var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
-    private override init() {
+    /// The init is nonisolated so the `shared` static can initialize without
+    /// needing the main actor. Main-actor setup (delegate wiring, initial
+    /// permission refresh) happens in `setup()`, which AppDelegate calls
+    /// during `applicationDidFinishLaunching` — already on main.
+    nonisolated private override init() {
         super.init()
+    }
+
+    func setup() {
         UNUserNotificationCenter.current().delegate = self
         refreshAuthorizationStatus()
     }
 
     func refreshAuthorizationStatus() {
         UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
-            self?.authorizationStatus = settings.authorizationStatus
+            // Callback fires on a UN-internal queue — hop back to main before
+            // touching mutable state.
+            Task { @MainActor in
+                self?.authorizationStatus = settings.authorizationStatus
+            }
         }
     }
 
@@ -49,7 +60,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate, Notificat
             if !granted {
                 logger.warning("User denied notification permission — outage alerts will not be delivered")
             }
-            self?.refreshAuthorizationStatus()
+            Task { @MainActor in self?.refreshAuthorizationStatus() }
         }
     }
 
@@ -100,7 +111,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate, Notificat
     /// - With incident: "Operational → Degraded — <incident>"
     /// - Flapping: "Operational → Degraded (3rd change in the last hour)"
     /// - Both: "Operational → Degraded — <incident> (3rd change in the last hour)"
-    static func makeRequest(
+    nonisolated static func makeRequest(
         providerId: UUID,
         provider: String,
         from: ComponentStatus,
@@ -132,7 +143,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate, Notificat
         )
     }
 
-    static func makeBody(from: ComponentStatus, to: ComponentStatus, incident: String?, recentChangeCount: Int) -> String {
+    nonisolated static func makeBody(from: ComponentStatus, to: ComponentStatus, incident: String?, recentChangeCount: Int) -> String {
         var body = "\(from.label) → \(to.label)"
         if let incident {
             // Leave ~60 chars for the arrow + labels + flap suffix.
@@ -145,7 +156,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate, Notificat
         return body
     }
 
-    private static func ordinal(_ n: Int) -> String {
+    nonisolated private static func ordinal(_ n: Int) -> String {
         switch n {
         case 1: return "1st"
         case 2: return "2nd"

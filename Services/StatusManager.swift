@@ -40,7 +40,7 @@ class StatusManager {
     /// Injectable clock so tests can drive backoff deterministically.
     let now: () -> Date
 
-    static let defaultSession: URLSession = {
+    nonisolated static let defaultSession: URLSession = {
         let config = URLSessionConfiguration.ephemeral   // no shared cookies / cache
         config.timeoutIntervalForRequest = 15            // per-chunk timeout
         config.timeoutIntervalForResource = 30           // total-request timeout (was 7 days default)
@@ -469,7 +469,7 @@ class StatusManager {
 
     // MARK: - RSS Parsing (basic)
 
-    static func rssStatusHeuristic(title: String, description: String) -> ComponentStatus {
+    nonisolated static func rssStatusHeuristic(title: String, description: String) -> ComponentStatus {
         let text = (title + " " + description).lowercased()
         // Resolved-first: "Resolved: Major outage" describes a healed incident, not an active one.
         if text.contains("resolved") || text.contains("completed") || text.contains("closed") {

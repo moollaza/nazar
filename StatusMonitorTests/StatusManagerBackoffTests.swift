@@ -41,7 +41,7 @@ final class StatusManagerBackoffTests: XCTestCase {
         // With a virtual clock that never advances, the second poll is still
         // inside the backoff window and must short-circuit before calling
         // session.data — we assert this by observing the failure count.
-        var virtualNow = Date(timeIntervalSince1970: 1_000_000)
+        let virtualNow = Date(timeIntervalSince1970: 1_000_000)
         let m = makeManager(clock: { virtualNow })
         let p = Provider(name: "X", baseURL: "https://status.x.com", pollIntervalSeconds: 30)
         m.providers = [p]

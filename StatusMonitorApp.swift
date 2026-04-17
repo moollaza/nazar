@@ -56,6 +56,7 @@ class FloatingPanel: NSPanel {
     }
 }
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var panel: FloatingPanel!
@@ -89,7 +90,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // can drive.
         NSApp.setActivationPolicy(uiTestMode ? .regular : .accessory)
 
-        UNUserNotificationCenter.current().delegate = NotificationService.shared
+        NotificationService.shared.setup()
         NotificationService.shared.requestPermission()
 
         // Menu bar item

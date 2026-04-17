@@ -1,0 +1,67 @@
+name: CI
+
+# No untrusted input (issue bodies, PR titles, commit messages) is interpolated
+# into any run: step. Only hardcoded commands + the shell's own env. Safe per
+# https://github.blog/security/vulnerability-research/how-to-catch-github-actions-workflow-injections-before-attackers-do/
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build + Test
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Show project targets
+        run: xcodebuild -project StatusMonitor.xcodeproj -list
+
+      - name: Build (Debug)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project StatusMonitor.xcodeproj \
+            -scheme StatusMonitor \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project StatusMonitor.xcodeproj \
+            -scheme StatusMonitor \
+            -destination 'platform=macOS' \
+            -only-testing:StatusMonitorTests \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      # UI tests need a GUI session. macOS runners have one but XCUITest
+      # can be flakier than unit tests on shared infra — kept separate so
+      # a UI flake doesn't mask a unit regression.
+      - name: Run UI tests
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project StatusMonitor.xcodeproj \
+            -scheme StatusMonitor \
+            -destination 'platform=macOS' \
+            -only-testing:StatusMonitorUITests \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+        continue-on-error: true

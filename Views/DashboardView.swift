@@ -233,9 +233,14 @@ struct DashboardView: View {
                 }
                 Spacer()
                 if let lastUpdate = manager.snapshots.map(\.lastUpdated).max() {
-                    Text("Updated \(lastUpdate, style: .relative) ago")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                    // Minute-resolution label (no seconds counter — the ticking
+                    // display was distracting). TimelineView re-renders every
+                    // 30s so the label stays fresh even if no poll lands.
+                    TimelineView(.periodic(from: .now, by: 30)) { context in
+                        Text("Updated \(coarseTimeAgo(lastUpdate, now: context.date))")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -506,4 +511,23 @@ struct HoverButton: View {
         .onHover { isHovered = $0 }
         .help(help)
     }
+}
+
+// MARK: - Time helpers
+
+/// Minute-resolution "time ago" label. Avoids showing a ticking seconds
+/// counter for fresh data — "< 1 min ago" covers the first minute, then
+/// rolls over to "N min ago", "Nh ago", "Nd ago".
+func coarseTimeAgo(_ date: Date, now: Date = Date()) -> String {
+    let elapsed = now.timeIntervalSince(date)
+    if elapsed < 0 { return "just now" }
+    if elapsed < 60 { return "< 1 min ago" }
+    let minutes = Int(elapsed / 60)
+    if minutes < 60 {
+        return "\(minutes) min ago"
+    }
+    let hours = Int(elapsed / 3600)
+    if hours < 24 { return "\(hours)h ago" }
+    let days = Int(elapsed / 86400)
+    return "\(days)d ago"
 }

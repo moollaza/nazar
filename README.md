@@ -42,11 +42,21 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 
 ## Releasing
 
-One-time setup — store your Apple notarization credentials in the macOS Keychain:
+One-time setup:
+
+**1.** (Optional but recommended) Install `create-dmg` for a polished install-DMG layout with the app icon + "drag to Applications" arrow:
+
+```bash
+brew install create-dmg
+```
+
+The release script works without it — falls back to a plain DMG + symlink. Drag-to-install still works, just no background image.
+
+**2.** Store your Apple notarization credentials in the macOS Keychain:
 
 ```bash
 xcrun notarytool store-credentials AC_PASSWORD \
-    --apple-id you@example.com \
+    --apple-id <your-apple-id-email> \
     --team-id W4HBM3A7DC \
     --password <app-specific-password>
 ```

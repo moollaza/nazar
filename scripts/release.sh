@@ -93,19 +93,42 @@ spctl --assess --type execute --verbose "$APP_PATH" || \
 # ── 3. Build DMG ─────────────────────────────────────────────
 echo
 echo "▶ 3/5  Building DMG ($DMG_NAME)…"
-DMG_STAGING="$OUTPUT_DIR/dmg-staging"
-rm -rf "$DMG_STAGING"
-mkdir -p "$DMG_STAGING"
-cp -R "$APP_PATH" "$DMG_STAGING/"
-ln -s /Applications "$DMG_STAGING/Applications"
 
-hdiutil create \
-    -volname "StatusMonitor" \
-    -srcfolder "$DMG_STAGING" \
-    -ov -format UDZO \
-    "$DMG_PATH"
+if command -v create-dmg >/dev/null 2>&1; then
+    # Preferred path: create-dmg lays out icons, adds a background, and
+    # positions the drop-to-Applications arrow so the DMG looks polished
+    # on open. Requires `brew install create-dmg`.
+    create-dmg \
+        --volname "StatusMonitor" \
+        --volicon "$APP_PATH/Contents/Resources/AppIcon.icns" \
+        --window-pos 200 120 \
+        --window-size 560 380 \
+        --icon-size 96 \
+        --icon "StatusMonitor.app" 140 180 \
+        --app-drop-link 420 180 \
+        --no-internet-enable \
+        "$DMG_PATH" \
+        "$APP_PATH" \
+        || { echo "✗ create-dmg failed"; exit 1; }
+else
+    # Fallback: plain hdiutil DMG with a /Applications symlink. Functional
+    # drag-to-install, but no background image / arrow.
+    echo "  create-dmg not installed — falling back to plain hdiutil."
+    echo "  (brew install create-dmg for the polished layout)"
+    DMG_STAGING="$OUTPUT_DIR/dmg-staging"
+    rm -rf "$DMG_STAGING"
+    mkdir -p "$DMG_STAGING"
+    cp -R "$APP_PATH" "$DMG_STAGING/"
+    ln -s /Applications "$DMG_STAGING/Applications"
 
-rm -rf "$DMG_STAGING"
+    hdiutil create \
+        -volname "StatusMonitor" \
+        -srcfolder "$DMG_STAGING" \
+        -ov -format UDZO \
+        "$DMG_PATH"
+
+    rm -rf "$DMG_STAGING"
+fi
 
 # ── 4. Notarize ──────────────────────────────────────────────
 if [[ "$SKIP_NOTARIZE" -eq 1 ]]; then

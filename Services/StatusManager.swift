@@ -471,14 +471,47 @@ class StatusManager {
 
     nonisolated static func rssStatusHeuristic(title: String, description: String) -> ComponentStatus {
         let text = (title + " " + description).lowercased()
-        // Resolved-first: "Resolved: Major outage" describes a healed incident, not an active one.
+
+        // 1. Resolved family beats everything else. "Resolved: Major outage"
+        //    describes a healed incident, not an active one.
         if text.contains("resolved") || text.contains("completed") || text.contains("closed") {
             return .operational
         }
-        if text.contains("major") || text.contains("outage") { return .majorOutage }
+
+        // 2. Explicit severity words from generic status-page phrasing.
+        if text.contains("major") || text.contains("outage") || text.contains("critical") {
+            return .majorOutage
+        }
+
+        // 3. AWS-style phrasing: titles prefixed with "Service impact:" or
+        //    "Service disruption:" are how AWS signals a real regional event.
+        //    Treat them as partial outages so the menu bar icon reflects the
+        //    severity rather than collapsing to .unknown.
+        if text.contains("service impact") ||
+           text.contains("service disruption") ||
+           text.contains("service issue") {
+            return .partialOutage
+        }
+
+        // 4. Explicit partial signal.
         if text.contains("partial") { return .partialOutage }
-        if text.contains("degraded") || text.contains("elevated") { return .degradedPerformance }
+
+        // 5. Degraded-performance signals — includes the Atlassian lifecycle
+        //    verbs (investigating, identified, monitoring) that indicate an
+        //    incident is still open, plus GCP/AWS phrasing about error rates.
+        if text.contains("degraded") ||
+           text.contains("elevated") ||
+           text.contains("increased error") ||
+           text.contains("investigating") ||
+           text.contains("identified") ||
+           text.contains("experiencing") {
+            return .degradedPerformance
+        }
+
+        // 6. Explicit operational signal (rare in feeds but seen in digest-style
+        //    "All systems operational" entries).
         if text.contains("operational") { return .operational }
+
         return .unknown
     }
 

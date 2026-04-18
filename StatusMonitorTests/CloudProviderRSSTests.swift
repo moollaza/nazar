@@ -56,21 +56,25 @@ final class CloudProviderRSSTests: XCTestCase {
         XCTAssertNotNil(items[0].pubDate)
     }
 
-    func testAWSFirstItemIsActiveOutage() {
-        // Most-recent item in fixture describes an active impact → heuristic
-        // must not be tricked into resolved by the word "issue" or "ongoing"
-        // appearing in an active description.
+    func testAWSServiceImpactClassifiesPartialOutage() {
+        // Regression test: previously classified as .unknown because "impact"
+        // wasn't in the keyword set. Now the heuristic recognizes AWS's
+        // "Service impact:" / "Service disruption:" prefixes and maps them
+        // to partial outages so the menu bar icon reflects the severity.
         let status = StatusManager.rssStatusHeuristic(
             title: "Service impact: Increased Connectivity Issues and API Error Rates",
             description: "We are providing an update on the ongoing service disruptions affecting AWS ME-SOUTH-1."
         )
-        // "issue" triggers nothing directly; "impact" not in the keyword set;
-        // the description has neither "major" nor "outage" — this is why a
-        // real catalog user notices AWS coverage is heuristic-limited.
-        // Document the current behavior explicitly so a refactor doesn't drift.
-        XCTAssertEqual(status, .unknown,
-                       "AWS's non-Atlassian phrasing is not matched by current heuristic keywords — " +
-                       "documenting this so any future heuristic change is deliberate")
+        XCTAssertEqual(status, .partialOutage,
+                       "AWS's 'Service impact:' prefix should classify as partial outage")
+    }
+
+    func testAWSServiceDisruptionClassifiesPartialOutage() {
+        let status = StatusManager.rssStatusHeuristic(
+            title: "Service disruption: Increased Error Rates",
+            description: "We are making progress on recovery efforts."
+        )
+        XCTAssertEqual(status, .partialOutage)
     }
 
     func testAWSResolvedItemClassifiesOperational() {
@@ -155,5 +159,53 @@ final class CloudProviderRSSTests: XCTestCase {
         XCTAssertEqual(azure?.type, .rss)
         XCTAssertTrue(azure?.baseURL.contains("azure.status.microsoft") ?? false)
         XCTAssertEqual(azure?.category, "Cloud & Hosting")
+    }
+
+    func testCatalogHasGCPEntry() {
+        let gcp = Catalog.shared.entries.first(where: { $0.id == "gcp" })
+        XCTAssertNotNil(gcp)
+        XCTAssertEqual(gcp?.type, .rss)
+        XCTAssertTrue(gcp?.baseURL.contains("status.cloud.google.com") ?? false)
+        XCTAssertEqual(gcp?.category, "Cloud & Hosting")
+    }
+
+    // GCP publishes Atom. Realistic fixture based on a 2026 Vertex AI incident.
+    private let gcpAtomFixture = #"""
+    <?xml version="1.0" encoding="UTF-8"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <title>Google Cloud Service Health Updates</title>
+      <updated>2026-03-09T05:25:43+00:00</updated>
+      <author><name>Google Cloud</name></author>
+      <id>https://status.cloud.google.com/</id>
+      <entry>
+        <title>Vertex AI Gemini API experiencing increased error rates</title>
+        <link href="https://status.cloud.google.com/incidents/41E5S3mkTGDfkZuJZH5k" rel="alternate"/>
+        <id>tag:status.cloud.google.com,2026:feed:41E5S3mkTGDfkZuJZH5k</id>
+        <updated>2026-03-09T05:25:43+00:00</updated>
+        <summary>Customers may experience elevated latency and 5xx errors.</summary>
+      </entry>
+    </feed>
+    """#.data(using: .utf8)!
+
+    func testGCPAtomFeedParsesAndClassifiesDegraded() throws {
+        let items = try RSSStatusParser(data: gcpAtomFixture).parse()
+        XCTAssertEqual(items.count, 1)
+        XCTAssertTrue(items[0].title.contains("Vertex AI"))
+
+        let status = StatusManager.rssStatusHeuristic(
+            title: items[0].title,
+            description: items[0].description
+        )
+        XCTAssertEqual(status, .degradedPerformance,
+                       "GCP's 'experiencing increased error rates' phrasing should classify as degraded")
+    }
+
+    func testGCPResolvedEntryClassifiesOperational() {
+        // GCP uses "RESOLVED:" (uppercase). Heuristic is case-insensitive.
+        let status = StatusManager.rssStatusHeuristic(
+            title: "RESOLVED: Vertex AI Gemini API customers experienced increased error rates",
+            description: "The issue has been resolved."
+        )
+        XCTAssertEqual(status, .operational)
     }
 }

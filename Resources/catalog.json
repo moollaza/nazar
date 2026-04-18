@@ -1683,5 +1683,6 @@
   {"id": "vimeo", "name": "Vimeo", "base_url": "https://status.vimeo.com", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"},
   {"id": "wikimedia", "name": "Wikimedia", "base_url": "https://www.wikimediastatus.net", "type": "statuspage", "category": "Social & Media", "platform": "incident.io"},
   {"id": "aws", "name": "Amazon Web Services", "base_url": "https://status.aws.amazon.com/rss/all.rss", "type": "rss", "category": "Cloud & Hosting", "platform": "aws"},
-  {"id": "azure", "name": "Microsoft Azure", "base_url": "https://azure.status.microsoft/en-us/status/feed/", "type": "rss", "category": "Cloud & Hosting", "platform": "azure"}
+  {"id": "azure", "name": "Microsoft Azure", "base_url": "https://azure.status.microsoft/en-us/status/feed/", "type": "rss", "category": "Cloud & Hosting", "platform": "azure"},
+  {"id": "gcp", "name": "Google Cloud", "base_url": "https://status.cloud.google.com/feed.atom", "type": "rss", "category": "Cloud & Hosting", "platform": "gcp"}
 ]

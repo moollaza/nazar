@@ -193,6 +193,46 @@ final class RSSParserTests: XCTestCase {
         XCTAssertEqual(status, .operational)
     }
 
+    // MARK: - Atlassian incident lifecycle verbs → degraded
+
+    func testHeuristicInvestigating() {
+        let status = StatusManager.rssStatusHeuristic(
+            title: "Investigating connectivity issues",
+            description: "We are looking into reports of intermittent failures."
+        )
+        XCTAssertEqual(status, .degradedPerformance,
+                       "'Investigating' signals an open incident — should elevate icon")
+    }
+
+    func testHeuristicIdentified() {
+        let status = StatusManager.rssStatusHeuristic(
+            title: "Identified: Database connection pool exhaustion",
+            description: "We've found the root cause and are applying a fix."
+        )
+        XCTAssertEqual(status, .degradedPerformance)
+    }
+
+    // MARK: - GCP-style phrasing
+
+    func testHeuristicIncreasedErrorRates() {
+        let status = StatusManager.rssStatusHeuristic(
+            title: "Vertex AI Gemini API experiencing increased error rates",
+            description: ""
+        )
+        XCTAssertEqual(status, .degradedPerformance,
+                       "GCP-style 'increased error rates' should classify as degraded")
+    }
+
+    // MARK: - Critical keyword
+
+    func testHeuristicCritical() {
+        let status = StatusManager.rssStatusHeuristic(
+            title: "Critical: Database replication lag",
+            description: ""
+        )
+        XCTAssertEqual(status, .majorOutage)
+    }
+
     func testHeuristicOperational() {
         let status = StatusManager.rssStatusHeuristic(title: "All systems operational", description: "")
         XCTAssertEqual(status, .operational)

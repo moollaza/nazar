@@ -3,7 +3,14 @@ name: Deploy Website to GitHub Pages
 on:
   push:
     branches: ["main"]
-    paths: ["website/**"]
+    # Also redeploy when the catalog changes — the site embeds
+    # Resources/catalog.json at build time (copied via the step below),
+    # so catalog-only changes must rebuild the site too. Without this,
+    # adding services to the catalog silently fails to reach users
+    # browsing the public site.
+    paths:
+      - "website/**"
+      - "Resources/catalog.json"
   workflow_dispatch:
 
 permissions:

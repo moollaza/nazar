@@ -51,7 +51,7 @@ mkdir -p "$OUTPUT_DIR"
 
 # ── 1. Archive ───────────────────────────────────────────────
 echo
-echo "▶ 1/5  Archiving Release build…"
+echo "▶ 1/6  Archiving Release build…"
 xcodebuild archive \
     -project "$PROJECT" \
     -scheme "$SCHEME" \
@@ -72,7 +72,7 @@ xcodebuild archive \
 
 # ── 2. Export signed .app ────────────────────────────────────
 echo
-echo "▶ 2/5  Exporting signed .app…"
+echo "▶ 2/6  Exporting signed .app…"
 xcodebuild -exportArchive \
     -archivePath "$ARCHIVE_PATH" \
     -exportPath "$EXPORT_DIR" \
@@ -90,9 +90,33 @@ codesign -vvv --deep --strict "$APP_PATH"
 spctl --assess --type execute --verbose "$APP_PATH" || \
     echo "  ⚠ spctl assessment warning (expected until notarized)"
 
-# ── 3. Build DMG ─────────────────────────────────────────────
+# ── 3. Notarize + staple the .app ────────────────────────────
+# Staple the .app BEFORE packaging it in the DMG. Stapling only the DMG
+# isn't enough: when the user drags StatusMonitor.app to /Applications,
+# the ticket goes with the DMG they discard, not with the .app that
+# lives on. An unstapled .app works (Gatekeeper phones home), but fails
+# on a user who is offline on first launch — common for remote workers.
+if [[ "$SKIP_NOTARIZE" -eq 1 ]]; then
+    echo
+    echo "▶ 3/6  Skipping .app notarization (--skip-notarize)"
+else
+    echo
+    echo "▶ 3/6  Notarizing the .app (first of two notary submissions)…"
+    APP_ZIP="$OUTPUT_DIR/StatusMonitor.app.zip"
+    ditto -c -k --keepParent "$APP_PATH" "$APP_ZIP"
+    xcrun notarytool submit "$APP_ZIP" \
+        --keychain-profile "$KEYCHAIN_PROFILE" \
+        --wait
+    rm -f "$APP_ZIP"
+
+    echo "  Stapling ticket to .app…"
+    xcrun stapler staple "$APP_PATH"
+    xcrun stapler validate "$APP_PATH"
+fi
+
+# ── 4. Build DMG (containing the now-stapled .app) ───────────
 echo
-echo "▶ 3/5  Building DMG ($DMG_NAME)…"
+echo "▶ 4/6  Building DMG ($DMG_NAME)…"
 
 if command -v create-dmg >/dev/null 2>&1; then
     # Preferred path: create-dmg lays out icons, adds a background, and
@@ -130,20 +154,23 @@ else
     rm -rf "$DMG_STAGING"
 fi
 
-# ── 4. Notarize ──────────────────────────────────────────────
+# ── 5. Notarize + staple the DMG ─────────────────────────────
+# Separately notarize the DMG itself so Gatekeeper is happy when the
+# user double-clicks the downloaded .dmg (before they've even copied
+# the .app anywhere).
 if [[ "$SKIP_NOTARIZE" -eq 1 ]]; then
     echo
-    echo "▶ 4/5  Skipping notarization (--skip-notarize)"
+    echo "▶ 5/6  Skipping DMG notarization (--skip-notarize)"
+    echo "▶ 6/6  Skipping DMG stapling (--skip-notarize)"
 else
     echo
-    echo "▶ 4/5  Submitting to Apple notary service (this usually takes 1-5 min)…"
+    echo "▶ 5/6  Notarizing the DMG (second notary submission)…"
     xcrun notarytool submit "$DMG_PATH" \
         --keychain-profile "$KEYCHAIN_PROFILE" \
         --wait
 
-    # ── 5. Staple ────────────────────────────────────────────
     echo
-    echo "▶ 5/5  Stapling notarization ticket…"
+    echo "▶ 6/6  Stapling ticket to DMG…"
     xcrun stapler staple "$DMG_PATH"
     xcrun stapler validate "$DMG_PATH"
 fi

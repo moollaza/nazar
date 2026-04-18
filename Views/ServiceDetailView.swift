@@ -116,124 +116,131 @@ struct ServiceDetailView: View {
 
             Divider()
 
-            // Active incidents
-            if !snapshot.activeIncidents.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Active Incidents")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .textCase(.uppercase)
+            // One outer ScrollView wraps incidents + component list so the
+            // header (back button, title, timestamp) stays pinned and nothing
+            // can grow offscreen. Previously the incidents section had no
+            // scroll container, so services with many in-progress maintenance
+            // items (e.g. Zoom) pushed the back button off the panel and
+            // trapped the user until they force-quit the app.
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    // Active incidents
+                    if !snapshot.activeIncidents.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Active Incidents")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .textCase(.uppercase)
 
-                    ForEach(snapshot.activeIncidents) { incident in
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.caption2)
-                                    .foregroundStyle(Color(nsColor: incident.impact.color))
-                                Text(incident.name)
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                                Spacer()
-                                Text(incident.status)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
+                            ForEach(snapshot.activeIncidents) { incident in
+                                VStack(alignment: .leading, spacing: 6) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .font(.caption2)
+                                            .foregroundStyle(Color(nsColor: incident.impact.color))
+                                        Text(incident.name)
+                                            .font(.caption)
+                                            .fontWeight(.medium)
+                                        Spacer()
+                                        Text(incident.status)
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
 
-                            // Incident timeline
-                            if !incident.updates.isEmpty {
-                                ForEach(incident.updates) { update in
-                                    HStack(alignment: .top, spacing: 6) {
-                                        Circle()
-                                            .fill(Color.secondary.opacity(0.4))
-                                            .frame(width: 4, height: 4)
-                                            .padding(.top, 5)
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            HStack(spacing: 4) {
-                                                Text(update.status.capitalized)
-                                                    .font(.caption2)
-                                                    .fontWeight(.medium)
-                                                if let date = update.createdAt {
-                                                    Text(date, style: .relative)
+                                    // Incident timeline
+                                    if !incident.updates.isEmpty {
+                                        ForEach(incident.updates) { update in
+                                            HStack(alignment: .top, spacing: 6) {
+                                                Circle()
+                                                    .fill(Color.secondary.opacity(0.4))
+                                                    .frame(width: 4, height: 4)
+                                                    .padding(.top, 5)
+                                                VStack(alignment: .leading, spacing: 2) {
+                                                    HStack(spacing: 4) {
+                                                        Text(update.status.capitalized)
+                                                            .font(.caption2)
+                                                            .fontWeight(.medium)
+                                                        if let date = update.createdAt {
+                                                            Text(date, style: .relative)
+                                                                .font(.caption2)
+                                                                .foregroundStyle(.tertiary)
+                                                        }
+                                                    }
+                                                    Text(update.body)
                                                         .font(.caption2)
-                                                        .foregroundStyle(.tertiary)
+                                                        .foregroundStyle(.secondary)
                                                 }
                                             }
-                                            Text(update.body)
-                                                .font(.caption2)
-                                                .foregroundStyle(.secondary)
                                         }
+                                    } else if let update = incident.latestUpdate {
+                                        Text(update)
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
-                            } else if let update = incident.latestUpdate {
-                                Text(update)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
                             }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+
+                        Divider()
                     }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
 
-                Divider()
-            }
-
-            // Search + filter bar
-            if !snapshot.components.isEmpty {
-                HStack(spacing: 8) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.secondary)
-                        TextField("Filter components...", text: $searchText)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 12))
-                        if !searchText.isEmpty {
-                            Button(action: { searchText = "" }) {
-                                Image(systemName: "xmark.circle.fill")
+                    // Search + filter bar
+                    if !snapshot.components.isEmpty {
+                        HStack(spacing: 8) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "magnifyingglass")
                                     .font(.system(size: 10))
                                     .foregroundStyle(.secondary)
+                                TextField("Filter components...", text: $searchText)
+                                    .textFieldStyle(.plain)
+                                    .font(.system(size: 12))
+                                if !searchText.isEmpty {
+                                    Button(action: { searchText = "" }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.system(size: 10))
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
-                            .buttonStyle(.plain)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(Color(nsColor: .controlBackgroundColor))
+                            .cornerRadius(6)
+
+                            Picker("Filter", selection: $statusFilter) {
+                                ForEach(StatusFilter.allCases, id: \.self) { filter in
+                                    Text(filter.rawValue).tag(filter)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 140)
+                            .labelsHidden()
                         }
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .cornerRadius(6)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
 
-                    Picker("Filter", selection: $statusFilter) {
-                        ForEach(StatusFilter.allCases, id: \.self) { filter in
-                            Text(filter.rawValue).tag(filter)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 140)
-                    .labelsHidden()
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                        Divider()
 
-                Divider()
-
-                // Component list
-                let components = filteredComponents
-                if components.isEmpty {
-                    VStack(spacing: 8) {
-                        if statusFilter == .issuesOnly && searchText.isEmpty {
-                            Text("All \(snapshot.components.count) components operational")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        // Component list
+                        let components = filteredComponents
+                        if components.isEmpty {
+                            VStack(spacing: 8) {
+                                if statusFilter == .issuesOnly && searchText.isEmpty {
+                                    Text("All \(snapshot.components.count) components operational")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                } else {
+                                    Text("No matching components")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 60)
+                            .padding(.vertical, 16)
                         } else {
-                            Text("No matching components")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
                             ForEach(components) { comp in
                                 HStack(spacing: 8) {
                                     Circle()
@@ -250,16 +257,16 @@ struct ServiceDetailView: View {
                                 .padding(.vertical, 5)
                             }
                         }
-                        .padding(.vertical, 4)
+                    } else if snapshot.activeIncidents.isEmpty {
+                        VStack(spacing: 8) {
+                            Text("No component data available")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 60)
+                        .padding(.vertical, 16)
                     }
                 }
-            } else {
-                VStack(spacing: 8) {
-                    Text("No component data available")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .onAppear {

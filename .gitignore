@@ -42,3 +42,9 @@ CLAUDE.local.md
 
 # Website build artifacts (catalog.json is copied from Resources/ at deploy time)
 website/catalog.json
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example

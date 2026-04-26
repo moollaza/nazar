@@ -7,10 +7,10 @@
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)" />
 
-    <title>Status Monitor — Stop wondering if it's just you</title>
-    <meta name="description" content="The fastest way to stay on top of outages and service updates. A free, open-source macOS menu bar app that watches 1,600+ services — Claude, GitHub, Asana, Slack, and more — so you don't have to." />
+    <title>Nazar — macOS status monitor for the services you depend on</title>
+    <meta name="description" content="Nazar is a free, privacy-first macOS status monitor with outage alerts and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more." />
 
-    <link rel="canonical" href="https://moollaza.github.io/status-monitor/" />
+    <link rel="canonical" href="https://usenazar.com/" />
 
     <link rel="preload" href="catalog.json" as="fetch" type="application/json" crossorigin="anonymous" />
 
@@ -29,32 +29,32 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://moollaza.github.io/status-monitor/" />
-    <meta property="og:site_name" content="Status Monitor" />
-    <meta property="og:title" content="Status Monitor — Stop wondering if it's just you" />
-    <meta property="og:description" content="The fastest way to stay on top of outages and service updates. A free, open-source macOS menu bar app watching 1,600+ services so you don't have to." />
-    <meta property="og:image" content="https://moollaza.github.io/status-monitor/og-image.png" />
+    <meta property="og:url" content="https://usenazar.com/" />
+    <meta property="og:site_name" content="Nazar" />
+    <meta property="og:title" content="Nazar — macOS status monitor for the services you depend on" />
+    <meta property="og:description" content="Outage alerts and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more, right from your macOS menu bar." />
+    <meta property="og:image" content="https://usenazar.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Status Monitor — macOS menu bar app with tagline 'Stop wondering if it's just you.'" />
+    <meta property="og:image:alt" content="Nazar — macOS status monitor for the services you depend on." />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Status Monitor — Stop wondering if it's just you" />
-    <meta name="twitter:description" content="The fastest way to stay on top of outages and service updates. A free, open-source macOS menu bar app watching 1,600+ services so you don't have to." />
-    <meta name="twitter:image" content="https://moollaza.github.io/status-monitor/og-image.png" />
+    <meta name="twitter:title" content="Nazar — macOS status monitor for the services you depend on" />
+    <meta name="twitter:description" content="Outage alerts and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more, right from your macOS menu bar." />
+    <meta name="twitter:image" content="https://usenazar.com/og-image.png" />
 
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "Status Monitor",
-      "description": "The fastest way to stay on top of outages and service updates. A free, open-source macOS menu bar app that monitors 1,600+ SaaS status pages and alerts you the moment something you depend on goes down.",
+      "name": "Nazar",
+      "description": "Nazar is a free, privacy-first macOS status monitor with outage alerts and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more.",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "macOS 14 Sonoma or later",
-      "url": "https://moollaza.github.io/status-monitor/",
-      "downloadUrl": "https://github.com/moollaza/status-monitor/releases",
-      "sameAs": "https://github.com/moollaza/status-monitor",
-      "license": "https://github.com/moollaza/status-monitor/blob/main/LICENSE",
+      "url": "https://usenazar.com/",
+      "downloadUrl": "https://github.com/moollaza/nazar/releases",
+      "sameAs": "https://github.com/moollaza/nazar",
+      "license": "https://github.com/moollaza/nazar/blob/main/LICENSE",
       "author": { "@type": "Organization", "name": "MoollApps", "url": "https://github.com/moollaza" },
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
     }
@@ -102,16 +102,16 @@
     <!-- Nav -->
     <header class="fixed top-0 z-50 w-full border-b border-border-subtle bg-surface/80 backdrop-blur-lg">
       <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4" aria-label="Primary">
-        <a href="#" class="flex items-center gap-2 text-lg font-semibold tracking-tight" aria-label="Status Monitor home">
+        <a href="#" class="flex items-center gap-2 text-lg font-semibold tracking-tight" aria-label="Nazar home">
           <img src="favicon.svg" alt="" width="28" height="28" class="h-7 w-7 rounded-md" />
-          Status Monitor
+          Nazar
         </a>
         <div class="hidden items-center gap-8 text-sm text-text-secondary sm:flex">
           <a href="#features" class="transition hover:text-text-primary">Features</a>
           <a href="#how-it-works" class="transition hover:text-text-primary">How It Works</a>
           <a href="#services" class="transition hover:text-text-primary">Services</a>
           <a href="#faq" class="transition hover:text-text-primary">FAQ</a>
-          <a href="https://github.com/moollaza/status-monitor" class="transition hover:text-text-primary" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/moollaza/nazar" class="transition hover:text-text-primary" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
         <div class="flex items-center gap-2">
           <button type="button" id="theme-toggle" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-subtle bg-surface-raised text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" aria-label="Switch theme">
@@ -119,7 +119,7 @@
             <svg data-theme-icon="light" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
             <svg data-theme-icon="dark" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
           </button>
-          <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/moollaza/nazar/releases" class="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
             Download
           </a>
@@ -135,25 +135,25 @@
         <div class="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
           <div class="max-w-xl">
             <p class="mb-4 inline-block rounded-full border border-border-subtle bg-surface-raised px-4 py-1.5 text-xs font-medium tracking-wide text-text-secondary">
-              Free &amp; Open Source for macOS
+              Free, privacy-first status monitoring for macOS
             </p>
             <h1 class="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.5rem]">
-              Stop wondering<br class="hidden sm:inline" /> if it's just you.
+              Nazar watches the services you depend on.
             </h1>
             <p class="mt-6 text-lg leading-relaxed text-text-secondary sm:text-xl">
-              The fastest way to stay on top of outages and service updates for the tools you depend on — Claude, GitHub, Asana, Slack, and 1,600+ more. Right in your menu bar.
+              Track outages and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more. Get notified from your menu bar before you waste time debugging.
             </p>
             <div class="mt-10 flex flex-wrap items-center gap-4">
-              <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/moollaza/nazar/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
                 <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 Download for macOS
               </a>
-              <a href="https://github.com/moollaza/status-monitor" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/moollaza/nazar" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener noreferrer">
                 <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.48 11.48 0 0 0 7.86 10.93c.58.1.79-.25.79-.55v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.13v3.16c0 .3.21.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
                 View on GitHub
               </a>
             </div>
-            <p class="mt-4 text-xs text-text-tertiary">Requires macOS 14 (Sonoma) or later. Free &amp; source-available (FSL 1.1).</p>
+            <p class="mt-4 text-xs text-text-tertiary">No account. No telemetry. Polls public status pages directly from your Mac.</p>
           </div>
 
           <!-- Dashboard mock — mirrors Views/DashboardView.swift (420×520 panel). Keep in sync when UI changes. -->
@@ -166,10 +166,10 @@
                 <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 4l4 4 4-4z"/></svg>
               </div>
 
-              <div role="img" aria-label="Status Monitor dashboard showing nine services with operational, degraded, and outage statuses." class="overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-[0_24px_64px_-12px_rgba(17,17,19,0.18)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+              <div role="img" aria-label="Nazar dashboard showing nine services with operational, degraded, and outage statuses." class="overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-[0_24px_64px_-12px_rgba(17,17,19,0.18)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
                 <!-- Dashboard header -->
                 <div class="flex items-center gap-2 px-4 py-2.5">
-                  <span class="text-sm font-semibold text-text-primary">Status Monitor</span>
+                  <span class="text-sm font-semibold text-text-primary">Nazar</span>
                   <div class="ml-auto flex items-center gap-1.5 text-text-tertiary">
                     <!-- Issues-only toggle -->
                     <span class="inline-flex h-6 w-6 items-center justify-center rounded-md">
@@ -316,8 +316,8 @@
       <section id="features" class="scroll-mt-20 border-t border-border-subtle py-24">
         <div class="mx-auto max-w-6xl px-6">
           <div class="mx-auto max-w-2xl text-center">
-            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">A calm way to watch your stack</h2>
-            <p class="mt-4 text-lg text-text-secondary">Everything you need to spot outages in the tools you rely on. Nothing you don't.</p>
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">A calm way to watch your services</h2>
+            <p class="mt-4 text-lg text-text-secondary">Everything you need to spot outages in the tools and services you rely on. Nothing you don't.</p>
           </div>
           <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
@@ -325,9 +325,9 @@
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M16 4v4h4"/><path d="M7 13h10M7 17h7"/></svg>
               </div>
-              <h3 class="text-lg font-semibold">1,600+ Services</h3>
+              <h3 class="text-lg font-semibold">Track the services that matter</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Built-in catalog covering the SaaS tools you actually use — AI, dev, design, productivity, ops, finance.
+                Pick from 1,600+ public status pages across developer tools, cloud services, productivity apps, payments, and more.
               </p>
             </article>
 
@@ -335,9 +335,9 @@
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
               </div>
-              <h3 class="text-lg font-semibold">Real-Time Alerts</h3>
+              <h3 class="text-lg font-semibold">Know before you debug</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Native macOS notifications the moment a service changes status. Critical sound on major outages. Mute noisy services anytime.
+                See when a service is degraded before you chase local issues, retry failed builds, or restart apps that were never the problem.
               </p>
             </article>
 
@@ -345,9 +345,9 @@
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M10 16a2 2 0 0 1 4 0"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
               </div>
-              <h3 class="text-lg font-semibold">Menu Bar Native</h3>
+              <h3 class="text-lg font-semibold">Quiet until it matters</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Lives in your menu bar with a color-coded icon. Green is all clear. Yellow, orange, or red means something needs attention.
+                Lives in your menu bar with native macOS notifications, mute controls, issue-focused views, and a color-coded status icon.
               </p>
             </article>
 
@@ -355,9 +355,9 @@
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
               </div>
-              <h3 class="text-lg font-semibold">Privacy First</h3>
+              <h3 class="text-lg font-semibold">Private by default</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                No accounts, no tracking, no analytics. Polls public status pages directly from your Mac. Runs in the macOS App Sandbox.
+                No accounts, no telemetry, no analytics, and no proxy server. Nazar polls public status pages directly from your Mac.
               </p>
             </article>
 
@@ -365,7 +365,7 @@
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>
               </div>
-              <h3 class="text-lg font-semibold">Open Source</h3>
+              <h3 class="text-lg font-semibold">Open and inspectable</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
                 Source-available under FSL 1.1. Read the code, contribute, or fork it. Converts to Apache 2.0 in 2028.
               </p>
@@ -375,7 +375,7 @@
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
               </div>
-              <h3 class="text-lg font-semibold">Drill-Down Detail</h3>
+              <h3 class="text-lg font-semibold">Status page detail</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
                 Component-level status, active incidents, and full resolution timelines for every service. Search and filter in one click.
               </p>
@@ -404,14 +404,14 @@
               <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">2</div>
               <h3 class="text-lg font-semibold">Pick Services</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Browse the catalog — Status Monitor even suggests services based on the apps you already have installed.
+                Browse the catalog and choose the services you care about.
               </p>
             </li>
             <li class="text-center">
               <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">3</div>
               <h3 class="text-lg font-semibold">Monitor</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Status Monitor polls each service and notifies you when something changes. Get back to work.
+                Nazar checks each service and notifies you when something changes. Get back to work.
               </p>
             </li>
           </ol>
@@ -422,7 +422,7 @@
       <section id="services" class="scroll-mt-20 border-t border-border-subtle py-24">
         <div class="mx-auto max-w-6xl px-6">
           <div class="mx-auto max-w-2xl text-center">
-            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">The tools you depend on</h2>
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Find the services you rely on</h2>
             <p class="mt-4 text-lg text-text-secondary">Browse <span id="catalog-total">1,600+</span> supported services across <span id="catalog-cat-count">22</span> categories.</p>
           </div>
 
@@ -432,7 +432,7 @@
               <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
               <input id="catalog-search" type="search" autocomplete="off" placeholder="Search 1,600+ services…" class="w-full rounded-lg border border-border-subtle bg-surface-raised py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30" />
             </label>
-            <a id="catalog-submit" href="https://github.com/moollaza/status-monitor/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">
+            <a id="catalog-submit" href="https://github.com/moollaza/nazar/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
               Request a service
             </a>
@@ -445,7 +445,7 @@
           <div id="catalog-results" class="mt-8 min-h-[320px]">
             <div id="catalog-loading" class="py-16 text-center text-sm text-text-tertiary">Loading catalog…</div>
             <ul id="catalog-list" class="hidden grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"></ul>
-            <p id="catalog-empty" class="hidden py-16 text-center text-sm text-text-tertiary">No services match. <a id="catalog-empty-submit" class="text-accent underline-offset-2 hover:underline" href="https://github.com/moollaza/status-monitor/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer">Request it on GitHub →</a></p>
+            <p id="catalog-empty" class="hidden py-16 text-center text-sm text-text-tertiary">No services match. <a id="catalog-empty-submit" class="text-accent underline-offset-2 hover:underline" href="https://github.com/moollaza/nazar/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer">Request it on GitHub →</a></p>
           </div>
 
           <div id="catalog-footer" class="mt-8 flex flex-col items-center gap-3 text-sm text-text-tertiary sm:flex-row sm:justify-between">
@@ -467,7 +467,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Status Monitor ships with a catalog of 1,600+ services covering developer tools, cloud hosting, databases, productivity apps, monitoring, payments, and more. It supports any service that uses an Atlassian Statuspage (or the incident.io equivalent) or publishes an RSS/Atom status feed.
+                Nazar ships with a catalog of 1,600+ services covering developer tools, cloud hosting, databases, productivity apps, monitoring, payments, and more. It supports any service that uses an Atlassian Statuspage, the incident.io equivalent, or publishes an RSS/Atom status feed.
               </div>
             </details>
 
@@ -477,7 +477,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Yes. Status Monitor is free and source-available under the Functional Source License (FSL 1.1). No subscriptions, no premium tiers, no data harvesting. The source is on GitHub, and the license converts to Apache 2.0 after two years.
+                Yes. Nazar is free and source-available under the Functional Source License (FSL 1.1). No subscriptions, no premium tiers, no telemetry. The source is on GitHub, and the license converts to Apache 2.0 after two years.
               </div>
             </details>
 
@@ -487,7 +487,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Status Monitor needs an internet connection to poll status pages. If your connection drops, it retains the last known status for each service, shows an offline indicator in the dashboard footer, and resumes polling automatically when you're back online.
+                Nazar needs an internet connection to poll status pages. If your connection drops, it retains the last known status for each service, shows an offline indicator in the dashboard footer, and resumes polling automatically when you're back online.
               </div>
             </details>
 
@@ -497,7 +497,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                The default poll interval is 60 seconds per service, configurable per-service from 30 seconds to 15 minutes. When a status page stops responding, Status Monitor automatically backs off so it doesn't hammer services that are already struggling.
+                The default poll interval is 60 seconds per service, configurable per-service from 30 seconds to 15 minutes. When a status page stops responding, Nazar automatically backs off so it doesn't hammer services that are already struggling.
               </div>
             </details>
 
@@ -507,7 +507,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Yes — Status Monitor follows your macOS appearance automatically. When you switch between Light and Dark modes in System Settings, the menu bar icon, dashboard panel, and status badges all adapt with accessible contrast in both themes.
+                Yes — Nazar follows your macOS appearance automatically. When you switch between Light and Dark modes in System Settings, the menu bar icon, dashboard panel, and status badges all adapt with accessible contrast in both themes.
               </div>
             </details>
 
@@ -517,7 +517,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Yes. Beyond the built-in catalog, you can add any service by pointing Status Monitor at its Atlassian Statuspage URL or RSS/Atom feed. Proprietary status page formats (custom HTML, JavaScript-rendered pages) aren't supported yet.
+                Yes. Beyond the built-in catalog, you can add any service by pointing Nazar at its Atlassian Statuspage URL or RSS/Atom feed. Proprietary status page formats (custom HTML, JavaScript-rendered pages) aren't supported yet.
               </div>
             </details>
 
@@ -527,7 +527,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Completely. Status Monitor runs in the macOS App Sandbox with only outbound network access. It polls public status pages directly — no intermediary servers, no telemetry, no analytics. Your list of monitored services stays in local UserDefaults.
+                Completely. Nazar runs in the macOS App Sandbox with only outbound network access. It polls public status pages directly — no proxy server, no telemetry, no analytics. Your list of monitored services stays on your Mac.
               </div>
             </details>
 
@@ -538,14 +538,14 @@
       <!-- Bottom CTA -->
       <section class="border-t border-border-subtle py-24">
         <div class="mx-auto max-w-3xl px-6 text-center">
-          <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Never guess again</h2>
-          <p class="mt-4 text-lg text-text-secondary">The fastest way to stay on top of outages and service updates for everything you depend on.</p>
+          <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Stop guessing what broke.</h2>
+          <p class="mt-4 text-lg text-text-secondary">Let Nazar watch the services you depend on while you get back to work.</p>
           <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a href="https://github.com/moollaza/status-monitor/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/moollaza/nazar/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer">
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 13l6 6 6-6"/></svg>
               Download for macOS
             </a>
-            <a href="https://github.com/moollaza/status-monitor" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/moollaza/nazar" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener noreferrer">
               View on GitHub
             </a>
           </div>
@@ -559,9 +559,9 @@
       <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-sm text-text-tertiary sm:flex-row sm:justify-between">
         <p>Made by <a href="https://zaahir.ca" class="text-text-secondary transition hover:text-text-primary" target="_blank" rel="noopener noreferrer">Zaahir Moolla</a></p>
         <p>
-          <a href="https://github.com/moollaza/status-monitor/blob/main/LICENSE" class="transition hover:text-text-secondary" target="_blank" rel="noopener noreferrer">FSL 1.1 License</a>
+          <a href="https://github.com/moollaza/nazar/blob/main/LICENSE" class="transition hover:text-text-secondary" target="_blank" rel="noopener noreferrer">FSL 1.1 License</a>
           <span class="mx-2" aria-hidden="true">&middot;</span>
-          <a href="https://github.com/moollaza/status-monitor" class="transition hover:text-text-secondary" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/moollaza/nazar" class="transition hover:text-text-secondary" target="_blank" rel="noopener noreferrer">GitHub</a>
         </p>
       </div>
     </footer>

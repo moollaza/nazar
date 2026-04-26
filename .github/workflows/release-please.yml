@@ -38,4 +38,4 @@ jobs:
           echo "::notice::Release $TAG created (empty). Build the notarized DMG locally with:"
           echo "::notice::  git checkout $TAG"
           echo "::notice::  scripts/release.sh"
-          echo "::notice::  gh release upload $TAG build/release/StatusMonitor-\${TAG#v}.dmg --repo $REPO"
+          echo "::notice::  gh release upload $TAG build/release/Nazar-\${TAG#v}.dmg --repo $REPO"

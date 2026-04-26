@@ -1,12 +1,12 @@
-# Contributing to StatusMonitor
+# Contributing to Nazar
 
 Thanks for your interest in contributing! This guide covers the basics.
 
 ## How to Contribute
 
 1. **Fork** the repo and create a branch from `main`
-2. **For bugs:** open an issue first using the [bug report template](https://github.com/moollaza/status-monitor/issues/new?template=bug_report.yml)
-3. **For features:** open an issue first using the [feature request template](https://github.com/moollaza/status-monitor/issues/new?template=feature_request.yml)
+2. **For bugs:** open an issue first using the [bug report template](https://github.com/moollaza/nazar/issues/new?template=bug_report.yml)
+3. **For features:** open an issue first using the [feature request template](https://github.com/moollaza/nazar/issues/new?template=feature_request.yml)
 4. Make your changes and **submit a PR**
 
 ## Development Setup
@@ -69,7 +69,7 @@ Releases are semi-automated via [release-please](https://github.com/googleapis/r
    ```
    git checkout vX.Y.Z
    scripts/release.sh
-   gh release upload vX.Y.Z build/release/StatusMonitor-X.Y.Z.dmg
+   gh release upload vX.Y.Z build/release/Nazar-X.Y.Z.dmg
    ```
 
 The DMG build step runs locally (not in CI) because notarization needs the Developer ID cert + Keychain credentials, which aren't stored in GitHub.

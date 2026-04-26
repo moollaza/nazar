@@ -26,9 +26,9 @@
   </g>
 
   <!-- Wordmark + tagline -->
-  <text x="288" y="212" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-size="38" font-weight="500" fill="#4a4a52" letter-spacing="0.5">Status Monitor</text>
-  <text x="288" y="300" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-size="76" font-weight="700" fill="#111113" letter-spacing="-1.5">Stop wondering</text>
-  <text x="288" y="380" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-size="76" font-weight="700" fill="#111113" letter-spacing="-1.5">if it's just you.</text>
+  <text x="288" y="212" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-size="38" font-weight="500" fill="#4a4a52" letter-spacing="0.5">Nazar</text>
+  <text x="288" y="300" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-size="70" font-weight="700" fill="#111113" letter-spacing="-1.5">Watches the services</text>
+  <text x="288" y="376" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-size="70" font-weight="700" fill="#111113" letter-spacing="-1.5">you depend on.</text>
 
   <!-- Feature row -->
   <g transform="translate(96 478)" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif" font-size="24" fill="#4a4a52">
@@ -38,7 +38,7 @@
     </g>
     <g transform="translate(310 0)">
       <circle cx="14" cy="14" r="6" fill="#ca8a04"/>
-      <text x="32" y="22" font-weight="500">Native macOS menu bar</text>
+      <text x="32" y="22" font-weight="500">Outage alerts</text>
     </g>
     <g transform="translate(740 0)">
       <circle cx="14" cy="14" r="6" fill="#dc2626"/>
@@ -47,7 +47,7 @@
   </g>
 
   <!-- Footer URL -->
-  <text x="96" y="578" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace" font-size="20" fill="#4a4a52">github.com/moollaza/status-monitor</text>
+  <text x="96" y="578" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace" font-size="20" fill="#4a4a52">usenazar.com</text>
 
   <!-- Card border -->
   <rect x="0" y="0" width="1200" height="630" fill="none" stroke="#e5e5ea" stroke-width="2"/>

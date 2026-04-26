@@ -14,7 +14,7 @@ import time
 import argparse
 from pathlib import Path
 
-HEADERS = {"User-Agent": "StatusMonitor-Discovery/1.0"}
+HEADERS = {"User-Agent": "Nazar-Discovery/1.0"}
 
 
 def load_existing_catalog():

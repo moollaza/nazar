@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>StatusMonitor</string>
+    <string>Nazar</string>
     <key>CFBundleDisplayName</key>
-    <string>Status Monitor</string>
+    <string>Nazar</string>
     <key>CFBundleIdentifier</key>
     <string>com.moollapps.StatusMonitor</string>
     <key>CFBundleVersion</key>

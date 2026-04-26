@@ -1,15 +1,15 @@
-# StatusMonitor
+# Nazar
 
-The fastest way to stay on top of outages and service updates for 1,600+ SaaS tools — right from your macOS menu bar.
+Nazar watches the services you depend on, right from your macOS menu bar.
 
-[**moollaza.github.io/status-monitor**](https://moollaza.github.io/status-monitor/) · [Download](https://github.com/moollaza/status-monitor/releases) · [Request a service](https://github.com/moollaza/status-monitor/issues/new?template=service_request.yml)
+[**usenazar.com**](https://usenazar.com/) · [Download](https://github.com/moollaza/nazar/releases) · [Request a service](https://github.com/moollaza/nazar/issues/new?template=service_request.yml)
 
-![StatusMonitor Screenshot](docs/assets/screenshot.png)
+![Nazar Screenshot](docs/assets/screenshot.png)
 
 ## Features
 
-- Monitor 1,600+ SaaS services from your menu bar
-- Instant notifications on status changes
+- Monitor 1,600+ services from your menu bar
+- Outage alerts and service updates for tools you rely on
 - Built-in catalog with one-click setup (5 services in under 60 seconds)
 - Color-coded menu bar icon (green/yellow/orange/red)
 - Supports Atlassian Statuspage, incident.io, and RSS/Atom feeds
@@ -19,7 +19,7 @@ The fastest way to stay on top of outages and service updates for 1,600+ SaaS to
 
 ## Install
 
-Download the latest `.dmg` from [GitHub Releases](https://github.com/moollaza/status-monitor/releases).
+Download the latest `.dmg` from [GitHub Releases](https://github.com/moollaza/nazar/releases).
 
 Requires macOS 14 (Sonoma) or later.
 
@@ -28,12 +28,14 @@ Requires macOS 14 (Sonoma) or later.
 **Prerequisites:** Xcode 15+, macOS 14+
 
 ```bash
-git clone https://github.com/moollaza/status-monitor.git
-cd status-monitor
+git clone https://github.com/moollaza/nazar.git
+cd nazar
 open StatusMonitor.xcodeproj
 ```
 
 Build and run the `StatusMonitor` scheme in Xcode.
+
+The internal Xcode project, target, and scheme still use `StatusMonitor` for build continuity. The shipped app name is Nazar.
 
 **CLI build:**
 
@@ -62,7 +64,7 @@ xcrun notarytool store-credentials AC_PASSWORD \
     --password <app-specific-password>
 ```
 
-Generate the app-specific password at [appleid.apple.com](https://appleid.apple.com) → Sign-In and Security → App-Specific Passwords. The credentials live in your Keychain; `AC_PASSWORD` is just a profile name the release script references.
+Generate the app-specific password at [appleid.apple.com](https://appleid.apple.com) → Sign-In and Security → App-Specific Passwords. The credentials live in your Keychain; `AC_PASSWORD` is just the default profile name the release script references. Set `KEYCHAIN_PROFILE=<profile>` when running the script to use a different profile name.
 
 Build a signed, notarized, stapled DMG:
 
@@ -70,7 +72,7 @@ Build a signed, notarized, stapled DMG:
 scripts/release.sh
 ```
 
-Output: `build/release/StatusMonitor-<version>.dmg`.
+Output: `build/release/Nazar-<version>.dmg`.
 
 For a local smoke test without hitting Apple's notary service:
 
@@ -88,7 +90,7 @@ scripts/release.sh --skip-notarize
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. To request a missing service, use the [Service Request issue template](https://github.com/moollaza/status-monitor/issues/new?template=service_request.yml).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. To request a missing service, use the [Service Request issue template](https://github.com/moollaza/nazar/issues/new?template=service_request.yml).
 
 ## License
 

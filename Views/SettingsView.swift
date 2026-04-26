@@ -605,7 +605,7 @@ struct HelpSettingsView: View {
                     .font(.system(size: 32))
                     .foregroundColor(.accentColor)
                 VStack(alignment: .leading) {
-                    Text("Status Monitor")
+                    Text("Nazar")
                         .font(.title2)
                         .fontWeight(.semibold)
                     Text("Version \(appVersion)")
@@ -621,16 +621,16 @@ struct HelpSettingsView: View {
 
             Text("How It Works")
                 .font(.headline)
-            Text("Status Monitor polls public status pages (Atlassian Statuspage and RSS feeds) on a configurable interval and shows you the current status of your services. When a status changes, you get a notification.")
+            Text("Nazar polls public status pages (Atlassian Statuspage and RSS feeds) on a configurable interval and shows you the current status of the services you depend on. When a status changes, you get a notification.")
                 .font(.body)
                 .foregroundStyle(.secondary)
 
             Divider()
 
             VStack(alignment: .leading, spacing: 8) {
-                Link("GitHub Repository", destination: URL(string: "https://github.com/moollaza/status-monitor")!)
-                Link("Report a Bug", destination: URL(string: "https://github.com/moollaza/status-monitor/issues/new?template=bug_report.yml")!)
-                Link("Request a Feature", destination: URL(string: "https://github.com/moollaza/status-monitor/issues/new?template=feature_request.yml")!)
+                Link("GitHub Repository", destination: URL(string: "https://github.com/moollaza/nazar")!)
+                Link("Report a Bug", destination: URL(string: "https://github.com/moollaza/nazar/issues/new?template=bug_report.yml")!)
+                Link("Request a Feature", destination: URL(string: "https://github.com/moollaza/nazar/issues/new?template=feature_request.yml")!)
             }
             .font(.body)
 

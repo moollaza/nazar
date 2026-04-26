@@ -114,7 +114,7 @@ struct DashboardView: View {
         VStack(spacing: 0) {
             // Header
             HStack(spacing: 8) {
-                Text("Status Monitor")
+                Text("Nazar")
                     .font(.headline)
                 Spacer()
                 // Issues only filter

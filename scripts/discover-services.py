@@ -29,7 +29,7 @@ URL_PATTERNS = [
     "https://{slug}.status.atlassian.com",
 ]
 
-HEADERS = {"User-Agent": "StatusMonitor-Discovery/1.0"}
+HEADERS = {"User-Agent": "Nazar-Discovery/1.0"}
 
 
 def try_url(url, ctx):

@@ -1,6 +1,6 @@
-# StatusMonitor
+# Nazar
 
-macOS menu bar app that monitors SaaS service status pages and alerts on outages. Source-available under FSL 1.1.
+macOS menu bar app that watches the services users depend on and alerts on outages. Source-available under FSL 1.1.
 
 ## Tech Stack
 
@@ -8,7 +8,7 @@ macOS menu bar app that monitors SaaS service status pages and alerts on outages
 - **Architecture**: Menu bar accessory (`LSUIElement=true`), no Dock icon, floating NSPanel (not NSPopover)
 - **Persistence**: `UserDefaults` for provider list and preferences
 - **Network**: `URLSession` for polling; sandboxed (`com.apple.security.network.client`)
-- **Website**: Static HTML + Tailwind CSS CDN (no build step), GitHub Pages
+- **Website**: Static HTML + Tailwind CSS CDN (no build step), GitHub Pages at https://usenazar.com/
 - **License**: FSL 1.1 (converts to Apache 2.0 on 2028-04-12)
 
 ## Repo Layout
@@ -69,13 +69,13 @@ This project uses the compound engineering skill suite:
 
 All work is tracked in Linear. **The Linear MCP must be connected before planning or implementation work begins.**
 
-- **Project**: StatusMonitor — https://linear.app/moollaza/project/statusmonitor-ac69e82c3ceb
+- **Project**: Nazar — https://linear.app/moollaza/project/statusmonitor-ac69e82c3ceb
 - **Team**: Side Projects (`ZPR` prefix)
 - **MCP**: `plugin:linear:linear` — connect via OAuth when starting a session
 
 ## Deployment
 
-- **Website**: Deploys automatically on push to `main` via `.github/workflows/deploy-website.yml` → https://moollaza.github.io/status-monitor/
+- **Website**: Deploys automatically on push to `main` via `.github/workflows/deploy-website.yml` -> https://usenazar.com/
 - **App**: Distribution via signed DMG (not yet set up)
 
 ## Status Page Support

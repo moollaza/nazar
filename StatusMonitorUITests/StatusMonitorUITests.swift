@@ -33,7 +33,7 @@ final class StatusMonitorUITests: XCTestCase {
 
     func testSettingsWindowOpensWithAllTabs() {
         let app = launchSettings()
-        let window = app.windows["Status Monitor Settings"]
+        let window = app.windows["Nazar Settings"]
         XCTAssertTrue(window.waitForExistence(timeout: 5), "Settings window should appear")
 
         // All 5 tabs present in the sidebar.
@@ -46,7 +46,7 @@ final class StatusMonitorUITests: XCTestCase {
         // Right-click → "Send Feedback…" uses the same tab-routing path. This
         // verifies the tab-navigation fix end-to-end.
         let app = launchSettings(tab: "Feedback")
-        let window = app.windows["Status Monitor Settings"]
+        let window = app.windows["Nazar Settings"]
         XCTAssertTrue(window.waitForExistence(timeout: 5))
 
         // Feedback tab renders a "Send Feedback" header. Tab transition can
@@ -57,7 +57,7 @@ final class StatusMonitorUITests: XCTestCase {
 
     func testCustomServiceURLValidatorRejectsHTTP() {
         let app = launchSettings(tab: "Services")
-        let window = app.windows["Status Monitor Settings"]
+        let window = app.windows["Nazar Settings"]
         XCTAssertTrue(window.waitForExistence(timeout: 5))
 
         // Open the Add Custom sheet.
@@ -89,7 +89,7 @@ final class StatusMonitorUITests: XCTestCase {
 
     func testCustomServiceURLValidatorAcceptsHTTPS() {
         let app = launchSettings(tab: "Services")
-        let window = app.windows["Status Monitor Settings"]
+        let window = app.windows["Nazar Settings"]
         XCTAssertTrue(window.waitForExistence(timeout: 5))
 
         window.buttons["Add Custom..."].click()
@@ -116,7 +116,7 @@ final class StatusMonitorUITests: XCTestCase {
 
     func testHelpTabShowsVersionAndLinks() {
         let app = launchSettings(tab: "Help")
-        let window = app.windows["Status Monitor Settings"]
+        let window = app.windows["Nazar Settings"]
         XCTAssertTrue(window.waitForExistence(timeout: 5))
 
         // Tab transition can take a moment after window appearance.

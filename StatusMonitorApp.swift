@@ -101,7 +101,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.action = #selector(handleStatusBarClick)
             button.target = self
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-            button.toolTip = "Status Monitor — All operational"
+            button.toolTip = "Nazar — All operational"
         }
 
         // Floating panel (clean rectangle, no popover arrow)
@@ -258,7 +258,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let controller = NSHostingController(rootView: settingsView)
         let window = NSWindow(contentViewController: controller)
-        window.title = "Status Monitor Settings"
+        window.title = "Nazar Settings"
         window.styleMask = [.titled, .closable, .resizable]
         window.setContentSize(NSSize(width: 680, height: 480))
         window.minSize = NSSize(width: 580, height: 400)
@@ -290,10 +290,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             .filter { $0.error == nil && $0.overallStatus != .operational }
             .count
         if degradedCount == 0 {
-            statusItem.button?.toolTip = "Status Monitor — All operational"
+            statusItem.button?.toolTip = "Nazar — All operational"
         } else {
             let s = degradedCount == 1 ? "service" : "services"
-            statusItem.button?.toolTip = "Status Monitor — \(degradedCount) \(s) degraded"
+            statusItem.button?.toolTip = "Nazar — \(degradedCount) \(s) degraded"
         }
     }
 
@@ -344,12 +344,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func showContextMenu() {
         let menu = NSMenu()
 
-        menu.addItem(withTitle: "About StatusMonitor", action: #selector(showAbout), keyEquivalent: "")
+        menu.addItem(withTitle: "About Nazar", action: #selector(showAbout), keyEquivalent: "")
         menu.addItem(.separator())
         menu.addItem(withTitle: "Preferences…", action: #selector(openPreferencesAction), keyEquivalent: ",")
         menu.addItem(withTitle: "Send Feedback…", action: #selector(openFeedbackAction), keyEquivalent: "")
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Quit StatusMonitor", action: #selector(quitApp), keyEquivalent: "q")
+        menu.addItem(withTitle: "Quit Nazar", action: #selector(quitApp), keyEquivalent: "q")
 
         for item in menu.items {
             item.target = self
@@ -365,11 +365,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func showAbout() {
         NSApp.activate(ignoringOtherApps: true)
         NSApp.orderFrontStandardAboutPanel(options: [
-            .applicationName: "Status Monitor",
+            .applicationName: "Nazar",
             .applicationVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0",
             .version: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1",
             .credits: NSAttributedString(
-                string: "Made by MoollApps\nhttps://github.com/moollaza/status-monitor",
+                string: "Made by MoollApps\nhttps://usenazar.com\nhttps://github.com/moollaza/nazar",
                 attributes: [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.secondaryLabelColor]
             ),
         ])

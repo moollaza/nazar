@@ -9,6 +9,7 @@ final class StatusManagerPersistenceTests: XCTestCase {
 
     private var suite: UserDefaults!
     private var suiteName: String!
+    private static let noopNotifier = NoopNotifier()
 
     override func setUp() {
         super.setUp()
@@ -24,7 +25,7 @@ final class StatusManagerPersistenceTests: XCTestCase {
     }
 
     private func makeManager() -> StatusManager {
-        StatusManager(session: .shared, notifier: NoopNotifier(), defaults: suite)
+        StatusManager(session: .shared, notifier: Self.noopNotifier, defaults: suite)
     }
 
     // MARK: - Round-trip

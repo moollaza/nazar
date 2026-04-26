@@ -135,7 +135,7 @@ struct FeedbackView: View {
         \(description)
         """
 
-        var components = URLComponents(string: "https://github.com/moollaza/status-monitor/issues/new")!
+        var components = URLComponents(string: "https://github.com/moollaza/nazar/issues/new")!
         components.queryItems = [
             URLQueryItem(name: "title", value: issueTitle),
             URLQueryItem(name: "body", value: body),

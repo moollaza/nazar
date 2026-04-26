@@ -50,7 +50,7 @@ class StatusManager {
         config.urlCache = nil
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
         config.httpAdditionalHeaders = [
-            "User-Agent": "StatusMonitor/\(version) (+https://github.com/moollaza/status-monitor)"
+            "User-Agent": "Nazar/\(version) (+https://usenazar.com)"
         ]
         return URLSession(configuration: config)
     }()
@@ -80,6 +80,12 @@ class StatusManager {
         loadProviders()
         observeSleepWake()
     }
+
+    // Avoid the back-deployed MainActor deinit path on newer Swift toolchains,
+    // which aborts in the macOS XCTest host for this app-lifetime object.
+    #if compiler(>=6.2)
+    nonisolated deinit {}
+    #endif
 
     /// On sleep: invalidate timers so they don't fire wildly on wake.
     /// On wake: reschedule and pollAll so any transitions we missed while

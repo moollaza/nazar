@@ -29,7 +29,7 @@ def main():
             url = base_url
 
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "StatusMonitor-Audit/1.0"})
+            req = urllib.request.Request(url, headers={"User-Agent": "Nazar-Audit/1.0"})
             resp = urllib.request.urlopen(req, timeout=15, context=ctx)
             data = resp.read()
 

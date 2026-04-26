@@ -5,7 +5,7 @@
   "separate-pull-requests": false,
   "packages": {
     ".": {
-      "package-name": "StatusMonitor",
+      "package-name": "Nazar",
       "changelog-sections": [
         { "type": "feat",     "section": "Features" },
         { "type": "fix",      "section": "Bug Fixes" },

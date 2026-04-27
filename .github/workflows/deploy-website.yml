@@ -1,13 +1,10 @@
-name: Deploy Website to GitHub Pages
+name: Deploy Website to Cloudflare Pages
 
 on:
   push:
     branches: ["main"]
-    # Also redeploy when the catalog changes — the site embeds
-    # Resources/catalog.json at build time (copied via the step below),
-    # so catalog-only changes must rebuild the site too. Without this,
-    # adding services to the catalog silently fails to reach users
-    # browsing the public site.
+    # The site embeds Resources/catalog.json at deploy time, so
+    # catalog-only changes must redeploy the public website too.
     paths:
       - "website/**"
       - "Resources/catalog.json"
@@ -15,34 +12,30 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  deployments: write
 
 concurrency:
-  group: "pages"
+  group: "cloudflare-pages"
   cancel-in-progress: false
 
 jobs:
   deploy:
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: cloudflare-pages
+      url: https://usenazar.com/
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Setup Pages
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
+
       - name: Bundle catalog for site
         run: cp Resources/catalog.json website/catalog.json
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
         with:
-          path: website
-          # Preserve .nojekyll (and any future dotfiles) in the published artifact.
-          # upload-pages-artifact v4+ excludes hidden files by default; the flag
-          # keeps pre-v4 behavior so GitHub Pages continues to skip Jekyll processing.
-          include-hidden-files: 'true'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: 4.71.0
+          command: pages deploy website --project-name=usenazar --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

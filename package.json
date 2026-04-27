@@ -4,11 +4,15 @@
   "private": true,
   "description": "Visual regression checks for the Nazar website.",
   "scripts": {
+    "build:og": "node website/scripts/generate-og-image.mjs",
     "test:visual": "playwright test",
     "test:visual:update": "playwright test --update-snapshots"
   },
   "devDependencies": {
     "@argos-ci/playwright": "^6.6.2",
-    "@playwright/test": "^1.59.1"
+    "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
+    "@playwright/test": "^1.59.1",
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.26.0"
   }
 }

@@ -49,6 +49,11 @@ jobs:
       - name: Verify website catalog is current
         run: cmp Resources/catalog.json website/catalog.json
 
+      - name: Verify OG image is current
+        run: |
+          npm run build:og
+          git diff --exit-code -- website/og-image.svg website/og-image.png
+
       - name: Install Playwright browsers
         run: npm exec playwright install --with-deps chromium
 

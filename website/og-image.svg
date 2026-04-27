@@ -4,16 +4,6 @@
       <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.08"/>
       <stop offset="60%" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="nazarTile" x1="170" y1="112" x2="854" y2="926" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#071A5F"/>
-      <stop offset="0.54" stop-color="#0C2F9D"/>
-      <stop offset="1" stop-color="#1239B2"/>
-    </linearGradient>
-    <radialGradient id="nazarDisc" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(404 318) rotate(48) scale(510)">
-      <stop offset="0" stop-color="#0D3EE0"/>
-      <stop offset="0.56" stop-color="#0B37C6"/>
-      <stop offset="1" stop-color="#082A8A"/>
-    </radialGradient>
   </defs>
 
   <!-- Background -->
@@ -22,12 +12,12 @@
 
   <!-- App icon tile -->
   <g transform="translate(96 160) scale(0.15625)">
-    <rect x="56" y="56" width="912" height="912" rx="220" fill="url(#nazarTile)"/>
-    <circle cx="512" cy="512" r="344" fill="url(#nazarDisc)"/>
+    <rect x="56" y="56" width="912" height="912" rx="220" fill="#7DD3FC"/>
+    <circle cx="512" cy="512" r="344" fill="#0B37C6"/>
     <circle cx="512" cy="512" r="242" fill="#F8FAFC"/>
     <circle cx="512" cy="512" r="158" fill="#38BDF8"/>
     <circle cx="512" cy="512" r="84" fill="#0F172A"/>
-    <circle cx="400" cy="286" r="36" fill="#FFFFFF" opacity="0.78"/>
+    <circle cx="400" cy="286" r="36" fill="#FFFFFF" opacity="0.72"/>
   </g>
 
   <!-- Wordmark + tagline -->

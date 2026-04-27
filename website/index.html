@@ -442,7 +442,7 @@
             <button type="button" data-category="all" class="category-chip rounded-full border border-border-subtle bg-surface-raised px-3.5 py-1.5 text-xs font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent" aria-pressed="true">All</button>
           </div>
 
-          <div id="catalog-results" class="mt-8 min-h-[320px]">
+          <div id="catalog-results" class="mt-8 min-h-[220px] sm:min-h-[320px]">
             <div id="catalog-loading" class="py-16 text-center text-sm text-text-tertiary">Loading catalog…</div>
             <ul id="catalog-list" class="hidden grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"></ul>
             <p id="catalog-empty" class="hidden py-16 text-center text-sm text-text-tertiary">No services match. <a id="catalog-empty-submit" class="text-accent underline-offset-2 hover:underline" href="https://github.com/moollaza/nazar/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer">Request it on GitHub →</a></p>
@@ -450,7 +450,7 @@
 
           <div id="catalog-footer" class="mt-8 flex flex-col items-center gap-3 text-sm text-text-tertiary sm:flex-row sm:justify-between">
             <p><span id="catalog-showing">Showing all services</span></p>
-            <button type="button" id="catalog-more" class="hidden rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">Show more</button>
+            <button type="button" id="catalog-more" class="hidden rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">Show more services</button>
           </div>
         </div>
       </section>
@@ -597,7 +597,9 @@
 
     <script>
       (function () {
-        const PAGE_SIZE = 60;
+        const DESKTOP_PAGE_SIZE = 60;
+        const MOBILE_PAGE_SIZE = 12;
+        const mobileQuery = window.matchMedia('(max-width: 639px)');
         const els = {
           search: document.getElementById('catalog-search'),
           categories: document.getElementById('catalog-categories'),
@@ -613,10 +615,18 @@
         let catalog = [];
         let activeCategory = 'all';
         let query = '';
-        let limit = PAGE_SIZE;
+        let limit = pageSize();
 
         const CHIP_CLASS = 'category-chip rounded-full border border-border-subtle bg-surface-raised px-3.5 py-1.5 text-xs font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent';
         const CARD_CLASS = 'group flex items-center gap-3 rounded-lg border border-border-subtle bg-surface-raised px-3.5 py-2.5 transition hover:border-accent';
+
+        function pageSize() {
+          return mobileQuery.matches ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE;
+        }
+
+        function resetLimit() {
+          limit = pageSize();
+        }
 
         function filter() {
           const q = query.trim().toLowerCase();
@@ -718,7 +728,7 @@
 
         function setCategory(cat) {
           activeCategory = cat;
-          limit = PAGE_SIZE;
+          resetLimit();
           els.categories.querySelectorAll('.category-chip').forEach((b) => {
             b.setAttribute('aria-pressed', b.dataset.category === cat ? 'true' : 'false');
           });
@@ -735,13 +745,18 @@
           clearTimeout(searchTimer);
           searchTimer = setTimeout(() => {
             query = e.target.value;
-            limit = PAGE_SIZE;
+            resetLimit();
             render();
           }, 100);
         });
 
         els.more.addEventListener('click', () => {
-          limit += PAGE_SIZE;
+          limit += pageSize();
+          render();
+        });
+
+        mobileQuery.addEventListener('change', () => {
+          resetLimit();
           render();
         });
 

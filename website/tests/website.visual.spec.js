@@ -2,6 +2,7 @@ const { expect, test } = require('@playwright/test');
 const { argosScreenshot } = require('@argos-ci/playwright');
 
 async function capture(page, testInfo, name) {
+  await page.evaluate(() => window.scrollTo(0, 0));
   await argosScreenshot(page, `${testInfo.project.name}-${name}`, {
     fullPage: true,
     ariaSnapshot: true,
@@ -17,7 +18,10 @@ test.describe('Nazar website', () => {
     await expect(page.getByRole('heading', { name: 'Find the services you rely on' })).toBeVisible();
     await expect(page.getByText('Failed to load catalog')).toHaveCount(0);
     await expect(page.locator('#catalog-list a').first()).toBeVisible();
-    await expect(page.locator('#catalog-showing')).toContainText(/Showing \d+ of all/);
+    const initialCatalogCount = testInfo.project.name === 'mobile' ? 12 : 60;
+    await expect(page.locator('#catalog-list a')).toHaveCount(initialCatalogCount);
+    await expect(page.locator('#catalog-showing')).toContainText(`Showing ${initialCatalogCount} of all`);
+    await expect(page.locator('#catalog-more')).toBeVisible();
 
     await capture(page, testInfo, 'homepage');
   });

@@ -1,6 +1,6 @@
 # Nazar
 
-macOS menu bar app that watches the services users depend on and alerts on outages. Source-available under FSL 1.1.
+macOS menu bar app that watches the services users depend on and alerts on outages. Open source under Apache-2.0.
 
 ## Tech Stack
 
@@ -9,7 +9,7 @@ macOS menu bar app that watches the services users depend on and alerts on outag
 - **Persistence**: `UserDefaults` for provider list and preferences
 - **Network**: `URLSession` for polling; sandboxed (`com.apple.security.network.client`)
 - **Website**: Static HTML + Tailwind CSS CDN (no build step), Cloudflare Pages at https://usenazar.com/
-- **License**: FSL 1.1 (converts to Apache 2.0 on 2028-04-12)
+- **License**: Apache-2.0
 
 ## Repo Layout
 

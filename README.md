@@ -87,7 +87,8 @@ scripts/release.sh --skip-notarize
 - `URLSession` for network polling
 - App Sandbox with `com.apple.security.network.client`
 - `LSUIElement` menu bar accessory (no Dock icon)
-- Static website in `website/`, deployed to Cloudflare Pages
+- Static website in `website/`, deployed by Cloudflare Pages Git integration
+- `website/catalog.json` is committed for no-build Pages deploys; website visual CI verifies it matches `Resources/catalog.json`
 
 ## Contributing
 

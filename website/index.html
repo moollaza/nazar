@@ -100,7 +100,7 @@
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-on-accent">Skip to content</a>
 
     <!-- Nav -->
-    <header class="fixed top-0 z-50 w-full border-b border-border-subtle bg-surface/80 backdrop-blur-lg">
+    <header class="relative z-50 w-full border-b border-border-subtle bg-surface/80 backdrop-blur-lg">
       <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4" aria-label="Primary">
         <a href="#" class="flex items-center gap-2 text-lg font-semibold tracking-tight" aria-label="Nazar home">
           <img src="favicon.svg" alt="" width="28" height="28" class="h-7 w-7 rounded-md" />
@@ -130,7 +130,7 @@
     <main id="main">
 
       <!-- Hero -->
-      <section class="relative flex min-h-screen items-center overflow-hidden pt-24 sm:pt-20">
+      <section class="relative flex min-h-[calc(100vh-69px)] items-center overflow-hidden">
         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.12)_0%,_transparent_60%)]"></div>
         <div class="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
           <div class="max-w-xl">
@@ -159,13 +159,6 @@
           <!-- Dashboard mock — mirrors Views/DashboardView.swift (420×520 panel). Keep in sync when UI changes. -->
           <div class="flex items-center justify-center">
             <div class="relative w-full max-w-[440px]">
-              <!-- Menu bar chrome hint -->
-              <div class="mx-auto mb-3 flex w-fit items-center gap-2 rounded-md border border-border-subtle bg-surface-raised/80 px-3 py-1.5 text-xs text-text-tertiary" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M10 16a2 2 0 0 1 4 0"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/></svg>
-                <span class="font-medium text-text-secondary">in your menu bar</span>
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 4l4 4 4-4z"/></svg>
-              </div>
-
               <div role="img" aria-label="Nazar dashboard showing nine services with operational, degraded, and outage statuses." class="overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-[0_24px_64px_-12px_rgba(17,17,19,0.18)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
                 <!-- Dashboard header -->
                 <div class="flex items-center gap-2 px-4 py-2.5">
@@ -175,12 +168,16 @@
                     <span class="inline-flex h-6 w-6 items-center justify-center rounded-md">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L1 21h22L12 2z"/><path d="M12 9v4M12 17h.01"/></svg>
                     </span>
-                    <!-- Sort segmented control: ↑↓ (active) / Abc -->
+                    <!-- Sort segmented control: severity (active) / alphabetical -->
                     <span class="inline-flex items-center overflow-hidden rounded-md border border-border-subtle text-[10px] font-semibold">
                       <span class="inline-flex h-6 w-8 items-center justify-center bg-[#dcdcff] text-[#4338ca] dark:bg-[#2d2d52] dark:text-[#a5b4fc]">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M7 4l-3 3M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg>
                       </span>
-                      <span class="inline-flex h-6 w-8 items-center justify-center text-text-tertiary">Abc</span>
+                      <span class="inline-flex h-6 w-8 items-center justify-center text-text-tertiary" aria-label="Alphabetical sort">
+                        <svg width="17" height="12" viewBox="0 0 34 24" fill="currentColor" aria-hidden="true">
+                          <text x="1" y="18" font-size="17" font-weight="700" letter-spacing="0">abc</text>
+                        </svg>
+                      </span>
                     </span>
                     <!-- Refresh -->
                     <span class="inline-flex h-6 w-6 items-center justify-center rounded-md">
@@ -442,7 +439,7 @@
             <button type="button" data-category="all" class="category-chip rounded-full border border-border-subtle bg-surface-raised px-3.5 py-1.5 text-xs font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent" aria-pressed="true">All</button>
           </div>
 
-          <div id="catalog-results" class="mt-8 min-h-[320px]">
+          <div id="catalog-results" class="mt-8 min-h-[220px] sm:min-h-[320px]">
             <div id="catalog-loading" class="py-16 text-center text-sm text-text-tertiary">Loading catalog…</div>
             <ul id="catalog-list" class="hidden grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"></ul>
             <p id="catalog-empty" class="hidden py-16 text-center text-sm text-text-tertiary">No services match. <a id="catalog-empty-submit" class="text-accent underline-offset-2 hover:underline" href="https://github.com/moollaza/nazar/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer">Request it on GitHub →</a></p>
@@ -450,7 +447,7 @@
 
           <div id="catalog-footer" class="mt-8 flex flex-col items-center gap-3 text-sm text-text-tertiary sm:flex-row sm:justify-between">
             <p><span id="catalog-showing">Showing all services</span></p>
-            <button type="button" id="catalog-more" class="hidden rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">Show more</button>
+            <button type="button" id="catalog-more" class="hidden rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">Show more services</button>
           </div>
         </div>
       </section>
@@ -597,7 +594,9 @@
 
     <script>
       (function () {
-        const PAGE_SIZE = 60;
+        const DESKTOP_PAGE_SIZE = 60;
+        const MOBILE_PAGE_SIZE = 12;
+        const mobileQuery = window.matchMedia('(max-width: 639px)');
         const els = {
           search: document.getElementById('catalog-search'),
           categories: document.getElementById('catalog-categories'),
@@ -613,10 +612,18 @@
         let catalog = [];
         let activeCategory = 'all';
         let query = '';
-        let limit = PAGE_SIZE;
+        let limit = pageSize();
 
         const CHIP_CLASS = 'category-chip rounded-full border border-border-subtle bg-surface-raised px-3.5 py-1.5 text-xs font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent';
         const CARD_CLASS = 'group flex items-center gap-3 rounded-lg border border-border-subtle bg-surface-raised px-3.5 py-2.5 transition hover:border-accent';
+
+        function pageSize() {
+          return mobileQuery.matches ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE;
+        }
+
+        function resetLimit() {
+          limit = pageSize();
+        }
 
         function filter() {
           const q = query.trim().toLowerCase();
@@ -718,7 +725,7 @@
 
         function setCategory(cat) {
           activeCategory = cat;
-          limit = PAGE_SIZE;
+          resetLimit();
           els.categories.querySelectorAll('.category-chip').forEach((b) => {
             b.setAttribute('aria-pressed', b.dataset.category === cat ? 'true' : 'false');
           });
@@ -735,13 +742,18 @@
           clearTimeout(searchTimer);
           searchTimer = setTimeout(() => {
             query = e.target.value;
-            limit = PAGE_SIZE;
+            resetLimit();
             render();
           }, 100);
         });
 
         els.more.addEventListener('click', () => {
-          limit += PAGE_SIZE;
+          limit += pageSize();
+          render();
+        });
+
+        mobileQuery.addEventListener('change', () => {
+          resetLimit();
           render();
         });
 

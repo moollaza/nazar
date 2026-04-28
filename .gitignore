@@ -20,6 +20,12 @@ DerivedData/
 Packages/
 Package.resolved
 
+# Node / browser test artifacts
+node_modules/
+playwright-report/
+test-results/
+screenshots/
+
 # macOS
 .DS_Store
 *.swp
@@ -40,11 +46,10 @@ agent-docs/
 # the committed CLAUDE.md. Never share or commit.
 CLAUDE.local.md
 
-# Website build artifacts (catalog.json is copied from Resources/ at deploy time)
-website/catalog.json
-
 # wrangler files
 .wrangler
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+# Website catalog is tracked so every static host can serve the same asset.

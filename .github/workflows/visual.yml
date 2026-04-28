@@ -1,0 +1,61 @@
+name: Website Visual Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/visual.yml"
+      - "Resources/catalog.json"
+      - "website/**"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.config.js"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/visual.yml"
+      - "Resources/catalog.json"
+      - "website/**"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.config.js"
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual:
+    name: Playwright + Argos
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify website catalog is current
+        run: cmp Resources/catalog.json website/catalog.json
+
+      - name: Verify OG image is current
+        run: |
+          npm run build:og
+          git diff --exit-code -- website/og-image.svg website/og-image.png
+
+      - name: Install Playwright browsers
+        run: npm exec playwright install --with-deps chromium
+
+      - name: Run visual tests
+        run: npm run test:visual
+        env:
+          ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}

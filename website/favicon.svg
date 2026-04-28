@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Nazar">
-  <rect x="56" y="56" width="912" height="912" rx="220" fill="#7DD3FC"/>
+  <rect width="1024" height="1024" rx="232" fill="#7DD3FC"/>
   <circle cx="512" cy="512" r="344" fill="#0B37C6"/>
   <circle cx="512" cy="512" r="242" fill="#F8FAFC"/>
   <circle cx="512" cy="512" r="158" fill="#38BDF8"/>

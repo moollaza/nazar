@@ -87,6 +87,7 @@ scripts/release.sh --skip-notarize
 - `URLSession` for network polling
 - App Sandbox with `com.apple.security.network.client`
 - `LSUIElement` menu bar accessory (no Dock icon)
+- Static website in `website/`, deployed to Cloudflare Pages
 
 ## Contributing
 

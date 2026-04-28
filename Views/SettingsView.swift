@@ -50,14 +50,20 @@ struct SettingsView: View {
     @Environment(StatusManager.self) var manager
     @State private var selectedTab: SettingsTab = SettingsInitialTab.value
 
+    // Plain HStack rather than `NavigationSplitView` because the latter's
+    // built-in divider let the sidebar be dragged away entirely and there
+    // was no affordance to bring it back. With a fixed-width sidebar the
+    // geometry is unambiguous and nothing is user-breakable.
     var body: some View {
-        NavigationSplitView {
+        HStack(spacing: 0) {
             List(SettingsTab.allCases, id: \.self, selection: $selectedTab) { tab in
                 Label(tab.rawValue, systemImage: tab.icon)
             }
             .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 160, ideal: 180)
-        } detail: {
+            .frame(width: 180)
+
+            Divider()
+
             Group {
                 switch selectedTab {
                 case .services:
@@ -74,7 +80,7 @@ struct SettingsView: View {
                     HelpSettingsView()
                 }
             }
-            .frame(minWidth: 450, minHeight: 400)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: 680, height: 480)
         .onAppear {
@@ -96,25 +102,116 @@ struct ServicesSettingsView: View {
     @State private var providerToRemove: Provider?
     @State private var showAddCustom = false
     @State private var sortOrder = [KeyPathComparator(\Provider.name, comparator: .localizedStandard)]
+    /// Row selection in the services `Table`. Backs both click/⌘-click/⇧-click
+    /// multi-select and the Delete-key shortcut for batch removal.
+    @State private var selectedIDs: Set<Provider.ID> = []
+    @State private var showBatchRemoveConfirm = false
+    /// Currently hovered row id. Drives hover-reveal for the per-row trash
+    /// button — keeps the list quieter at rest, matching Apple's pattern
+    /// for secondary row actions in Mail and Reminders.
+    @State private var hoveredID: Provider.ID?
 
     var sortedProviders: [Provider] {
         manager.providers.sorted(using: sortOrder)
     }
 
+    /// Providers that are currently selected AND still exist in the manager.
+    /// Filtering against live providers guards against stale ids lingering in
+    /// `selectedIDs` after a removal or catalog sync.
+    private var selectedProviders: [Provider] {
+        manager.providers.filter { selectedIDs.contains($0.id) }
+    }
+
+    /// Binding for a per-row checkbox. Extracted into a helper because inlining
+    /// the Binding(get:set:) inside a `TableColumn` cell tripped Swift's
+    /// type-checker timeout.
+    private func selectionBinding(for id: Provider.ID) -> Binding<Bool> {
+        Binding(
+            get: { selectedIDs.contains(id) },
+            set: { isOn in
+                if isOn { selectedIDs.insert(id) }
+                else { selectedIDs.remove(id) }
+            }
+        )
+    }
+
+    /// Binding for the header select-all checkbox. Checked only when every
+    /// visible row is selected; setting it true selects all, false clears.
+    private var selectAllBinding: Binding<Bool> {
+        Binding(
+            get: {
+                !sortedProviders.isEmpty
+                    && selectedIDs.count == sortedProviders.count
+            },
+            set: { isOn in
+                if isOn {
+                    selectedIDs = Set(sortedProviders.map(\.id))
+                } else {
+                    selectedIDs.removeAll()
+                }
+            }
+        )
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Monitored Services")
-                    .font(.headline)
-                Text("(\(manager.providers.count))")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Button("Browse Catalog") { onAddServices?() }
-                    .controlSize(.small)
-                Button("Add Custom...") { showAddCustom = true }
-                    .controlSize(.small)
+            // Header. Split across two rows so the batch-select controls
+            // don't fight the "add service" actions for horizontal space —
+            // fit the buttons labels at the settings window's width.
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Monitored Services")
+                        .font(.headline)
+                    Text("(\(manager.providers.count))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Browse Catalog") { onAddServices?() }
+                        .controlSize(.small)
+                    Button("Add Custom...") { showAddCustom = true }
+                        .controlSize(.small)
+                }
+
+                if !manager.providers.isEmpty {
+                    HStack {
+                        // Select-all text link. SwiftUI's `TableColumn`
+                        // custom-header view init wouldn't resolve for a
+                        // non-sortable column, so it lives in the header
+                        // bar above the table rather than inside the
+                        // column headers.
+                        let allSelected = selectAllBinding.wrappedValue
+                        Button(allSelected ? "None" : "All") {
+                            selectAllBinding.wrappedValue = !allSelected
+                        }
+                        .buttonStyle(.link)
+                        .controlSize(.small)
+                        .help(allSelected ? "Deselect all" : "Select all")
+
+                        Spacer()
+
+                        if !selectedIDs.isEmpty {
+                            // Flip label on the majority state so first
+                            // click always produces visible change.
+                            let allMuted = selectedProviders.allSatisfy(\.isMuted)
+                            Button {
+                                manager.setMuted(ids: selectedIDs, isMuted: !allMuted)
+                            } label: {
+                                Label(
+                                    allMuted ? "Unmute Selected" : "Mute Selected",
+                                    systemImage: allMuted ? "speaker.wave.2" : "speaker.slash"
+                                )
+                            }
+                            .controlSize(.small)
+
+                            Button(role: .destructive) {
+                                showBatchRemoveConfirm = true
+                            } label: {
+                                Label("Delete Selected", systemImage: "trash")
+                            }
+                            .controlSize(.small)
+                        }
+                    }
+                }
             }
             .padding()
 
@@ -134,7 +231,19 @@ struct ServicesSettingsView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                Table(sortedProviders, sortOrder: $sortOrder) {
+                Table(sortedProviders, selection: $selectedIDs, sortOrder: $sortOrder) {
+                    // Leading checkbox column. Makes batch-select obvious —
+                    // ⌘/⇧-click alone wasn't discoverable. Header stays blank;
+                    // the Service column (next) carries the "All"/"None"
+                    // select-all button since SwiftUI only allows custom
+                    // header views on sortable columns.
+                    TableColumn("") { (provider: Provider) in
+                        Toggle("", isOn: selectionBinding(for: provider.id))
+                            .toggleStyle(.checkbox)
+                            .labelsHidden()
+                    }
+                    .width(22)
+
                     TableColumn("Service", value: \.name) { provider in
                         HStack(spacing: 8) {
                             ServiceIconView(name: provider.name, catalogId: provider.catalogEntryId)
@@ -189,30 +298,46 @@ struct ServicesSettingsView: View {
                                 .font(.system(size: 11))
                         }
                         .buttonStyle(.plain)
-                        .help("Remove service")
+                        .help("Delete service")
                     }
                     .width(30)
                 }
                 .alternatingRowBackgrounds()
+                .onDeleteCommand {
+                    guard !selectedIDs.isEmpty else { return }
+                    showBatchRemoveConfirm = true
+                }
             }
         }
         .sheet(isPresented: $showAddCustom) {
             AddCustomServiceView()
                 .environment(manager)
         }
-        .alert("Remove Service", isPresented: Binding(
+        .alert("Delete Service", isPresented: Binding(
             get: { providerToRemove != nil },
             set: { if !$0 { providerToRemove = nil } }
         )) {
             Button("Cancel", role: .cancel) { providerToRemove = nil }
-            Button("Remove", role: .destructive) {
+            Button("Delete", role: .destructive) {
                 if let provider = providerToRemove {
                     manager.removeProvider(provider)
+                    selectedIDs.remove(provider.id)
                     providerToRemove = nil
                 }
             }
+            .keyboardShortcut(.defaultAction)
         } message: {
-            Text("Remove \(providerToRemove?.name ?? "this service")? You can add it back from the catalog.")
+            Text("Delete \(providerToRemove?.name ?? "this service")? You can add it back from the catalog.")
+        }
+        .alert("Delete \(selectedProviders.count) Services?", isPresented: $showBatchRemoveConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                manager.removeProviders(ids: selectedIDs)
+                selectedIDs.removeAll()
+            }
+            .keyboardShortcut(.defaultAction)
+        } message: {
+            Text("Delete \(selectedProviders.count) selected services? You can add them back from the catalog.")
         }
     }
 
@@ -492,8 +617,8 @@ struct CatalogSettingsView: View {
     @ViewBuilder
     private func catalogToggle(for entry: CatalogEntry) -> some View {
         let isMonitored = monitoredIds.contains(entry.id)
-        HStack {
-            Toggle(isOn: Binding(
+        HStack(spacing: 8) {
+            Toggle("", isOn: Binding(
                 get: { isMonitored },
                 set: { newValue in
                     if newValue {
@@ -504,18 +629,19 @@ struct CatalogSettingsView: View {
                         logger.info("Removed from catalog: \(entry.name)")
                     }
                 }
-            )) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(entry.name)
-                        .font(.body)
-                    if let host = URL(string: entry.baseURL)?.host {
-                        Text(host)
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                    }
-                }
-            }
+            ))
             .toggleStyle(.checkbox)
+            .labelsHidden()
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(entry.name)
+                    .font(.system(.body, weight: .medium))
+                Text(entry.baseURL)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
 
             Spacer()
 

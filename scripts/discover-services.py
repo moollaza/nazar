@@ -27,31 +27,65 @@ URL_PATTERNS = [
     "https://status.{domain}.io",
     "https://{slug}.statuspage.io",
     "https://{slug}.status.atlassian.com",
+    "https://{slug}.betteruptime.com",
 ]
 
 HEADERS = {"User-Agent": "Nazar-Discovery/1.0"}
 
+# Some status pages block non-browser clients at the CDN/WAF layer (403/429).
+# fetch_json retries once with browser-like headers before giving up.
+BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+}
+
+
+def fetch_json(url, ctx):
+    """GET a URL and parse JSON. Retries 403/429 with browser headers once."""
+    for headers in (HEADERS, BROWSER_HEADERS):
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            resp = urllib.request.urlopen(req, timeout=15, context=ctx)
+            return json.loads(resp.read())
+        except urllib.error.HTTPError:
+            continue  # retry with browser headers, then give up
+        except Exception:
+            return None
+    return None
+
 
 def try_url(url, ctx):
-    """Try fetching summary.json from a URL. Returns (json_data, platform) or (None, None)."""
-    api_url = url.rstrip("/") + "/api/v2/summary.json"
-    try:
-        req = urllib.request.Request(api_url, headers=HEADERS)
-        resp = urllib.request.urlopen(req, timeout=15, context=ctx)
-        data = resp.read()
-        j = json.loads(data)
+    """Probe a status page base URL for a supported machine-readable API.
 
-        if "page" not in j or "status" not in j:
-            return None, None
+    Probes, in order:
+      1. {url}/api/v2/summary.json — Atlassian Statuspage (and incident.io variants)
+      2. {url}/index.json — Better Stack JSON:API. Note: some Atlassian pages
+         also mirror Statuspage-schema JSON at /index.json (e.g. NetSuite,
+         SAP for Me), so both shapes are fingerprinted here.
 
-        # Detect platform
+    Returns (json_data, platform, type) or (None, None, None).
+    """
+    j = fetch_json(url.rstrip("/") + "/api/v2/summary.json", ctx)
+    if isinstance(j, dict) and "page" in j and "status" in j:
         has_incidents = bool(j.get("incidents"))
         has_scheduled = bool(j.get("scheduled_maintenances"))
         platform = "atlassian" if (has_incidents or has_scheduled) else "incident.io"
+        return j, platform, "statuspage"
 
-        return j, platform
-    except (json.JSONDecodeError, urllib.error.HTTPError, urllib.error.URLError, Exception):
-        return None, None
+    j = fetch_json(url.rstrip("/") + "/index.json", ctx)
+    if isinstance(j, dict):
+        data = j.get("data")
+        if isinstance(data, dict) and "aggregate_state" in data.get("attributes", {}):
+            return j, "betterstack", "betterstack"
+        if "page" in j and "status" in j:
+            # Statuspage-schema JSON served at a non-standard path
+            has_incidents = bool(j.get("incidents"))
+            has_scheduled = bool(j.get("scheduled_maintenances"))
+            platform = "atlassian" if (has_incidents or has_scheduled) else "incident.io"
+            return j, platform, "statuspage"
+
+    return None, None, None
 
 
 def discover_service(name, domain=None, slug=None, ctx=None):
@@ -71,14 +105,23 @@ def discover_service(name, domain=None, slug=None, ctx=None):
             continue
 
     for url in candidates:
-        j, platform = try_url(url, ctx)
+        j, platform, ptype = try_url(url, ctx)
         if j is not None:
-            page_name = j.get("page", {}).get("name", name)
-            indicator = j.get("status", {}).get("indicator", "?")
-            component_count = len(j.get("components", []))
+            if ptype == "betterstack":
+                page_name = j.get("data", {}).get("attributes", {}).get("company_name") or name
+                indicator = j.get("data", {}).get("attributes", {}).get("aggregate_state", "?")
+                component_count = sum(
+                    1 for item in j.get("included", [])
+                    if item.get("type") == "status_page_resource"
+                )
+            else:
+                page_name = j.get("page", {}).get("name", name)
+                indicator = j.get("status", {}).get("indicator", "?")
+                component_count = len(j.get("components", []))
             return {
                 "url": url,
                 "platform": platform,
+                "type": ptype,
                 "page_name": page_name,
                 "indicator": indicator,
                 "component_count": component_count,
@@ -89,14 +132,26 @@ def discover_service(name, domain=None, slug=None, ctx=None):
 
 def verify_url(url, ctx):
     """Verify a specific URL works as a status page."""
-    j, platform = try_url(url, ctx)
+    j, platform, ptype = try_url(url, ctx)
     if j is not None:
+        if ptype == "betterstack":
+            page_name = j.get("data", {}).get("attributes", {}).get("company_name", "")
+            indicator = j.get("data", {}).get("attributes", {}).get("aggregate_state", "?")
+            component_count = sum(
+                1 for item in j.get("included", [])
+                if item.get("type") == "status_page_resource"
+            )
+        else:
+            page_name = j.get("page", {}).get("name", "")
+            indicator = j.get("status", {}).get("indicator", "?")
+            component_count = len(j.get("components", []))
         return {
             "url": url,
             "platform": platform,
-            "page_name": j.get("page", {}).get("name", ""),
-            "indicator": j.get("status", {}).get("indicator", "?"),
-            "component_count": len(j.get("components", [])),
+            "type": ptype,
+            "page_name": page_name,
+            "indicator": indicator,
+            "component_count": component_count,
         }
     return None
 
@@ -113,7 +168,7 @@ def make_catalog_entry(name, result, category="Uncategorized"):
         "id": slug,
         "name": name,
         "base_url": result["url"],
-        "type": "statuspage",
+        "type": result.get("type", "statuspage"),
         "category": category,
         "platform": result["platform"],
     }

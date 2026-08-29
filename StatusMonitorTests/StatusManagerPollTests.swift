@@ -66,6 +66,43 @@ final class StatusManagerPollTests: XCTestCase {
     }
     """#.data(using: .utf8)!
 
+    // Better Stack index.json shape (JSON:API):
+    // https://betterstack.com/docs/uptime/status-pages/subscribing-to-status-updates/subscribing-to-api/
+    private let betterStackOperationalJSON = #"""
+    {
+      "data": { "attributes": { "aggregate_state": "operational" } },
+      "included": [
+        { "id": "s1", "type": "status_page_section", "attributes": { "name": "Core" } },
+        { "id": "r1", "type": "status_page_resource",
+          "attributes": { "public_name": "API", "status": "operational", "status_page_section_id": "s1" } },
+        { "id": "r2", "type": "status_page_resource",
+          "attributes": { "public_name": "Docs", "status": "not_monitored" } }
+      ]
+    }
+    """#.data(using: .utf8)!
+
+    private let betterStackOutageJSON = #"""
+    {
+      "data": { "attributes": { "aggregate_state": "degraded" } },
+      "included": [
+        { "id": "s1", "type": "status_page_section", "attributes": { "name": "Core" } },
+        { "id": "r1", "type": "status_page_resource",
+          "attributes": { "public_name": "API", "status": "operational", "status_page_section_id": "s1" } },
+        { "id": "r2", "type": "status_page_resource",
+          "attributes": { "public_name": "Dashboard", "status": "downtime", "status_page_section_id": "s1" } },
+        { "id": "u1", "type": "status_update",
+          "attributes": { "message": "We are investigating elevated errors.", "published_at": "2026-04-16T12:00:00Z" } },
+        { "id": "rep1", "type": "status_report",
+          "attributes": { "title": "Elevated error rates", "report_type": "incident", "aggregate_state": "investigating" },
+          "relationships": { "status_updates": { "data": [ { "id": "u1" } ] } } },
+        { "id": "rep2", "type": "status_report",
+          "attributes": { "title": "Old incident", "report_type": "incident", "aggregate_state": "resolved" } },
+        { "id": "rep3", "type": "status_report",
+          "attributes": { "title": "Scheduled network maintenance", "report_type": "maintenance", "aggregate_state": "maintenance" } }
+      ]
+    }
+    """#.data(using: .utf8)!
+
     // MARK: - Happy path
 
     func testPoll200AppliesSnapshotAsOperational() async {
@@ -166,6 +203,81 @@ final class StatusManagerPollTests: XCTestCase {
         XCTAssertEqual(manager.snapshots[0].overallStatus, .operational,
                        "Error must preserve last-good overallStatus so the UI doesn't revert to green by accident")
         XCTAssertNotNil(manager.snapshots[0].error)
+    }
+
+    // MARK: - Better Stack polling
+
+    func testPollBetterStackOperationalAppliesSnapshot() async {
+        let url = URL(string: "https://status.example.com/index.json")!
+        StubURLProtocol.register(url: url, response: (betterStackOperationalJSON, 200))
+
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy())
+        manager.snapshots = []
+        let provider = Provider(name: "BetterStack", baseURL: "https://status.example.com", type: .betterstack)
+        manager.providers = [provider]
+
+        await manager.poll(provider: provider)
+
+        XCTAssertEqual(manager.snapshots.count, 1)
+        XCTAssertEqual(manager.snapshots[0].overallStatus, .operational)
+        XCTAssertNil(manager.snapshots[0].error)
+        XCTAssertTrue(manager.snapshots[0].activeIncidents.isEmpty)
+
+        // `not_monitored` resources are informational-only and must be filtered out;
+        // sectioned resources get the Statuspage-style "Name (Section)" display name.
+        XCTAssertEqual(manager.snapshots[0].components.count, 1)
+        XCTAssertEqual(manager.snapshots[0].components[0].name, "API (Core)")
+        XCTAssertEqual(manager.snapshots[0].components[0].status, .operational)
+    }
+
+    func testPollBetterStackOutageReflectsWorstComponentAndActiveReports() async {
+        let url = URL(string: "https://status.example.com/index.json")!
+        StubURLProtocol.register(url: url, response: (betterStackOutageJSON, 200))
+
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy())
+        let provider = Provider(name: "BetterStack", baseURL: "https://status.example.com", type: .betterstack)
+        manager.providers = [provider]
+
+        await manager.poll(provider: provider)
+
+        let snapshot = manager.snapshots[0]
+        XCTAssertNil(snapshot.error)
+
+        // Component `downtime` (major outage) beats the page-level `degraded` aggregate.
+        XCTAssertEqual(snapshot.overallStatus, .majorOutage)
+        XCTAssertEqual(snapshot.components.count, 2)
+        XCTAssertEqual(snapshot.components.first { $0.id == "r2" }?.status, .majorOutage)
+
+        // Resolved reports are dropped; the ongoing incident and the maintenance
+        // report both surface as active incidents with their status updates.
+        XCTAssertEqual(snapshot.activeIncidents.count, 2)
+
+        let incident = snapshot.activeIncidents.first { $0.id == "rep1" }
+        XCTAssertNotNil(incident)
+        XCTAssertEqual(incident?.name, "Elevated error rates")
+        XCTAssertEqual(incident?.status, "investigating")
+        XCTAssertEqual(incident?.latestUpdate, "We are investigating elevated errors.")
+        XCTAssertEqual(incident?.updates.count, 1)
+        XCTAssertNotNil(incident?.updatedAt)
+
+        let maintenance = snapshot.activeIncidents.first { $0.id == "rep3" }
+        XCTAssertNotNil(maintenance)
+        XCTAssertEqual(maintenance?.status, "maintenance")
+        XCTAssertEqual(maintenance?.impact, .underMaintenance)
+    }
+
+    func testPollBetterStackMalformedJSONSetsError() async {
+        let url = URL(string: "https://status.example.com/index.json")!
+        StubURLProtocol.register(url: url, response: (Data("<html>not json</html>".utf8), 200))
+
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy())
+        let provider = Provider(name: "BetterStack", baseURL: "https://status.example.com", type: .betterstack)
+        manager.providers = [provider]
+
+        await manager.poll(provider: provider)
+
+        XCTAssertEqual(manager.snapshots.count, 1)
+        XCTAssertEqual(manager.snapshots[0].error, "Status format not recognized")
     }
 
     // MARK: - Transition notifications

@@ -183,6 +183,8 @@ struct Provider: Identifiable, Codable, Equatable {
             return URL(string: "\(baseURL)/api/v2/summary.json")
         case .rss:
             return URL(string: baseURL)
+        case .betterstack:
+            return URL(string: "\(baseURL)/index.json")
         }
     }
 
@@ -198,6 +200,7 @@ struct Provider: Identifiable, Codable, Equatable {
 enum ProviderType: String, Codable, CaseIterable {
     case statuspage   // Atlassian Statuspage JSON API
     case rss          // Generic RSS/Atom feed
+    case betterstack  // Better Stack status page JSON:API (index.json)
 }
 
 // MARK: - Atlassian Statuspage API Response
@@ -286,6 +289,98 @@ struct StatuspageIncidentUpdate: Codable, Identifiable {
         case id, status, body
         case createdAt = "created_at"
     }
+}
+
+// MARK: - Better Stack Status Page API Response
+//
+// Better Stack status pages expose a JSON:API document at `{base_url}/index.json`:
+// https://betterstack.com/docs/uptime/status-pages/subscribing-to-status-updates/subscribing-to-api/
+//
+// Shape:
+//   {
+//     "data": { "attributes": { "aggregate_state": "operational" } },
+//     "included": [
+//       { "id": "…", "type": "status_page_resource",
+//         "attributes": { "public_name": "API", "status": "operational",
+//                         "status_page_section_id": "…" } },
+//       { "id": "…", "type": "status_page_section", "attributes": { "name": "Core" } },
+//       { "id": "…", "type": "status_report",
+//         "attributes": { "title": "…", "report_type": "incident",
+//                         "aggregate_state": "investigating" },
+//         "relationships": { "status_updates": { "data": [ { "id": "…" } ] } } },
+//       { "id": "…", "type": "status_update",
+//         "attributes": { "message": "…", "published_at": "2026-01-01T00:00:00Z" } }
+//     ]
+//   }
+//
+// `included` is heterogeneous (discriminated by `type`), so every payload field is
+// optional and only the ones matching a resource's `type` are populated.
+
+struct BetterStackIndex: Codable {
+    let data: BetterStackPage
+    let included: [BetterStackIncluded]?
+}
+
+struct BetterStackPage: Codable {
+    let attributes: BetterStackPageAttributes
+}
+
+struct BetterStackPageAttributes: Codable {
+    let aggregateState: String     // "operational", "degraded", "downtime", "maintenance", …
+
+    enum CodingKeys: String, CodingKey {
+        case aggregateState = "aggregate_state"
+    }
+}
+
+struct BetterStackIncluded: Codable {
+    let id: String
+    let type: String               // "status_page_resource", "status_page_section", "status_report", "status_update"
+    let attributes: BetterStackAttributes?
+    let relationships: BetterStackRelationships?
+}
+
+/// Payload fields for every `included` type, all optional since the shape is
+/// discriminated by `type` (JSON:API polymorphism).
+struct BetterStackAttributes: Codable {
+    // status_page_resource
+    let publicName: String?        // display name of the monitored resource
+    let status: String?            // "operational", "degraded", "downtime", "maintenance", "not_monitored"
+    let statusPageSectionId: String?
+    // status_page_section
+    let name: String?              // section display name
+    // status_update
+    let message: String?
+    let publishedAt: String?
+    // status_report
+    let title: String?
+    let reportType: String?        // "incident", "maintenance", …
+    let reportAggregateState: String?  // "resolved" means the report is closed
+
+    enum CodingKeys: String, CodingKey {
+        case name, status, message, title
+        case publicName = "public_name"
+        case statusPageSectionId = "status_page_section_id"
+        case publishedAt = "published_at"
+        case reportType = "report_type"
+        case reportAggregateState = "aggregate_state"
+    }
+}
+
+struct BetterStackRelationships: Codable {
+    let statusUpdates: BetterStackStatusUpdateRefs?
+
+    enum CodingKeys: String, CodingKey {
+        case statusUpdates = "status_updates"
+    }
+}
+
+struct BetterStackStatusUpdateRefs: Codable {
+    let data: [BetterStackRef]?
+}
+
+struct BetterStackRef: Codable {
+    let id: String
 }
 
 // MARK: - Normalized Status Model (internal)
@@ -384,6 +479,19 @@ enum ComponentStatus: String, Codable, Comparable {
         case "major": self = .partialOutage
         case "critical": self = .majorOutage
         case "maintenance": self = .underMaintenance
+        default: self = .unknown
+        }
+    }
+
+    /// Maps Better Stack status vocabulary (aggregate_state and resource status)
+    /// to Nazar's component model. Unrecognised values surface as `.unknown`
+    /// rather than masquerading as healthy.
+    init(fromBetterStack raw: String) {
+        switch raw {
+        case "operational": self = .operational
+        case "degraded": self = .degradedPerformance
+        case "downtime": self = .majorOutage
+        case "maintenance", "under_maintenance": self = .underMaintenance
         default: self = .unknown
         }
     }

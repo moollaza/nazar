@@ -270,7 +270,7 @@ struct AddCustomServiceView: View {
             }
             .pickerStyle(.segmented)
 
-            Text("Supports Atlassian Statuspage, incident.io, and RSS/Atom feeds. For Statuspage/incident.io, use the base URL (e.g. https://status.example.com). For RSS, provide the full feed URL.")
+            Text("Supports Atlassian Statuspage, incident.io, Better Stack status pages, and RSS/Atom feeds. For Statuspage/incident.io, use the base URL (e.g. https://status.example.com). For Better Stack, use the status page base URL. For RSS, provide the full feed URL.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 

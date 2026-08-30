@@ -9,7 +9,7 @@
     "test:visual:update": "playwright test --update-snapshots"
   },
   "devDependencies": {
-    "@argos-ci/playwright": "^6.6.2",
+    "@argos-ci/playwright": "^7.3.7",
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@playwright/test": "^1.59.1",
     "@resvg/resvg-js": "^2.6.2",

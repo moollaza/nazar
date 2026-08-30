@@ -1,7 +1,8 @@
 name: CI
 
 # No untrusted input (issue bodies, PR titles, commit messages) is interpolated
-# into any run: step. Only hardcoded commands + the shell's own env. Safe per
+# into any run: step. Context values (event name, base/head SHAs) are passed
+# via env: and referenced as shell variables, never interpolated. Safe per
 # https://github.blog/security/vulnerability-research/how-to-catch-github-actions-workflow-injections-before-attackers-do/
 
 on:
@@ -16,8 +17,52 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Cheap gate: decide whether anything the macOS build cares about changed.
+  # Website/docs-only PRs skip the 15-minute Xcode job. The build job is a
+  # required status check, so it must stay in the workflow and be *skipped*
+  # via `if:` — a skipped job reports as satisfied, a filtered-out workflow
+  # never reports at all and would block the PR forever.
+  changes:
+    name: Detect app changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for app-relevant changes
+        id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+            echo "Not a pull_request event - building."
+            exit 0
+          fi
+          files=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          echo "Changed files:"
+          echo "$files"
+          # Anything NOT matched here is treated as app code (fail-safe:
+          # unknown paths trigger a build rather than silently skipping it).
+          app_files=$(printf '%s\n' "$files" | grep -vE '^(website/|workers/|docs/|\.github/workflows/visual\.yml$|package(-lock)?\.json$|playwright\.config\.js$|[^/]*\.md$|LICENSE$)' || true)
+          if [ -n "$app_files" ]; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=false" >> "$GITHUB_OUTPUT"
+            echo "Only website/docs files changed - skipping the Xcode build."
+          fi
+
   build-and-test:
     name: Build + Test
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: macos-latest
     timeout-minutes: 15
     steps:

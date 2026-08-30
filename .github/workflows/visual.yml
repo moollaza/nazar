@@ -1,5 +1,10 @@
 name: Website Visual Tests
 
+# No untrusted input (issue bodies, PR titles, commit messages) is interpolated
+# into any run: step. Context values (event name, base/head SHAs) are passed
+# via env: and referenced as shell variables, never interpolated. Safe per
+# https://github.blog/security/vulnerability-research/how-to-catch-github-actions-workflow-injections-before-attackers-do/
+
 on:
   push:
     branches: [main]
@@ -34,6 +39,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -44,6 +51,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # These guards are cheap and are exactly what a catalog-data PR needs
+      # checked, so they run unconditionally - only the expensive Playwright
+      # steps below are gated.
       - name: Verify website catalog is current
         run: cmp Resources/catalog.json website/catalog.json
 
@@ -52,10 +62,42 @@ jobs:
           npm run build:og
           git diff --exit-code -- website/og-image.svg website/og-image.png
 
+      # Catalog-data PRs can't move a snapshot: the visual specs intercept
+      # /catalog.json and serve website/tests/fixture-catalog.json instead, so
+      # service counts and grid contents are frozen. Running Argos for them
+      # only burns a build and adds a check nobody needs to read.
+      - name: Check for visually relevant changes
+        id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "visual=true" >> "$GITHUB_OUTPUT"
+            echo "Not a pull_request event - running visual tests."
+            exit 0
+          fi
+          files=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          echo "Changed files:"
+          echo "$files"
+          # Anything NOT matched here can move a screenshot (fail-safe: unknown
+          # paths run Argos rather than silently skipping it).
+          visual_files=$(printf '%s\n' "$files" | grep -vE '^(Resources/catalog\.json|website/catalog\.json)$' || true)
+          if [ -n "$visual_files" ]; then
+            echo "visual=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "visual=false" >> "$GITHUB_OUTPUT"
+            echo "Only catalog data changed - skipping Argos (specs use the frozen fixture)."
+          fi
+
       - name: Install Playwright browsers
+        if: steps.filter.outputs.visual == 'true'
         run: npm exec playwright install --with-deps chromium
 
       - name: Run visual tests
+        if: steps.filter.outputs.visual == 'true'
         run: npm run test:visual
         env:
           ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}

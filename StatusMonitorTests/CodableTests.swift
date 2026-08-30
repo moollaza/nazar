@@ -157,4 +157,82 @@ final class CodableTests: XCTestCase {
         let summary = try decode(json)
         XCTAssertEqual(summary.components.count, 0)
     }
+
+    // MARK: - Better Stack index.json decoding
+    //
+    // Shape documented at https://betterstack.com/docs/uptime/status-pages/subscribing-to-status-updates/subscribing-to-api/
+
+    private let betterStackJSON = """
+    {
+      "data": { "attributes": { "aggregate_state": "degraded" } },
+      "included": [
+        { "id": "s1", "type": "status_page_section", "attributes": { "name": "Core" } },
+        { "id": "r1", "type": "status_page_resource",
+          "attributes": { "public_name": "API", "status": "operational", "status_page_section_id": "s1" } },
+        { "id": "r2", "type": "status_page_resource",
+          "attributes": { "public_name": "Dashboard", "status": "downtime", "status_page_section_id": "s1" } },
+        { "id": "r3", "type": "status_page_resource",
+          "attributes": { "public_name": "Docs", "status": "not_monitored" } },
+        { "id": "u1", "type": "status_update",
+          "attributes": { "message": "We are investigating.", "published_at": "2026-01-01T00:00:00Z" } },
+        { "id": "rep1", "type": "status_report",
+          "attributes": { "title": "Elevated error rates", "report_type": "incident", "aggregate_state": "investigating" },
+          "relationships": { "status_updates": { "data": [ { "id": "u1" } ] } } },
+        { "id": "rep2", "type": "status_report",
+          "attributes": { "title": "Old incident", "report_type": "incident", "aggregate_state": "resolved" } }
+      ]
+    }
+    """
+
+    private func decodeBetterStack(_ json: String) throws -> BetterStackIndex {
+        let data = json.data(using: .utf8)!
+        return try JSONDecoder().decode(BetterStackIndex.self, from: data)
+    }
+
+    func testDecodeBetterStackAggregateState() throws {
+        let index = try decodeBetterStack(betterStackJSON)
+        XCTAssertEqual(index.data.attributes.aggregateState, "degraded")
+    }
+
+    func testDecodeBetterStackIncludedIsPolymorphic() throws {
+        let index = try decodeBetterStack(betterStackJSON)
+        let included = try XCTUnwrap(index.included)
+        XCTAssertEqual(included.count, 7)
+
+        let section = try XCTUnwrap(included.first { $0.id == "s1" })
+        XCTAssertEqual(section.type, "status_page_section")
+        XCTAssertEqual(section.attributes?.name, "Core")
+
+        let resource = try XCTUnwrap(included.first { $0.id == "r2" })
+        XCTAssertEqual(resource.type, "status_page_resource")
+        XCTAssertEqual(resource.attributes?.publicName, "Dashboard")
+        XCTAssertEqual(resource.attributes?.status, "downtime")
+        XCTAssertEqual(resource.attributes?.statusPageSectionId, "s1")
+
+        let report = try XCTUnwrap(included.first { $0.id == "rep1" })
+        XCTAssertEqual(report.type, "status_report")
+        XCTAssertEqual(report.attributes?.title, "Elevated error rates")
+        XCTAssertEqual(report.attributes?.reportType, "incident")
+        XCTAssertEqual(report.attributes?.reportAggregateState, "investigating")
+        XCTAssertEqual(report.relationships?.statusUpdates?.data?.first?.id, "u1")
+
+        let update = try XCTUnwrap(included.first { $0.id == "u1" })
+        XCTAssertEqual(update.type, "status_update")
+        XCTAssertEqual(update.attributes?.message, "We are investigating.")
+        XCTAssertEqual(update.attributes?.publishedAt, "2026-01-01T00:00:00Z")
+    }
+
+    func testDecodeBetterStackWithoutIncluded() throws {
+        let json = """
+        { "data": { "attributes": { "aggregate_state": "operational" } } }
+        """
+        let index = try decodeBetterStack(json)
+        XCTAssertNil(index.included)
+        XCTAssertEqual(index.data.attributes.aggregateState, "operational")
+    }
+
+    func testDecodeBetterStackInvalidJSONThrows() {
+        let garbage = "not json at all".data(using: .utf8)!
+        XCTAssertThrowsError(try JSONDecoder().decode(BetterStackIndex.self, from: garbage))
+    }
 }

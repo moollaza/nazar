@@ -18,7 +18,7 @@ StatusMonitor.xcodeproj   Xcode project
 Models/                   Data models (Provider, CatalogEntry, Statuspage API types)
 Views/                    SwiftUI views (Dashboard, Settings, Detail, Feedback, Icons)
 Services/                 StatusManager, NotificationService, RSSParser
-Resources/                catalog.json (1,683 verified services)
+Resources/                catalog.json (1,727 verified services)
 scripts/                  Discovery, verification, and categorization tooling
 website/                  Marketing site (deployed to Cloudflare Pages)
 docs/
@@ -42,13 +42,13 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 - Dashboard uses a floating `NSPanel` (FloatingPanel class), NOT NSPopover (NSPopover has an arrow that can't be removed)
 - Settings is a standalone `NSWindow` with `NSHostingController` — NOT the SwiftUI `Settings` scene (broken with `.accessory` policy)
 - `@AppStorage` only in Views, never in `@Observable` classes (Apple bug causes infinite loops)
-- Two parser types: `statuspage` (Atlassian JSON API at `/api/v2/summary.json`) and `rss`
+- Parser types: `statuspage` (Atlassian JSON API at `/api/v2/summary.json`), `rss` (generic RSS/Atom), and `betterstack` (Better Stack JSON:API at `/index.json`)
 - Bundle ID: `com.moollapps.StatusMonitor`
 - Catalog entries need `platform` field: `"atlassian"` or `"incident.io"`
 
 ## Catalog
 
-1,683 verified services across 22 categories. All entries have working `/api/v2/summary.json` endpoints.
+1,727 verified services across 22 categories. Entries have working endpoints: `/api/v2/summary.json` for `statuspage`, the feed URL for `rss`, `/index.json` for `betterstack`.
 
 To add services: use the `statuspage-discovery` skill or `scripts/discover-services.py`.
 To verify catalog: `python3 scripts/audit-catalog.py`
@@ -80,4 +80,4 @@ All work is tracked in Linear. **The Linear MCP must be connected before plannin
 
 ## Status Page Support
 
-Most catalog services use Atlassian Statuspage or incident.io (compatible JSON schema). RSS/Atom feeds supported for non-Statuspage services. Custom proprietary status pages are out of scope.
+Most catalog services use Atlassian Statuspage or incident.io (compatible JSON schema). RSS/Atom feeds supported for non-Statuspage services. Better Stack status pages are supported via their public JSON:API at `{base_url}/index.json`. Custom proprietary status pages are out of scope.

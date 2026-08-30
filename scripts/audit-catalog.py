@@ -25,6 +25,8 @@ def main():
 
         if entry["type"] == "statuspage":
             url = f"{base_url}/api/v2/summary.json"
+        elif entry["type"] == "betterstack":
+            url = f"{base_url}/index.json"
         else:
             url = base_url
 
@@ -42,10 +44,19 @@ def main():
                     failed.append((name, "Missing page/status keys in JSON"))
                     print(f"FAIL  {name:30s}  Missing expected JSON structure")
                     continue
+            elif entry["type"] == "betterstack":
+                if "data" not in j or "attributes" not in j.get("data", {}):
+                    failed.append((name, "Missing data.attributes in JSON:API document"))
+                    print(f"FAIL  {name:30s}  Missing expected JSON structure")
+                    continue
 
             passed += 1
-            indicator = j.get("status", {}).get("indicator", "?")
-            print(f"OK    {name:30s}  indicator={indicator}")
+            if entry["type"] == "betterstack":
+                state = j.get("data", {}).get("attributes", {}).get("aggregate_state", "?")
+                print(f"OK    {name:30s}  aggregate_state={state}")
+            else:
+                indicator = j.get("status", {}).get("indicator", "?")
+                print(f"OK    {name:30s}  indicator={indicator}")
 
         except json.JSONDecodeError:
             failed.append((name, "Response is not JSON (likely HTML)"))

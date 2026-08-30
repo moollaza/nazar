@@ -342,6 +342,16 @@ class StatusManager {
                     logger.error("Statuspage schema mismatch for \(provider.name): \(String(describing: error))")
                     updateSnapshot(for: provider, error: "Status format not recognized")
                 }
+            case .betterstack:
+                do {
+                    try parseBetterStack(data: data, provider: provider)
+                } catch let error as DecodingError {
+                    logger.error("Better Stack schema mismatch for \(provider.name): \(String(describing: error))")
+                    updateSnapshot(for: provider, error: "Status format not recognized")
+                } catch {
+                    logger.error("Better Stack parse failed for \(provider.name): \(error.localizedDescription)")
+                    updateSnapshot(for: provider, error: "Status format not recognized")
+                }
             case .rss:
                 do {
                     try parseRSS(data: data, provider: provider)
@@ -460,6 +470,96 @@ class StatusManager {
                 updates: updates
             )
         }
+
+        let snapshot = ProviderSnapshot(
+            id: provider.id,
+            name: provider.name,
+            overallStatus: overall,
+            components: components,
+            activeIncidents: Array(incidents),
+            lastUpdated: Date(),
+            error: nil
+        )
+        applySnapshot(snapshot, for: provider)
+    }
+
+    // MARK: - Better Stack JSON:API Parsing
+
+    private func parseBetterStack(data: Data, provider: Provider) throws {
+        let decoder = JSONDecoder()
+        let index = try decoder.decode(BetterStackIndex.self, from: data)
+        let included = index.included ?? []
+
+        // Section id → display name lookup, so grouped resources render like
+        // Statuspage children (e.g. "API (Core services)").
+        var sectionNames: [String: String] = [:]
+        for item in included where item.type == "status_page_section" {
+            if let name = item.attributes?.name {
+                sectionNames[item.id] = name
+            }
+        }
+
+        // Resources are the "components". `not_monitored` resources are
+        // informational-only on Better Stack pages — filtered out.
+        let components = included
+            .filter { $0.type == "status_page_resource" }
+            .filter { $0.attributes?.status != "not_monitored" }
+            .compactMap { resource -> ComponentSnapshot? in
+                guard let publicName = resource.attributes?.publicName else { return nil }
+                var displayName = publicName
+                if let sectionId = resource.attributes?.statusPageSectionId,
+                   let sectionName = sectionNames[sectionId] {
+                    displayName = "\(publicName) (\(sectionName))"
+                }
+                let status = ComponentStatus(fromBetterStack: resource.attributes?.status ?? "")
+                return ComponentSnapshot(id: resource.id, name: displayName, status: status)
+            }
+
+        // Status updates are shared resources referenced by report relationships.
+        var updatesById: [String: BetterStackIncluded] = [:]
+        for item in included where item.type == "status_update" {
+            updatesById[item.id] = item
+        }
+
+        // Non-resolved status reports are the active incidents. Reports whose
+        // aggregate state is "resolved" are historical and dropped.
+        let reports = included
+            .filter { $0.type == "status_report" && $0.attributes?.reportAggregateState != "resolved" }
+
+        let incidents = reports.prefix(5).map { report -> IncidentSnapshot in
+            let updateItems = (report.relationships?.statusUpdates?.data ?? [])
+                .compactMap { ref -> IncidentUpdateSnapshot? in
+                    guard let update = updatesById[ref.id] else { return nil }
+                    return IncidentUpdateSnapshot(
+                        id: update.id,
+                        status: "update",
+                        body: update.attributes?.message ?? "",
+                        createdAt: update.attributes?.publishedAt.flatMap(Self.parseDate)
+                    )
+                }
+            let impact: ComponentStatus
+            if report.attributes?.reportType == "maintenance" {
+                impact = .underMaintenance
+            } else {
+                impact = ComponentStatus(fromBetterStack: report.attributes?.reportAggregateState ?? "")
+            }
+            return IncidentSnapshot(
+                id: report.id,
+                name: report.attributes?.title ?? "Incident",
+                impact: impact,
+                status: report.attributes?.reportType == "maintenance" ? "maintenance" : (report.attributes?.reportAggregateState ?? "ongoing"),
+                latestUpdate: updateItems.first?.body,
+                updatedAt: updateItems.first?.createdAt,
+                updates: updateItems
+            )
+        }
+
+        // Overall status is the worst of the page-level aggregate state and any
+        // resource-level status — mirrors the Statuspage parser's defence against
+        // indicators lagging behind components during rapid incidents.
+        let aggregateStatus = ComponentStatus(fromBetterStack: index.data.attributes.aggregateState)
+        let componentMax = components.map(\.status).max() ?? .operational
+        let overall = max(aggregateStatus, componentMax)
 
         let snapshot = ProviderSnapshot(
             id: provider.id,

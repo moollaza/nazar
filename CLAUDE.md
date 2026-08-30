@@ -18,7 +18,7 @@ StatusMonitor.xcodeproj   Xcode project
 Models/                   Data models (Provider, CatalogEntry, Statuspage API types)
 Views/                    SwiftUI views (Dashboard, Settings, Detail, Feedback, Icons)
 Services/                 StatusManager, NotificationService, RSSParser
-Resources/                catalog.json (1,710 verified services)
+Resources/                catalog.json (1,727 verified services)
 scripts/                  Discovery, verification, and categorization tooling
 website/                  Marketing site (deployed to Cloudflare Pages)
 docs/
@@ -48,7 +48,7 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 
 ## Catalog
 
-1,710 verified services across 22 categories. Entries have working endpoints: `/api/v2/summary.json` for `statuspage`, the feed URL for `rss`, `/index.json` for `betterstack`.
+1,727 verified services across 22 categories. Entries have working endpoints: `/api/v2/summary.json` for `statuspage`, the feed URL for `rss`, `/index.json` for `betterstack`.
 
 To add services: use the `statuspage-discovery` skill or `scripts/discover-services.py`.
 To verify catalog: `python3 scripts/audit-catalog.py`

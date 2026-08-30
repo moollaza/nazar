@@ -32,14 +32,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Always runs: the catalog-sync and OG-image guards are cheap and are exactly
-  # what a catalog-data PR needs checked. Also decides whether Argos should run.
-  verify:
-    name: Verify website assets
+  visual:
+    name: Playwright + Argos
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    outputs:
-      visual: ${{ steps.filter.outputs.visual }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -55,6 +51,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # These guards are cheap and are exactly what a catalog-data PR needs
+      # checked, so they run unconditionally - only the expensive Playwright
+      # steps below are gated.
       - name: Verify website catalog is current
         run: cmp Resources/catalog.json website/catalog.json
 
@@ -93,29 +92,12 @@ jobs:
             echo "Only catalog data changed - skipping Argos (specs use the frozen fixture)."
           fi
 
-  visual:
-    name: Playwright + Argos
-    needs: verify
-    if: needs.verify.outputs.visual == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Install Playwright browsers
+        if: steps.filter.outputs.visual == 'true'
         run: npm exec playwright install --with-deps chromium
 
       - name: Run visual tests
+        if: steps.filter.outputs.visual == 'true'
         run: npm run test:visual
         env:
           ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}

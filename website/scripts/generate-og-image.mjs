@@ -225,6 +225,18 @@ function gearIcon(size, color) {
   ]);
 }
 
+// Bell with a slash: the previous muted marker was a bare rotated bar that read
+// as a rendering artifact next to the service name.
+const MUTED_ICON =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M18 8a6 6 0 0 0-9.3-5"/><path d="M6 8a6 6 0 0 0 .6 2.6"/>' +
+      '<path d="M18 8c0 3.5.7 5.4 1.5 6.4a1 1 0 0 1-.8 1.6H8"/>' +
+      '<path d="M6 8c0 4-1 5.5-1.7 6.4A1 1 0 0 0 5.1 16"/>' +
+      '<path d="M10.3 20a2 2 0 0 0 3.4 0"/><path d="m2 2 20 20"/></svg>'
+  );
+
 function row({ label, avatarText, avatarBg, avatarColor, dot, status, statusTone, muted }) {
   let statusNode;
   if (statusTone === 'degraded') statusNode = pill(status, '#FEF3C7', '#B45309', 94);
@@ -281,17 +293,7 @@ function row({ label, avatarText, avatarBg, avatarColor, dot, status, statusTone
         },
         label
       ),
-      muted
-        ? h('div', {
-            style: {
-              width: 14,
-              height: 2,
-              borderRadius: 99,
-              backgroundColor: '#CBD5E1',
-              transform: 'rotate(-16deg)',
-            },
-          })
-        : null
+      muted ? h('img', { width: 14, height: 14, src: MUTED_ICON }) : null
     ),
     statusNode,
     h(
@@ -569,9 +571,9 @@ function card() {
           gap: 2,
         },
       },
-      h('div', { style: { fontSize: 74, lineHeight: 1.08, fontWeight: 800, color: '#0F172A' } }, 'Watches the'),
-      h('div', { style: { fontSize: 74, lineHeight: 1.08, fontWeight: 800, color: '#0F172A' } }, 'services you'),
-      h('div', { style: { fontSize: 74, lineHeight: 1.08, fontWeight: 800, color: '#0F172A' } }, 'depend on.')
+      h('div', { style: { fontSize: 74, lineHeight: 1.08, fontWeight: 800, color: '#0F172A' } }, 'Know when'),
+      h('div', { style: { fontSize: 74, lineHeight: 1.08, fontWeight: 800, color: '#0F172A' } }, 'the services you'),
+      h('div', { style: { fontSize: 74, lineHeight: 1.08, fontWeight: 800, color: '#0F172A' } }, 'rely on go down.')
     ),
     h(
       'div',
@@ -579,14 +581,15 @@ function card() {
         style: {
           position: 'absolute',
           left: 76,
-          top: 456,
-          fontSize: 25,
+          top: 430,
+          maxWidth: 585,
+          fontSize: 21,
           lineHeight: 1.35,
           fontWeight: 500,
           color: '#334155',
         },
       },
-      'Outage alerts from your menu bar.'
+      'Nazar lives in your menu bar and notifies you about outages and service updates for GitHub, Slack, OpenAI, and 1,600+ more services.'
     ),
     h(
       'div',
@@ -594,7 +597,7 @@ function card() {
         style: {
           position: 'absolute',
           left: 76,
-          top: 526,
+          top: 552,
           fontSize: 21,
           color: '#64748B',
           letterSpacing: 0,

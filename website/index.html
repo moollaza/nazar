@@ -7,8 +7,8 @@
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)" />
 
-    <title>Nazar — macOS status monitor for the services you depend on</title>
-    <meta name="description" content="Nazar is a free, privacy-first macOS status monitor with outage alerts and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more." />
+    <title>Nazar: Know when the services you rely on go down</title>
+    <meta name="description" content="Nazar lives in your menu bar and notifies you about outages and service updates for GitHub, Slack, OpenAI, and 1,600+ more services." />
 
     <link rel="canonical" href="https://usenazar.com/" />
 
@@ -31,16 +31,16 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://usenazar.com/" />
     <meta property="og:site_name" content="Nazar" />
-    <meta property="og:title" content="Nazar — macOS status monitor for the services you depend on" />
-    <meta property="og:description" content="Outage alerts and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more, right from your macOS menu bar." />
+    <meta property="og:title" content="Nazar: Know when the services you rely on go down" />
+    <meta property="og:description" content="Nazar lives in your menu bar and notifies you about outages and service updates for GitHub, Slack, OpenAI, and 1,600+ more services." />
     <meta property="og:image" content="https://usenazar.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Nazar — macOS status monitor for the services you depend on." />
+    <meta property="og:image:alt" content="Nazar: Know when the services you rely on go down." />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Nazar — macOS status monitor for the services you depend on" />
-    <meta name="twitter:description" content="Outage alerts and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more, right from your macOS menu bar." />
+    <meta name="twitter:title" content="Nazar: Know when the services you rely on go down" />
+    <meta name="twitter:description" content="Nazar lives in your menu bar and notifies you about outages and service updates for GitHub, Slack, OpenAI, and 1,600+ more services." />
     <meta name="twitter:image" content="https://usenazar.com/og-image.png" />
 
     <script type="application/ld+json">
@@ -48,15 +48,100 @@
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "Nazar",
-      "description": "Nazar is a free, privacy-first macOS status monitor with outage alerts and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more.",
+      "description": "Nazar lives in your menu bar and notifies you about outages and service updates for GitHub, Slack, OpenAI, and 1,600+ more services.",
       "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "macOS 14 Sonoma or later",
+      "applicationSubCategory": "Monitoring",
+      "operatingSystem": "macOS",
+      "softwareRequirements": "macOS 14.6 or later",
+      "softwareVersion": "1.2.0",
       "url": "https://usenazar.com/",
-      "downloadUrl": "https://github.com/moollaza/nazar/releases",
+      "downloadUrl": "https://github.com/moollaza/nazar/releases/latest",
+      "installUrl": "https://github.com/moollaza/nazar/releases/latest",
+      "screenshot": "https://usenazar.com/og-image.png",
+      "featureList": [
+        "Desktop notifications when a service goes down or recovers",
+        "Monitors 1,600+ public status pages",
+        "Menu bar dashboard with search and filtering",
+        "Incident details and updates for each service",
+        "Add custom Statuspage, Better Stack, or RSS/Atom status pages"
+      ],
       "sameAs": "https://github.com/moollaza/nazar",
       "license": "https://github.com/moollaza/nazar/blob/main/LICENSE",
+      "isAccessibleForFree": true,
       "author": { "@type": "Organization", "name": "MoollApps", "url": "https://github.com/moollaza" },
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      "maintainer": { "@type": "Organization", "name": "MoollApps", "url": "https://github.com/moollaza" },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "url": "https://github.com/moollaza/nazar/releases/latest"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+{
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does it work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every company you rely on publishes a status page. Nazar checks the ones you pick, on a schedule, and sends you a desktop notification the moment one reports a problem or recovers. Click the menu bar icon to see the full list, or open a service to read what the company has said about an incident."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What services are supported?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nazar monitors 1,600+ services covering AI, developer tools, cloud hosting, databases, productivity apps, monitoring, payments, and more. We support any service that uses an Atlassian Statuspage, the incident.io equivalent, publishes an RSS/Atom status feed, or runs a Better Stack status page. If something is missing let us know and we'll try to include it!"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it really free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Nazar is free and open source under Apache-2.0. No subscriptions and no premium tiers. The source is on GitHub."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work offline?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nazar needs an internet connection to monitor services. If your connection drops, it retains the last known status for each service, shows an offline indicator in the dashboard footer, and starts checking again automatically when you're back online."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How often does it check?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "By default Nazar checks each service every 60 seconds, configurable per-service from 30 seconds to 15 minutes. When a status page stops responding, Nazar automatically backs off so it doesn't hammer services that are already struggling."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I add custom services?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Beyond the built-in catalog, you can add any service by pointing Nazar at its Atlassian Statuspage URL, Better Stack status page URL, or RSS/Atom feed. Nazar will also offer to suggest it for the built-in catalog so everyone gets it. Proprietary status page formats (custom HTML, JavaScript-rendered pages) aren't supported yet."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is my data private?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nazar has no accounts, so there is nothing to sign up for and nothing that identifies you. The services you monitor stay on your Mac, and we never see them. The optional app scan reads your app names locally and sends nothing anywhere."
+          }
+        }
+      ]
     }
     </script>
 
@@ -85,6 +170,8 @@
 
       @layer base {
         :root { color-scheme: light dark; }
+        h1, h2, h3, summary { text-wrap: balance; }
+        p, li, dd { text-wrap: pretty; }
         :focus-visible {
           outline: 2px solid var(--color-accent);
           outline-offset: 2px;
@@ -92,7 +179,38 @@
         }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
+
       }
+    </style>
+
+    <!-- Hero demo styles live outside the Tailwind block: the browser CDN drops
+         bare attribute selectors like [data-state="2"] when they sit in @layer base. -->
+    <style>
+  /* Hero demo: transitions only. The three states are applied as inline styles
+     by the script below — the Tailwind CDN's injected sheet was overriding
+     stylesheet-based state rules, so JS owns the values. */
+  .nazar-mb-ok, .nazar-mb-alert, .nazar-notif, .nazar-detail, .nazar-list {
+    transition: opacity .4s ease, transform .45s cubic-bezier(.32,.72,0,1);
+  }
+  .cta-glow { animation: nazar-cta-pulse 3.4s ease-out infinite; }
+  .cta-glow:hover, .cta-glow:focus-visible { animation-play-state: paused; }
+  @keyframes nazar-cta-pulse {
+    0%       { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 45%, transparent); }
+    70%, 100% { box-shadow: 0 0 0 11px color-mix(in srgb, var(--color-accent) 0%, transparent); }
+  }
+
+  .hero-dot { transition: width .25s ease; }
+  .hero-dot[aria-current="true"] { width: 1.25rem; }
+  .hero-dot-fill {
+    position: absolute; inset: 0 auto 0 0; width: 0;
+    background-color: var(--color-accent); border-radius: inherit;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nazar-mb-ok, .nazar-mb-alert, .nazar-notif, .nazar-detail,
+    .nazar-list, .hero-dot { transition: none; }
+    .hero-dot-fill { transition: none !important; }
+    .cta-glow { animation: none; }
+  }
     </style>
   </head>
   <body class="bg-surface text-text-primary antialiased">
@@ -119,7 +237,7 @@
             <svg data-theme-icon="light" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
             <svg data-theme-icon="dark" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
           </button>
-          <a href="https://github.com/moollaza/nazar/releases" class="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer" data-fathom-event="nav.download.click">
+          <a href="https://github.com/moollaza/nazar/releases/latest" class="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer" data-fathom-event="nav.download.click">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
             Download
           </a>
@@ -133,33 +251,114 @@
       <section class="relative flex min-h-[calc(100vh-69px)] items-center overflow-hidden">
         <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.12)_0%,_transparent_60%)]"></div>
         <div class="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
-          <div class="max-w-xl">
+          <div class="max-w-2xl">
             <p class="mb-4 inline-block rounded-full border border-border-subtle bg-surface-raised px-4 py-1.5 text-xs font-medium tracking-wide text-text-secondary">
-              Free, privacy-first status monitoring for macOS
+              Free and private service monitoring for macOS
             </p>
-            <h1 class="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.5rem]">
-              Nazar watches the services you depend on.
+            <h1 class="max-w-xl text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.5rem]">
+              Know when the services you rely on go down.
             </h1>
             <p class="mt-6 text-lg leading-relaxed text-text-secondary sm:text-xl">
-              Track outages and service updates for GitHub, Slack, OpenAI, Vercel, Stripe, and 1,600+ more. Get notified from your menu bar before you waste time debugging.
+              Nazar lives in your menu bar and notifies you about outages and service updates
+              <span class="sm:hidden">for 1,600+ services.</span>
+              <span class="hidden sm:inline">for GitHub, Slack, OpenAI, and 1,600+ more services.</span>
             </p>
-            <div class="mt-10 flex flex-wrap items-center gap-4">
-              <a href="https://github.com/moollaza/nazar/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer" data-fathom-event="hero.download.click">
+            <div class="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+              <a href="https://github.com/moollaza/nazar/releases/latest" class="cta-glow inline-flex w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover sm:w-auto" target="_blank" rel="noopener noreferrer" data-fathom-event="hero.download.click">
                 <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 Download for macOS
               </a>
-              <a href="https://github.com/moollaza/nazar" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener noreferrer" data-fathom-event="hero.github.click">
+              <a href="https://github.com/moollaza/nazar" class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary sm:w-auto" target="_blank" rel="noopener noreferrer" data-fathom-event="hero.github.click">
                 <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.48 11.48 0 0 0 7.86 10.93c.58.1.79-.25.79-.55v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.13v3.16c0 .3.21.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
                 View on GitHub
               </a>
             </div>
-            <p class="mt-4 text-xs text-text-tertiary">No account. No app telemetry. Polls public status pages directly from your Mac.</p>
+            <p class="mt-4 text-xs text-text-tertiary">No accounts. Open-Source. Requires macOS 14.6 or later.</p>
           </div>
 
-          <!-- Dashboard mock — mirrors Views/DashboardView.swift (420×520 panel). Keep in sync when UI changes. -->
+          <!-- Hero scene: menu bar + notification + panel, all HTML/CSS.
+               Menu bar icon mirrors StatusMonitorApp.updateMenuBarIcon (SF Symbols
+               checkmark.circle.fill green / exclamationmark.triangle.fill orange).
+               Notification text mirrors NotificationService.makeBody.
+               Panel mirrors Views/DashboardView.swift and ServiceDetailView.swift.
+               Keep in sync when the app UI changes. -->
           <div class="flex items-center justify-center">
-            <div class="relative w-full max-w-[440px]">
-              <div role="img" aria-label="Nazar dashboard showing nine services with operational, degraded, and outage statuses." class="overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-[0_24px_64px_-12px_rgba(17,17,19,0.18)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+            <div role="img" aria-label="A Mac menu bar with the Nazar icon, a notification reading GitHub: Partial Outage, and the Nazar panel showing watched services and then GitHub's incident detail." class="nazar-scene relative w-full max-w-[560px]" data-state="0">
+
+              <!-- macOS menu bar strip -->
+              <div class="flex items-center gap-4 bg-surface-overlay/70 px-4 py-2.5 text-text-secondary backdrop-blur [mask-image:linear-gradient(to_right,transparent_0%,#000_22%)]" aria-hidden="true">
+                <div class="ml-auto flex items-center gap-2.5">
+                  <span class="relative inline-flex h-5 w-5 items-center justify-center">
+                    <svg class="nazar-mb-ok absolute h-[18px] w-[18px] text-green" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.2 14.6-4-4 1.4-1.4 2.6 2.6 5.6-5.6 1.4 1.4-7 7z"/></svg>
+                    <svg class="nazar-mb-alert absolute h-[18px] w-[18px] text-orange" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V9h2v4z"/></svg>
+                  </span>
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1" fill="currentColor" stroke="none"/></svg>
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="8" width="16" height="9" rx="2.5"/><path d="M20.5 11.5v2" stroke-linecap="round"/><rect x="4" y="10" width="9" height="5" rx="1" fill="currentColor" stroke="none"/></svg>
+                  <span class="text-[13px] font-medium tabular-nums">Sun Aug 30&nbsp; 10:24&#8239;AM</span>
+                </div>
+              </div>
+
+              <!-- macOS notification -->
+              <div class="nazar-notif pointer-events-none absolute right-0 top-11 z-20 w-[280px] rounded-xl border border-border-subtle bg-surface-raised/95 p-3 shadow-[0_16px_40px_-8px_rgba(17,17,19,0.28)] backdrop-blur-xl dark:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.7)]">
+                <div class="flex items-start gap-2.5">
+                  <img src="favicon.svg" alt="" width="26" height="26" class="mt-0.5 h-[26px] w-[26px] shrink-0 rounded-md" />
+                  <div class="min-w-0">
+                    <p class="truncate text-[12px] font-semibold text-text-primary">GitHub: Partial Outage</p>
+                    <p class="mt-0.5 text-[11px] leading-snug text-text-secondary">Operational &rarr; Partial Outage &mdash; Increased error rates on Actions</p>
+                  </div>
+                  <span class="ml-auto shrink-0 text-[10px] text-text-tertiary">now</span>
+                </div>
+              </div>
+
+              <div class="group relative ml-auto mt-2 w-full max-w-[420px]">
+              <div class="relative ml-auto mt-2 w-full max-w-[420px] h-[clamp(300px,44vh,452px)] overflow-hidden rounded-xl border border-border-subtle bg-surface-raised shadow-[0_24px_64px_-12px_rgba(17,17,19,0.18)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+
+                <!-- Scene 2: service detail — mirrors Views/ServiceDetailView.swift -->
+                <div class="nazar-detail absolute inset-0 flex flex-col bg-surface-raised">
+                  <div class="flex items-center justify-between px-4 pb-1 pt-2.5">
+                    <span class="inline-flex items-center gap-0.5 text-xs text-accent">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                      Services
+                    </span>
+                    <span class="inline-flex items-center gap-1 text-[11px] text-accent">View Status Page
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2 px-4 pb-2.5">
+                    <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#e4e4e7] text-xs font-semibold text-[#27272a] dark:bg-[#27272a] dark:text-[#e4e4e7]">GI</span>
+                    <span class="text-sm font-semibold">GitHub</span>
+                    <span class="inline-flex items-center gap-1 text-xs text-orange">
+                      <span class="h-1.5 w-1.5 rounded-full bg-orange"></span>Partial Outage
+                    </span>
+                    <span class="ml-auto text-[10px] text-text-tertiary">Updated 45 secs. ago</span>
+                  </div>
+                  <div class="border-t border-border-subtle"></div>
+                  <p class="px-4 pb-1 pt-2 text-[10px] font-medium uppercase tracking-wide text-text-tertiary">Active Incidents</p>
+                  <div class="mx-4 mb-2 rounded-md bg-surface-overlay px-3 py-2">
+                    <div class="flex items-start gap-2">
+                      <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-orange"></span>
+                      <div>
+                        <p class="text-xs font-medium leading-snug">Increased error rates on Actions</p>
+                        <p class="mt-0.5 text-[10px] text-text-tertiary">Investigating &middot; 12 mins ago</p>
+                        <p class="mt-1.5 text-[11px] leading-snug text-text-secondary">We are investigating elevated error rates affecting Actions workflows.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="border-t border-border-subtle"></div>
+                  <p class="px-4 pb-1 pt-2 text-[10px] font-medium uppercase tracking-wide text-text-tertiary">Components</p>
+                  <ul class="px-2">
+                    <li class="flex items-center gap-2 rounded-md px-3 py-1.5"><span class="h-1.5 w-1.5 rounded-full bg-orange"></span><span class="text-xs">Actions</span><span class="ml-auto text-[10px] text-orange">Partial Outage</span></li>
+                    <li class="flex items-center gap-2 rounded-md px-3 py-1.5"><span class="h-1.5 w-1.5 rounded-full bg-green"></span><span class="text-xs">Git Operations</span><span class="ml-auto text-[10px] text-text-tertiary">Operational</span></li>
+                    <li class="flex items-center gap-2 rounded-md px-3 py-1.5"><span class="h-1.5 w-1.5 rounded-full bg-green"></span><span class="text-xs">Pull Requests</span><span class="ml-auto text-[10px] text-text-tertiary">Operational</span></li>
+                    <li class="flex items-center gap-2 rounded-md px-3 py-1.5"><span class="h-1.5 w-1.5 rounded-full bg-green"></span><span class="text-xs">API Requests</span><span class="ml-auto text-[10px] text-text-tertiary">Operational</span></li>
+                    <li class="flex items-center gap-2 rounded-md px-3 py-1.5"><span class="h-1.5 w-1.5 rounded-full bg-green"></span><span class="text-xs">Issues</span><span class="ml-auto text-[10px] text-text-tertiary">Operational</span></li>
+                    <li class="flex items-center gap-2 rounded-md px-3 py-1.5"><span class="h-1.5 w-1.5 rounded-full bg-green"></span><span class="text-xs">Packages</span><span class="ml-auto text-[10px] text-text-tertiary">Operational</span></li>
+                    <li class="flex items-center gap-2 rounded-md px-3 py-1.5"><span class="h-1.5 w-1.5 rounded-full bg-green"></span><span class="text-xs">Codespaces</span><span class="ml-auto text-[10px] text-text-tertiary">Operational</span></li>
+                  </ul>
+                </div>
+
+                <!-- Scene 3: service list -->
+                <div class="nazar-list absolute inset-0 flex flex-col bg-surface-raised">
                 <!-- Dashboard header -->
                 <div class="flex items-center gap-2 px-4 py-2.5">
                   <span class="text-sm font-semibold text-text-primary">Nazar</span>
@@ -199,26 +398,27 @@
                 <div class="border-t border-border-subtle"></div>
 
                 <!-- Service rows — letter avatars with pastel tiles, matching real ServiceIconView. -->
-                <ul class="px-2 py-1.5">
+                <div class="relative min-h-0 flex-1">
+                <ul class="h-full overflow-hidden px-2 py-1.5 [mask-image:linear-gradient(to_bottom,#000_82%,transparent)]">
                   <!-- Claude — Degraded (muted) -->
                   <li class="flex items-center gap-2.5 rounded-md bg-[color-mix(in_srgb,var(--color-surface-overlay)_50%,transparent)] px-3 py-1.5 opacity-60">
                     <span class="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#fde4cf] text-xs font-semibold text-[#9a3412] dark:bg-[#3c1e0a] dark:text-[#fdba74]" aria-hidden="true">
                       CL
-                      <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-yellow ring-2 ring-surface-raised"></span>
+                      <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-orange ring-2 ring-surface-raised"></span>
                     </span>
                     <span class="text-sm font-medium">Claude</span>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="text-text-tertiary" aria-hidden="true"><path d="M16.5 12a4.5 4.5 0 0 0-2.5-4V6l-4 3H5v6h5l4 3v-2c1.5-.8 2.5-2.3 2.5-4zM20 4l1.4 1.4-16 16L4 20 20 4z"/></svg>
-                    <span class="ml-auto rounded-full bg-[#fef3c7] px-2 py-0.5 text-[10px] font-semibold text-[#854d0e] dark:bg-[#422006] dark:text-[#fcd34d]">Degraded</span>
+                    <span class="ml-auto rounded-full bg-[#ffedd5] px-2 py-0.5 text-[10px] font-semibold text-[#9a3412] dark:bg-[#431407] dark:text-[#fdba74]">Partial Outage</span>
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-text-tertiary" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
                   </li>
                   <!-- GitHub — Partial Outage -->
                   <li class="flex items-center gap-2.5 rounded-md px-3 py-1.5">
                     <span class="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#e4e4e7] text-xs font-semibold text-[#27272a] dark:bg-[#27272a] dark:text-[#e4e4e7]" aria-hidden="true">
                       GI
-                      <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-orange ring-2 ring-surface-raised"></span>
+                      <span data-demo="gh-dot" class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green ring-2 ring-surface-raised"></span>
                     </span>
                     <span class="text-sm font-medium">GitHub</span>
-                    <span class="ml-auto rounded-full bg-[#ffedd5] px-2 py-0.5 text-[10px] font-semibold text-[#9a3412] dark:bg-[#431407] dark:text-[#fdba74]">Partial Outage</span>
+                    <span data-demo="gh-status" class="ml-auto text-xs text-text-tertiary">Operational</span>
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-text-tertiary" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
                   </li>
                   <!-- Asana — Operational -->
@@ -292,18 +492,37 @@
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-text-tertiary" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
                   </li>
                 </ul>
-
-                <div class="border-t border-border-subtle"></div>
+                  <span class="absolute right-1 top-2 bottom-2 w-1 rounded-full bg-text-tertiary/25"></span>
+                </div>
 
                 <!-- Footer -->
-                <div class="flex items-center justify-between px-4 py-2 text-xs">
+                <div class="mt-auto shrink-0 border-t border-border-subtle bg-surface-raised px-4 py-2 text-xs flex items-center justify-between">
                   <span class="flex items-center gap-2">
-                    <span class="h-2 w-2 rounded-full bg-orange"></span>
-                    <span class="font-semibold text-orange">2 issues</span>
+                    <span data-demo="foot-dot" class="h-2 w-2 rounded-full bg-green"></span>
+                    <span data-demo="foot-label" class="font-semibold text-green">All operational</span>
                   </span>
                   <span class="text-text-tertiary">Updated 45 secs. ago</span>
                 </div>
+                </div>
               </div>
+
+
+                <button type="button" data-hero-nav="-1" aria-label="Previous step" data-fathom-event="hero.demo.prev"
+                  class="absolute left-0 top-1/2 z-30 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-border-subtle bg-surface-raised/75 text-text-primary shadow-sm backdrop-blur transition-opacity hover:bg-surface-raised focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <button type="button" data-hero-nav="1" aria-label="Next step" data-fathom-event="hero.demo.next"
+                  class="absolute right-0 top-1/2 z-30 flex h-8 w-8 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-border-subtle bg-surface-raised/75 text-text-primary shadow-sm backdrop-blur transition-opacity hover:bg-surface-raised focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                </button>
+              </div>
+
+              <div class="ml-auto mt-4 flex w-full max-w-[420px] items-center justify-center gap-2" role="group" aria-label="Step through the Nazar demo">
+                <button type="button" class="hero-dot relative h-2 w-2 overflow-hidden rounded-full bg-text-tertiary/30" data-hero-dot data-fathom-event="hero.demo.step_1" aria-current="true" aria-label="Step 1: all services healthy"><span class="hero-dot-fill"></span></button>
+                <button type="button" class="hero-dot relative h-2 w-2 overflow-hidden rounded-full bg-text-tertiary/30" data-hero-dot data-fathom-event="hero.demo.step_2" aria-current="false" aria-label="Step 2: a service goes down and notifies you"><span class="hero-dot-fill"></span></button>
+                <button type="button" class="hero-dot relative h-2 w-2 overflow-hidden rounded-full bg-text-tertiary/30" data-hero-dot data-fathom-event="hero.demo.step_3" aria-current="false" aria-label="Step 3: open the service to see what is wrong"><span class="hero-dot-fill"></span></button>
+              </div>
+
             </div>
           </div>
         </div>
@@ -313,18 +532,18 @@
       <section id="features" class="scroll-mt-20 border-t border-border-subtle py-24">
         <div class="mx-auto max-w-6xl px-6">
           <div class="mx-auto max-w-2xl text-center">
-            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">A calm way to watch your services</h2>
-            <p class="mt-4 text-lg text-text-secondary">Everything you need to spot outages in the tools and services you rely on. Nothing you don't.</p>
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">The best way to monitor your services</h2>
+            <p class="mt-4 text-lg text-text-secondary">Get notified the moment something changes, and see what is actually wrong. All without leaving your menu bar.</p>
           </div>
           <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
             <article class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M16 4v4h4"/><path d="M7 13h10M7 17h7"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1.75"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.75"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.75"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.75"/></svg>
               </div>
               <h3 class="text-lg font-semibold">Track the services that matter</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Pick from 1,600+ public status pages across developer tools, cloud services, productivity apps, payments, and more.
+                Pick from 1,600+ services across AI, developer tools, cloud hosting, productivity apps, payments, and more.
               </p>
             </article>
 
@@ -332,19 +551,19 @@
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
               </div>
-              <h3 class="text-lg font-semibold">Know before you debug</h3>
+              <h3 class="text-lg font-semibold">All your alerts in one place</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                See when a service is degraded before you chase local issues, retry failed builds, or restart apps that were never the problem.
+                No more signing up for alerts from every service. Get them all in one app.
               </p>
             </article>
 
             <article class="rounded-xl border border-border-subtle bg-surface-raised p-6 transition hover:border-text-tertiary">
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M10 16a2 2 0 0 1 4 0"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6h11M9.5 12h11M9.5 18h11"/><circle cx="4.5" cy="6" r="1.6"/><circle cx="4.5" cy="12" r="1.6"/><circle cx="4.5" cy="18" r="1.6"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
               </div>
-              <h3 class="text-lg font-semibold">Quiet until it matters</h3>
+              <h3 class="text-lg font-semibold">Everything at a glance</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Lives in your menu bar with native macOS notifications, mute controls, issue-focused views, and a color-coded status icon.
+                Click the menu bar icon to see every service you're watching in one list. Search it, sort by what's broken, or hide everything that's healthy.
               </p>
             </article>
 
@@ -354,7 +573,7 @@
               </div>
               <h3 class="text-lg font-semibold">Private by default</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                No accounts, no app telemetry, and no proxy server. Nazar polls public status pages directly from your Mac.
+                No signup, no email, no password. Nazar has no accounts.
               </p>
             </article>
 
@@ -372,9 +591,9 @@
               <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-overlay text-accent">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
               </div>
-              <h3 class="text-lg font-semibold">Status page detail</h3>
+              <h3 class="text-lg font-semibold">See exactly what is broken</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Component-level status, active incidents, and full resolution timelines for every service. Search and filter in one click.
+                Click any service to see which parts are down, what the company has said, and every update since. Or open the official status page.
               </p>
             </article>
 
@@ -386,29 +605,29 @@
       <section id="how-it-works" class="scroll-mt-20 border-t border-border-subtle py-24">
         <div class="mx-auto max-w-6xl px-6">
           <div class="mx-auto max-w-2xl text-center">
-            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Up and running in 60 seconds</h2>
-            <p class="mt-4 text-lg text-text-secondary">Three steps. No configuration files, no API keys, no sign-up.</p>
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Getting started is quick</h2>
+            <p class="mt-4 text-lg text-text-secondary">Install the app, pick your services, and you are done.</p>
           </div>
           <ol class="mt-16 grid gap-8 sm:grid-cols-3">
             <li class="text-center">
               <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">1</div>
               <h3 class="text-lg font-semibold">Install</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Download the app from GitHub Releases and drag it to Applications. That's it.
+                <a href="https://github.com/moollaza/nazar/releases/latest" class="font-medium text-accent underline decoration-accent/40 underline-offset-2 transition hover:decoration-accent" target="_blank" rel="noopener noreferrer" data-fathom-event="steps.download.click">Download Nazar</a> and drag it to your Applications folder.
               </p>
             </li>
             <li class="text-center">
               <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">2</div>
-              <h3 class="text-lg font-semibold">Pick Services</h3>
+              <h3 class="text-lg font-semibold">Pick Your Services</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Browse the catalog and choose the services you care about.
+                Browse the catalog and pick the services you care about, or scan your installed apps to get a starting list.
               </p>
             </li>
             <li class="text-center">
               <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-border-subtle bg-surface-raised text-3xl font-bold text-accent">3</div>
               <h3 class="text-lg font-semibold">Monitor</h3>
               <p class="mt-2 text-sm leading-relaxed text-text-secondary">
-                Nazar checks each service and notifies you when something changes. Get back to work.
+                Nazar monitors services and notifies you when something changes.
               </p>
             </li>
           </ol>
@@ -419,15 +638,15 @@
       <section id="services" class="scroll-mt-20 border-t border-border-subtle py-24">
         <div class="mx-auto max-w-6xl px-6">
           <div class="mx-auto max-w-2xl text-center">
-            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Find the services you rely on</h2>
-            <p class="mt-4 text-lg text-text-secondary">Browse <span id="catalog-total">1,600+</span> supported services across <span id="catalog-cat-count">22</span> categories.</p>
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Browse the list of supported services</h2>
+            <p class="mt-4 text-lg text-text-secondary">We watch <span id="catalog-total">1,600+</span> status pages across <span id="catalog-cat-count">22</span> categories so you don't have to.</p>
           </div>
 
-          <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <label class="relative flex-1">
+          <div id="catalog-toolbar" class="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+            <label class="relative w-full sm:max-w-sm">
               <span class="sr-only">Search services</span>
               <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-              <input id="catalog-search" type="search" autocomplete="off" placeholder="Search 1,600+ services…" class="w-full rounded-lg border border-border-subtle bg-surface-raised py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30" />
+              <input id="catalog-search" type="search" autocomplete="off" placeholder="Search all services…" class="w-full rounded-lg border border-border-subtle bg-surface-raised py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30" />
             </label>
             <a id="catalog-submit" href="https://github.com/moollaza/nazar/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary" data-fathom-event="services.request.click">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -439,15 +658,31 @@
             <button type="button" data-category="all" class="category-chip rounded-full border border-border-subtle bg-surface-raised px-3.5 py-1.5 text-xs font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent" aria-pressed="true">All</button>
           </div>
 
-          <div id="catalog-results" class="mt-8 min-h-[220px] sm:min-h-[320px]">
+          <div id="catalog-results" class="mt-8">
             <div id="catalog-loading" class="py-16 text-center text-sm text-text-tertiary">Loading catalog…</div>
             <ul id="catalog-list" class="hidden grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"></ul>
             <p id="catalog-empty" class="hidden py-16 text-center text-sm text-text-tertiary">No services match. <a id="catalog-empty-submit" class="text-accent underline-offset-2 hover:underline" href="https://github.com/moollaza/nazar/issues/new?template=service_request.yml" target="_blank" rel="noopener noreferrer" data-fathom-event="services.request.click">Request it on GitHub →</a></p>
+            <div id="catalog-error" class="hidden py-16 text-center" role="status" aria-live="polite">
+              <svg class="mx-auto text-text-tertiary" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16h.01"/></svg>
+              <p class="mt-4 text-sm text-text-secondary">We couldn't load the service list.</p>
+              <button type="button" id="catalog-retry" class="mt-4 inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+                Try again
+              </button>
+            </div>
           </div>
 
           <div id="catalog-footer" class="mt-8 flex flex-col items-center gap-3 text-sm text-text-tertiary sm:flex-row sm:justify-between">
-            <p><span id="catalog-showing">Showing all services</span></p>
-            <button type="button" id="catalog-more" class="hidden rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm font-medium text-text-secondary transition hover:border-accent hover:text-text-primary">Show more services</button>
+            <p aria-live="polite"><span id="catalog-showing">Showing all services</span></p>
+            <nav id="catalog-pager" class="hidden items-center gap-2" aria-label="Catalog pages">
+              <button type="button" id="catalog-prev" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-subtle bg-surface-raised text-text-secondary transition hover:border-accent hover:text-text-primary disabled:pointer-events-none disabled:opacity-40" aria-label="Previous page">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+              </button>
+              <span id="catalog-page-label" class="min-w-[7.5rem] text-center text-sm text-text-secondary">Page 1 of 1</span>
+              <button type="button" id="catalog-next" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-subtle bg-surface-raised text-text-secondary transition hover:border-accent hover:text-text-primary disabled:pointer-events-none disabled:opacity-40" aria-label="Next page">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+              </button>
+            </nav>
           </div>
         </div>
       </section>
@@ -460,11 +695,21 @@
 
             <details class="group rounded-xl border border-border-subtle bg-surface-raised" open>
               <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
+                How does it work?
+                <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
+              </summary>
+              <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
+                Every company you rely on publishes a status page. Nazar checks the ones you pick, on a schedule, and sends you a desktop notification the moment one reports a problem or recovers. Click the menu bar icon to see the full list, or open a service to read what the company has said about an incident.
+              </div>
+            </details>
+
+            <details class="group rounded-xl border border-border-subtle bg-surface-raised">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
                 What services are supported?
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Nazar ships with a catalog of 1,600+ services covering developer tools, cloud hosting, databases, productivity apps, monitoring, payments, and more. It supports any service that uses an Atlassian Statuspage, the incident.io equivalent, or publishes an RSS/Atom status feed.
+                Nazar monitors 1,600+ services covering AI, developer tools, cloud hosting, databases, productivity apps, monitoring, payments, and more. We support any service that uses an Atlassian Statuspage, the incident.io equivalent, publishes an RSS/Atom status feed, or runs a Better Stack status page. If something is missing let us know and we'll try to include it!
               </div>
             </details>
 
@@ -474,7 +719,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Yes. Nazar is free and open source under Apache-2.0. No subscriptions, no premium tiers, no app telemetry. The source is on GitHub.
+                Yes. Nazar is free and open source under Apache-2.0. No subscriptions and no premium tiers. The source is on GitHub.
               </div>
             </details>
 
@@ -484,7 +729,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Nazar needs an internet connection to poll status pages. If your connection drops, it retains the last known status for each service, shows an offline indicator in the dashboard footer, and resumes polling automatically when you're back online.
+                Nazar needs an internet connection to monitor services. If your connection drops, it retains the last known status for each service, shows an offline indicator in the dashboard footer, and starts checking again automatically when you're back online.
               </div>
             </details>
 
@@ -494,19 +739,10 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                The default poll interval is 60 seconds per service, configurable per-service from 30 seconds to 15 minutes. When a status page stops responding, Nazar automatically backs off so it doesn't hammer services that are already struggling.
+                By default Nazar checks each service every 60 seconds, configurable per-service from 30 seconds to 15 minutes. When a status page stops responding, Nazar automatically backs off so it doesn't hammer services that are already struggling.
               </div>
             </details>
 
-            <details class="group rounded-xl border border-border-subtle bg-surface-raised">
-              <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
-                Does it support light and dark mode?
-                <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
-              </summary>
-              <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Yes — Nazar follows your macOS appearance automatically. When you switch between Light and Dark modes in System Settings, the menu bar icon, dashboard panel, and status badges all adapt with accessible contrast in both themes.
-              </div>
-            </details>
 
             <details class="group rounded-xl border border-border-subtle bg-surface-raised">
               <summary class="flex cursor-pointer items-center justify-between px-6 py-5 text-left font-medium transition hover:text-accent">
@@ -514,7 +750,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Yes. Beyond the built-in catalog, you can add any service by pointing Nazar at its Atlassian Statuspage URL or RSS/Atom feed. Proprietary status page formats (custom HTML, JavaScript-rendered pages) aren't supported yet.
+                Yes. Beyond the built-in catalog, you can add any service by pointing Nazar at its Atlassian Statuspage URL, Better Stack status page URL, or RSS/Atom feed. Nazar will also offer to suggest it for the built-in catalog so everyone gets it. Proprietary status page formats (custom HTML, JavaScript-rendered pages) aren't supported yet.
               </div>
             </details>
 
@@ -524,7 +760,7 @@
                 <span class="ml-4 text-text-tertiary transition group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <div class="px-6 pb-5 text-sm leading-relaxed text-text-secondary">
-                Completely. Nazar runs in the macOS App Sandbox with only outbound network access. It polls public status pages directly — no proxy server and no app telemetry. Your list of monitored services stays on your Mac.
+                Nazar has no accounts, so there is nothing to sign up for and nothing that identifies you. The services you monitor stay on your Mac, and we never see them. The optional app scan reads your app names locally and sends nothing anywhere.
               </div>
             </details>
 
@@ -537,12 +773,12 @@
         <div class="mx-auto max-w-3xl px-6 text-center">
           <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Stop guessing what broke.</h2>
           <p class="mt-4 text-lg text-text-secondary">Let Nazar watch the services you depend on while you get back to work.</p>
-          <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a href="https://github.com/moollaza/nazar/releases" class="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover" target="_blank" rel="noopener noreferrer" data-fathom-event="cta.download.click">
+          <div class="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
+            <a href="https://github.com/moollaza/nazar/releases/latest" class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-accent px-6 py-3 text-sm font-semibold text-on-accent transition hover:bg-accent-hover sm:w-auto" target="_blank" rel="noopener noreferrer" data-fathom-event="cta.download.click">
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 13l6 6 6-6"/></svg>
               Download for macOS
             </a>
-            <a href="https://github.com/moollaza/nazar" class="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary" target="_blank" rel="noopener noreferrer" data-fathom-event="cta.github.click">
+            <a href="https://github.com/moollaza/nazar" class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-6 py-3 text-sm font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary sm:w-auto" target="_blank" rel="noopener noreferrer" data-fathom-event="cta.github.click">
               View on GitHub
             </a>
           </div>
@@ -625,7 +861,7 @@
 
     <script>
       (function () {
-        const DESKTOP_PAGE_SIZE = 60;
+        const DESKTOP_PAGE_SIZE = 30;
         const MOBILE_PAGE_SIZE = 12;
         const mobileQuery = window.matchMedia('(max-width: 639px)');
         const els = {
@@ -635,7 +871,11 @@
           list: document.getElementById('catalog-list'),
           empty: document.getElementById('catalog-empty'),
           showing: document.getElementById('catalog-showing'),
-          more: document.getElementById('catalog-more'),
+          results: document.getElementById('catalog-results'),
+          pager: document.getElementById('catalog-pager'),
+          prev: document.getElementById('catalog-prev'),
+          next: document.getElementById('catalog-next'),
+          pageLabel: document.getElementById('catalog-page-label'),
           total: document.getElementById('catalog-total'),
           catCount: document.getElementById('catalog-cat-count'),
         };
@@ -643,7 +883,7 @@
         let catalog = [];
         let activeCategory = 'all';
         let query = '';
-        let limit = pageSize();
+        let page = 1;
         let hasTrackedSearch = false;
 
         const CHIP_CLASS = 'category-chip rounded-full border border-border-subtle bg-surface-raised px-3.5 py-1.5 text-xs font-medium text-text-secondary transition hover:border-text-tertiary hover:text-text-primary aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent';
@@ -653,8 +893,8 @@
           return mobileQuery.matches ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE;
         }
 
-        function resetLimit() {
-          limit = pageSize();
+        function resetPage() {
+          page = 1;
         }
 
         function filter() {
@@ -703,7 +943,11 @@
 
         function render() {
           const results = filter();
-          const shown = results.slice(0, limit);
+          const perPage = pageSize();
+          const pageCount = Math.max(1, Math.ceil(results.length / perPage));
+          page = Math.min(page, pageCount);
+          const start = (page - 1) * perPage;
+          const shown = results.slice(start, start + perPage);
 
           els.list.replaceChildren();
 
@@ -711,7 +955,8 @@
             els.list.classList.add('hidden');
             els.list.classList.remove('grid');
             els.empty.classList.remove('hidden');
-            els.more.classList.add('hidden');
+            els.pager.classList.add('hidden');
+            els.pager.classList.remove('flex');
             els.showing.textContent = '0 services';
             return;
           }
@@ -724,10 +969,30 @@
           for (const s of shown) frag.append(buildCard(s));
           els.list.append(frag);
 
-          const countLabel = results.length === catalog.length ? `all ${results.length.toLocaleString()} services` : `${results.length.toLocaleString()} of ${catalog.length.toLocaleString()} services`;
-          els.showing.textContent = `Showing ${Math.min(limit, results.length).toLocaleString()} of ${countLabel}`;
+          const total = results.length === catalog.length ? roundedTotal() : results.length.toLocaleString();
+          const noun = results.length === 1 ? 'service' : 'services';
+          els.showing.textContent =
+            results.length > shown.length
+              ? `Showing ${shown.length.toLocaleString()} of ${total} ${noun}`
+              : `Showing ${total} ${noun}`;
 
-          els.more.classList.toggle('hidden', results.length <= limit);
+          const multi = pageCount > 1;
+          els.pager.classList.toggle('hidden', !multi);
+          els.pager.classList.toggle('flex', multi);
+          els.pageLabel.textContent = `Page ${page.toLocaleString()} of ${pageCount.toLocaleString()}`;
+          els.prev.disabled = page === 1;
+          els.next.disabled = page === pageCount;
+        }
+
+        function goToPage(n) {
+          page = n;
+          render();
+          els.results.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        }
+
+        // Rounded down to the nearest 100 so copy and diffs don't churn on every catalog addition.
+        function roundedTotal() {
+          return `${(Math.floor(catalog.length / 100) * 100).toLocaleString()}+`;
         }
 
         function buildCategoryChips() {
@@ -735,9 +1000,8 @@
           for (const s of catalog) counts[s.category] = (counts[s.category] || 0) + 1;
           const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
-          els.total.textContent = catalog.length.toLocaleString();
+          els.total.textContent = roundedTotal();
           els.catCount.textContent = sorted.length;
-          els.search.placeholder = `Search ${catalog.length.toLocaleString()} services…`;
 
           for (const [cat, count] of sorted) {
             const btn = document.createElement('button');
@@ -758,7 +1022,7 @@
 
         function setCategory(cat) {
           activeCategory = cat;
-          resetLimit();
+          resetPage();
           els.categories.querySelectorAll('.category-chip').forEach((b) => {
             b.setAttribute('aria-pressed', b.dataset.category === cat ? 'true' : 'false');
           });
@@ -778,7 +1042,7 @@
           clearTimeout(searchTimer);
           searchTimer = setTimeout(() => {
             query = e.target.value;
-            resetLimit();
+            resetPage();
             render();
             if (!hasTrackedSearch && query.trim()) {
               hasTrackedSearch = true;
@@ -787,28 +1051,140 @@
           }, 100);
         });
 
-        els.more.addEventListener('click', () => {
-          limit += pageSize();
-          render();
-          window.trackNazarEvent('services.show_more.click');
+        els.prev.addEventListener('click', () => {
+          goToPage(page - 1);
+          window.trackNazarEvent('services.page.prev');
+        });
+
+        els.next.addEventListener('click', () => {
+          goToPage(page + 1);
+          window.trackNazarEvent('services.page.next');
         });
 
         mobileQuery.addEventListener('change', () => {
-          resetLimit();
+          resetPage();
           render();
         });
 
-        fetch('catalog.json')
-          .then((r) => r.json())
-          .then((data) => {
-            catalog = data.slice().sort((a, b) => a.name.localeCompare(b.name));
-            els.loading.classList.add('hidden');
-            buildCategoryChips();
-            render();
-          })
-          .catch(() => {
-            els.loading.textContent = 'Failed to load catalog. Please refresh.';
+        // Hero demo: three states, auto-advance once, then the dots take over.
+        (function () {
+          const scene = document.querySelector('.nazar-scene');
+          const dots = Array.from(document.querySelectorAll('[data-hero-dot]'));
+          if (!scene || !dots.length) return;
+          const el = (sel) => scene.querySelector(sel);
+          const ok = el('.nazar-mb-ok'), alert = el('.nazar-mb-alert');
+          const notif = el('.nazar-notif'), detail = el('.nazar-detail'), list = el('.nazar-list');
+          // [menubar-ok, menubar-alert, notification, detail, list]
+          const STATES = [
+            [1, 0, 0, 0, 1],
+            [0, 1, 1, 0, 1],
+            [0, 1, 0, 1, 0],
+          ];
+          let timer;
+          // The list itself changes: in state 0 everything is healthy, so GitHub
+          // and the footer must flip when the outage lands (states 1 and 2).
+          const ghDot = el('[data-demo="gh-dot"]'), ghStatus = el('[data-demo="gh-status"]');
+          const footDot = el('[data-demo="foot-dot"]'), footLabel = el('[data-demo="foot-label"]');
+          const BADGE = 'ml-auto rounded-full bg-[#ffedd5] px-2 py-0.5 text-[10px] font-semibold text-[#9a3412] dark:bg-[#431407] dark:text-[#fdba74]';
+          const PLAIN = 'ml-auto text-xs text-text-tertiary';
+
+          function show(n) {
+            const [o, a, nf, dt, ls] = STATES[n];
+            ok.style.opacity = o;
+            alert.style.opacity = a;
+            notif.style.opacity = nf;
+            notif.style.transform = nf ? 'none' : 'translateY(-10px) scale(.96)';
+            detail.style.opacity = dt;
+            detail.style.transform = dt ? 'none' : 'translateX(14%)';
+            list.style.opacity = ls;
+            list.style.transform = ls ? 'none' : 'translateX(-14%)';
+
+            const broken = n > 0;
+            ghDot.classList.toggle('bg-orange', broken);
+            ghDot.classList.toggle('bg-green', !broken);
+            ghStatus.className = broken ? BADGE : PLAIN;
+            ghStatus.textContent = broken ? 'Partial Outage' : 'Operational';
+            footDot.classList.toggle('bg-orange', broken);
+            footDot.classList.toggle('bg-green', !broken);
+            footLabel.classList.toggle('text-orange', broken);
+            footLabel.classList.toggle('text-green', !broken);
+            footLabel.textContent = broken ? '1 issue' : 'All operational';
+
+            dots.forEach((d, i) => d.setAttribute('aria-current', i === n ? 'true' : 'false'));
+          }
+
+          // Fill the active dot over its dwell time so the auto-advance is visible.
+          // Manual navigation has nothing to count down, so the fill just snaps full.
+          function paint(active, countdownMs) {
+            dots.forEach((d, i) => {
+              const fill = d.querySelector('.hero-dot-fill');
+              fill.style.transition = 'none';
+              fill.style.width = i === active ? '0%' : '0%';
+              void fill.offsetWidth;
+              if (i !== active) return;
+              if (countdownMs) {
+                fill.style.transition = 'width ' + countdownMs + 'ms linear';
+                fill.style.width = '100%';
+              } else {
+                fill.style.width = '100%';
+              }
+            });
+          }
+          let current = 0;
+          function go(n) { clearTimeout(timer); current = (n + STATES.length) % STATES.length; show(current); paint(current, 0); }
+          dots.forEach((dot, i) => dot.addEventListener('click', () => go(i)));
+          document.querySelectorAll('[data-hero-nav]').forEach((btn) => {
+            btn.addEventListener('click', () => go(current + Number(btn.dataset.heroNav)));
           });
+          show(0);
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            paint(0, 0);
+          } else {
+            paint(0, 1600);
+            timer = setTimeout(() => {
+              current = 1; show(1); paint(1, 2800);
+              timer = setTimeout(() => { current = 2; show(2); paint(2, 0); }, 2800);
+            }, 1600);
+          }
+        })();
+
+        const chrome = [
+          document.getElementById('catalog-toolbar'),
+          document.getElementById('catalog-categories'),
+          document.getElementById('catalog-footer'),
+        ];
+        const errorEl = document.getElementById('catalog-error');
+
+        function setChromeHidden(hidden) {
+          chrome.forEach((el) => el && el.classList.toggle('hidden', hidden));
+        }
+
+        function loadCatalog() {
+          errorEl.classList.add('hidden');
+          els.loading.classList.remove('hidden');
+          setChromeHidden(false);
+          fetch('catalog.json')
+            .then((r) => {
+              if (!r.ok) throw new Error(r.status);
+              return r.json();
+            })
+            .then((data) => {
+              catalog = data.slice().sort((a, b) => a.name.localeCompare(b.name));
+              els.loading.classList.add('hidden');
+              buildCategoryChips();
+              render();
+            })
+            .catch(() => {
+              els.loading.classList.add('hidden');
+              els.list.classList.add('hidden');
+              els.empty.classList.add('hidden');
+              setChromeHidden(true);
+              errorEl.classList.remove('hidden');
+            });
+        }
+
+        document.getElementById('catalog-retry').addEventListener('click', loadCatalog);
+        loadCatalog();
       })();
     </script>
 

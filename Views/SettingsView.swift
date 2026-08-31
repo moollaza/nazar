@@ -354,6 +354,7 @@ struct AddCustomServiceView: View {
     @State private var name = ""
     @State private var url = ""
     @State private var type: ProviderType = .statuspage
+    @State private var suggestForCatalog = true
 
     private var trimmedName: String { name.trimmingCharacters(in: .whitespacesAndNewlines) }
     private var trimmedURL: String { url.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -395,9 +396,13 @@ struct AddCustomServiceView: View {
             }
             .pickerStyle(.segmented)
 
-            Text("Supports Atlassian Statuspage, incident.io, and RSS/Atom feeds. For Statuspage/incident.io, use the base URL (e.g. https://status.example.com). For RSS, provide the full feed URL.")
+            Text("Supports Atlassian Statuspage, incident.io, Better Stack status pages, and RSS/Atom feeds. For Statuspage/incident.io, use the base URL (e.g. https://status.example.com). For Better Stack, use the status page base URL. For RSS, provide the full feed URL.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
+            Toggle("Suggest this service for the built-in catalog", isOn: $suggestForCatalog)
+                .font(.caption)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if let message = validationMessage {
                 HStack(spacing: 4) {
@@ -415,6 +420,9 @@ struct AddCustomServiceView: View {
                 Button("Add") {
                     manager.addProvider(candidate)
                     logger.info("Added custom provider: \(trimmedName)")
+                    if suggestForCatalog, let url = catalogRequestURL() {
+                        NSWorkspace.shared.open(url)
+                    }
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
@@ -423,6 +431,18 @@ struct AddCustomServiceView: View {
         }
         .padding(20)
         .frame(width: 400)
+    }
+
+    /// Opens the catalog request issue form with the name and URL already filled in.
+    private func catalogRequestURL() -> URL? {
+        var components = URLComponents(string: "https://github.com/moollaza/nazar/issues/new")
+        components?.queryItems = [
+            URLQueryItem(name: "template", value: "service_request.yml"),
+            URLQueryItem(name: "title", value: "[Service]: \(trimmedName)"),
+            URLQueryItem(name: "service-name", value: trimmedName),
+            URLQueryItem(name: "status-url", value: trimmedURL),
+        ]
+        return components?.url
     }
 }
 

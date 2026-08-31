@@ -68,6 +68,16 @@ final class ProviderTests: XCTestCase {
         XCTAssertEqual(p.type, .rss)
     }
 
+    func testInitFromCatalogEntryBetterStackType() {
+        let entry = CatalogEntry(id: "betterstack", name: "BetterStack",
+                                  baseURL: "https://status.betterstack.com",
+                                  type: .betterstack, category: "Monitoring",
+                                  platform: "betterstack")
+        let p = Provider(from: entry)
+        XCTAssertEqual(p.type, .betterstack)
+        XCTAssertEqual(p.catalogEntryId, "betterstack")
+    }
+
     // MARK: - hasValidURL
 
     func testHasValidURLAcceptsHTTPS() {
@@ -120,6 +130,11 @@ final class ProviderTests: XCTestCase {
     func testAPIURLRSS() {
         let p = Provider(name: "X", baseURL: "https://example.com/rss", type: .rss)
         XCTAssertEqual(p.apiURL?.absoluteString, "https://example.com/rss")
+    }
+
+    func testAPIURLBetterStack() {
+        let p = Provider(name: "X", baseURL: "https://status.betterstack.com", type: .betterstack)
+        XCTAssertEqual(p.apiURL?.absoluteString, "https://status.betterstack.com/index.json")
     }
 
     func testAPIURLReturnsNilForUnparseableBase() {

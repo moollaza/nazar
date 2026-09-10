@@ -41,6 +41,10 @@ releases/
 
 # Agent working docs (audits, scratch, etc.)
 agent-docs/
+/.context/
+
+# Generated output of scripts/merge-and-verify.py
+scripts/new-verified.json
 
 # Local Claude Code instructions — personal/machine-specific augments to
 # the committed CLAUDE.md. Never share or commit.

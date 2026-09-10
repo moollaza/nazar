@@ -41,7 +41,7 @@ releases/
 
 # Agent working docs (audits, scratch, etc.)
 agent-docs/
-.context/
+/.context/
 
 # Generated output of scripts/merge-and-verify.py
 scripts/new-verified.json

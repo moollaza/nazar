@@ -57,3 +57,6 @@ CLAUDE.local.md
 !.env.example
 
 # Website catalog is tracked so every static host can serve the same asset.
+
+# PostHog wizard scratch docs (not project source)
+website/.claude/

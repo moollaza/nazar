@@ -501,18 +501,21 @@ class StatusManager {
 
         let pageStatus = ComponentStatus(fromInstatus: summary.page.status)
 
-        let incidents = (summary.activeIncidents ?? []).prefix(5).map { incident -> IncidentSnapshot in
+        let incidents = (summary.activeIncidents ?? []).map { incident -> IncidentSnapshot in
             IncidentSnapshot(
                 id: incident.id,
                 name: incident.name,
-                impact: ComponentStatus(fromInstatus: incident.impact ?? ""),
+                // An incident without an impact field says nothing about
+                // severity, so it inherits the page status rather than
+                // falling through to `.unknown` and outranking a healthy page.
+                impact: incident.impact.map(ComponentStatus.init(fromInstatus:)) ?? pageStatus,
                 status: (incident.status ?? "").capitalized,
                 latestUpdate: nil,
                 updatedAt: incident.updatedAt.flatMap(Self.parseDate)
             )
         }
 
-        let maintenances = (summary.activeMaintenances ?? []).prefix(5).map { maint -> IncidentSnapshot in
+        let maintenances = (summary.activeMaintenances ?? []).map { maint -> IncidentSnapshot in
             IncidentSnapshot(
                 id: maint.id,
                 name: maint.name,
@@ -527,7 +530,8 @@ class StatusManager {
         // report UP while carrying an open DEGRADEDPERFORMANCE incident — so
         // the worst signal wins, matching how the Statuspage parser treats
         // indicators that lag their components.
-        let combined = incidents + maintenances
+        // Capped after combining, matching the other parsers' limit of five.
+        let combined = Array((incidents + maintenances).prefix(5))
         let incidentMax = combined.map(\.impact).max() ?? .operational
         let overall = max(pageStatus, incidentMax)
 
@@ -536,7 +540,7 @@ class StatusManager {
             name: provider.name,
             overallStatus: overall,
             components: [],
-            activeIncidents: Array(combined),
+            activeIncidents: combined,
             lastUpdated: Date(),
             error: nil
         )

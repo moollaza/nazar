@@ -486,22 +486,23 @@ enum ComponentStatus: String, Codable, Comparable {
         }
     }
 
-    /// Maps Better Stack status vocabulary (aggregate_state and resource status)
-    /// to Nazar's component model. Unrecognised values surface as `.unknown`
-    /// rather than masquerading as healthy.
-    /// Instatus uses SCREAMINGCASE for both page status and component/incident
-    /// impact, sharing most values between the two.
+    /// Maps Instatus vocabulary to Nazar's component model. Instatus uses
+    /// SCREAMINGCASE for both page status and incident impact, sharing most
+    /// values between the two.
     init(fromInstatus raw: String) {
         switch raw.uppercased() {
         case "UP", "OPERATIONAL": self = .operational
         case "DEGRADEDPERFORMANCE": self = .degradedPerformance
-        case "PARTIALOUTAGE", "HASISSUES": self = .partialOutage
-        case "MAJOROUTAGE", "MINOROUTAGE": self = .majorOutage
+        case "PARTIALOUTAGE", "MINOROUTAGE", "HASISSUES": self = .partialOutage
+        case "MAJOROUTAGE": self = .majorOutage
         case "UNDERMAINTENANCE", "MAINTENANCE": self = .underMaintenance
         default: self = .unknown
         }
     }
 
+    /// Maps Better Stack status vocabulary (aggregate_state and resource status)
+    /// to Nazar's component model. Unrecognised values surface as `.unknown`
+    /// rather than masquerading as healthy.
     init(fromBetterStack raw: String) {
         switch raw {
         case "operational": self = .operational

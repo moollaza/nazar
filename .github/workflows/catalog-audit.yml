@@ -41,8 +41,14 @@ jobs:
 
       - name: Summarize
         if: always()
+        env:
+          EXIT_CODE: ${{ steps.audit.outputs.exit_code }}
         run: |
-          if [ -s failures.json ]; then
+          # Decide from the audit's exit code, not the file: the script always
+          # writes failures.json (as `[]` on success), and a crash writes none.
+          if [ "$EXIT_CODE" = "0" ]; then
+            echo "### All catalog entries verified" >> "$GITHUB_STEP_SUMMARY"
+          elif python3 -c "import json,sys; sys.exit(0 if json.load(open('failures.json')) else 1)" 2>/dev/null; then
             {
               echo "### Catalog audit found broken entries"
               echo ""
@@ -55,7 +61,8 @@ jobs:
           "
             } >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "### All catalog entries verified" >> "$GITHUB_STEP_SUMMARY"
+            echo "### Catalog audit did not complete (exit code: ${EXIT_CODE:-none})" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
           fi
 
       - name: Open or update issue
@@ -63,6 +70,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # A crash also exits non-zero; only file an issue for real failures.
+          if ! python3 -c "import json,sys; sys.exit(0 if json.load(open('failures.json')) else 1)" 2>/dev/null; then
+            echo "No failure list to report; see the Summarize step."
+            exit 0
+          fi
           BODY=$(mktemp)
           {
             echo "The weekly catalog audit found entries that no longer return a usable status."

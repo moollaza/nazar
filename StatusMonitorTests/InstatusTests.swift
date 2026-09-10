@@ -29,6 +29,11 @@ final class InstatusTests: XCTestCase {
         XCTAssertEqual(ComponentStatus(fromInstatus: "MAJOROUTAGE"), .majorOutage)
     }
 
+    /// A minor outage must not be reported as a major one.
+    func testFromInstatusMinorOutageIsPartial() {
+        XCTAssertEqual(ComponentStatus(fromInstatus: "MINOROUTAGE"), .partialOutage)
+    }
+
     func testFromInstatusUnderMaintenance() {
         XCTAssertEqual(ComponentStatus(fromInstatus: "UNDERMAINTENANCE"), .underMaintenance)
     }
@@ -102,6 +107,19 @@ final class InstatusTests: XCTestCase {
         XCTAssertThrowsError(
             try JSONDecoder().decode(InstatusSummary.self, from: Data(atlassian.utf8))
         )
+    }
+
+    /// An incident with no impact field must not turn a healthy page Unknown.
+    func testIncidentWithoutImpactDoesNotElevateHealthyPage() throws {
+        let json = """
+        {"page":{"name":"X","status":"UP"},
+         "activeIncidents":[{"id":"i1","name":"Something","status":"INVESTIGATING"}]}
+        """
+        let summary = try JSONDecoder().decode(InstatusSummary.self, from: Data(json.utf8))
+        let pageStatus = ComponentStatus(fromInstatus: summary.page.status)
+        let impact = summary.activeIncidents?.first?.impact
+            .map(ComponentStatus.init(fromInstatus:)) ?? pageStatus
+        XCTAssertEqual(max(pageStatus, impact), .operational)
     }
 
     // MARK: - Provider wiring

@@ -13,6 +13,7 @@
     <link rel="canonical" href="https://usenazar.com/" />
 
     <link rel="preload" href="catalog.json" as="fetch" type="application/json" crossorigin="anonymous" />
+    <script src="metrics.js"></script>
 
     <script>
       (function () {
@@ -805,7 +806,27 @@
 
     <script>
       (function () {
-        window.trackNazarEvent = function (name) {
+        // Fathom has no event properties, so placements must be distinct event
+        // names there. PostHog does have properties, so the placements collapse
+        // into one event with a `placement` breakdown — otherwise every funnel
+        // would have to enumerate all four download events forever.
+        const posthogEventByFathomEvent = {
+          'nav.download.click': 'download_clicked',
+          'hero.download.click': 'download_clicked',
+          'steps.download.click': 'download_clicked',
+          'cta.download.click': 'download_clicked',
+          'nav.github.click': 'github_repository_opened',
+          'hero.github.click': 'github_repository_opened',
+          'cta.github.click': 'github_repository_opened',
+          'services.request.click': 'service_request_opened',
+          'services.status_page.click': 'service_status_page_opened',
+          'faq.item.open': 'faq_answer_opened',
+          'theme.toggle.click': 'theme_changed',
+          'services.category.select': 'catalog_category_selected',
+          'services.search.start': 'catalog_search_started',
+        };
+
+        window.trackNazarEvent = function (name, properties) {
           if (!name) return;
           try {
             const tracker = window.fathom;
@@ -813,6 +834,12 @@
               tracker.trackEvent(name);
             }
           } catch {}
+
+          // Fathom names are `<placement>.<object>.<action>`. Anything not in the
+          // table above still gets through under a derived name; dropping it here
+          // would mean a newly tagged element silently reports to Fathom only.
+          const posthogEvent = posthogEventByFathomEvent[name] ?? name.replace(/\./g, '_');
+          window.posthog?.capture(posthogEvent, { placement: name.split('.')[0], ...properties });
         };
 
         document.addEventListener('click', (event) => {
@@ -821,9 +848,16 @@
           window.trackNazarEvent(target.dataset.fathomEvent);
         });
 
+        // One FAQ item renders expanded, and its `toggle` fires during page
+        // load. Without this guard every visit reports a phantom FAQ open.
+        let userHasInteracted = false;
+        const markInteracted = () => { userHasInteracted = true; };
+        document.addEventListener('pointerdown', markInteracted, { once: true, capture: true });
+        document.addEventListener('keydown', markInteracted, { once: true, capture: true });
+
         document.querySelectorAll('#faq details').forEach((details) => {
           details.addEventListener('toggle', () => {
-            if (details.open) window.trackNazarEvent('faq.item.open');
+            if (details.open && userHasInteracted) window.trackNazarEvent('faq.item.open');
           });
         });
       })();
@@ -854,7 +888,7 @@
           current = order[(order.indexOf(current) + 1) % order.length];
           try { localStorage.setItem('theme', current); } catch {}
           apply(current);
-          window.trackNazarEvent('theme.toggle.click');
+          window.trackNazarEvent('theme.toggle.click', { theme: current });
         });
       })();
     </script>
@@ -1033,7 +1067,7 @@
           const btn = e.target.closest('.category-chip');
           if (btn) {
             setCategory(btn.dataset.category);
-            window.trackNazarEvent('services.category.select');
+            window.trackNazarEvent('services.category.select', { category: btn.dataset.category });
           }
         });
 

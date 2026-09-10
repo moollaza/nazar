@@ -23,6 +23,7 @@
 		BB00000100000001000CATTF /* CatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000002000CATTF /* CatalogTests.swift */; };
 		BB00000100000003000CODTF /* CodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000004000CODTF /* CodableTests.swift */; };
 		BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000CMPTF /* ComponentStatusTests.swift */; };
+		BB00000100000005000INSTA /* InstatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000INSTA /* InstatusTests.swift */; };
 		BB00000100000007000PRVTF /* ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000008000PRVTF /* ProviderTests.swift */; };
 		BB00000100000009000RSSTF /* RSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000A000RSSTF /* RSSParserTests.swift */; };
 		BB0000010000000B000SMGTF /* StatusManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000C000SMGTF /* StatusManagerTests.swift */; };
@@ -70,6 +71,7 @@
 		BB00000100000002000CATTF /* CatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTests.swift; sourceTree = "<group>"; };
 		BB00000100000004000CODTF /* CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableTests.swift; sourceTree = "<group>"; };
 		BB00000100000006000CMPTF /* ComponentStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentStatusTests.swift; sourceTree = "<group>"; };
+		BB00000100000006000INSTA /* InstatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstatusTests.swift; sourceTree = "<group>"; };
 		BB00000100000008000PRVTF /* ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderTests.swift; sourceTree = "<group>"; };
 		BB0000010000000A000RSSTF /* RSSParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParserTests.swift; sourceTree = "<group>"; };
 		BB0000010000000C000SMGTF /* StatusManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusManagerTests.swift; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 				BB00000100000002000CATTF /* CatalogTests.swift */,
 				BB00000100000004000CODTF /* CodableTests.swift */,
 				BB00000100000006000CMPTF /* ComponentStatusTests.swift */,
+				BB00000100000006000INSTA /* InstatusTests.swift */,
 				BB00000100000008000PRVTF /* ProviderTests.swift */,
 				BB0000010000000A000RSSTF /* RSSParserTests.swift */,
 				BB0000010000000C000SMGTF /* StatusManagerTests.swift */,
@@ -357,6 +360,7 @@
 				BB00000100000001000CATTF /* CatalogTests.swift in Sources */,
 				BB00000100000003000CODTF /* CodableTests.swift in Sources */,
 				BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */,
+				BB00000100000005000INSTA /* InstatusTests.swift in Sources */,
 				BB00000100000007000PRVTF /* ProviderTests.swift in Sources */,
 				BB00000100000009000RSSTF /* RSSParserTests.swift in Sources */,
 				BB0000010000000B000SMGTF /* StatusManagerTests.swift in Sources */,

@@ -42,7 +42,7 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 - Dashboard uses a floating `NSPanel` (FloatingPanel class), NOT NSPopover (NSPopover has an arrow that can't be removed)
 - Settings is a standalone `NSWindow` with `NSHostingController` — NOT the SwiftUI `Settings` scene (broken with `.accessory` policy)
 - `@AppStorage` only in Views, never in `@Observable` classes (Apple bug causes infinite loops)
-- Parser types: `statuspage` (Atlassian JSON API at `/api/v2/summary.json`), `rss` (generic RSS/Atom), and `betterstack` (Better Stack JSON:API at `/index.json`)
+- Parser types: `statuspage` (Atlassian JSON API at `/api/v2/summary.json`), `rss` (generic RSS/Atom), `betterstack` (Better Stack JSON:API at `/index.json`), and `instatus` (Instatus JSON at `/summary.json`)
 - Bundle ID: `com.moollapps.StatusMonitor`
 - Catalog entries need `platform` field: `"atlassian"` or `"incident.io"`
 
@@ -80,4 +80,4 @@ All work is tracked in Linear. **The Linear MCP must be connected before plannin
 
 ## Status Page Support
 
-Most catalog services use Atlassian Statuspage or incident.io (compatible JSON schema). RSS/Atom feeds supported for non-Statuspage services. Better Stack status pages are supported via their public JSON:API at `{base_url}/index.json`. Custom proprietary status pages are out of scope.
+Most catalog services use Atlassian Statuspage or incident.io (compatible JSON schema). RSS/Atom feeds supported for non-Statuspage services. Better Stack status pages are supported via their public JSON:API at `{base_url}/index.json`. Instatus pages are supported via `{base_url}/summary.json` — note Instatus nests `status` inside `page`, so an Instatus payload looks like a malformed Statuspage one if you only check for top-level keys. Custom proprietary status pages are out of scope.

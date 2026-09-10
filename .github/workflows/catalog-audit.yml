@@ -1,0 +1,96 @@
+name: Catalog Audit
+
+# Catalog entries rot: services migrate platforms, make their status page
+# private, or shut down. Nothing in PR CI can catch that, because nothing in
+# the repo changed. This sweeps every entry weekly and files an issue when
+# entries stop working.
+#
+# Deliberately NOT part of PR CI: these are third-party endpoints, and a red
+# build caused by someone else's status page having a bad morning is noise.
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # Mondays 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: catalog-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Audit catalog
+        id: audit
+        run: |
+          set +e
+          python3 scripts/audit-catalog.py --quiet --json failures.json
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Summarize
+        if: always()
+        run: |
+          if [ -s failures.json ]; then
+            {
+              echo "### Catalog audit found broken entries"
+              echo ""
+              echo "| Service | Type | Reason | URL |"
+              echo "|---|---|---|---|"
+              python3 -c "
+          import json
+          for e in json.load(open('failures.json')):
+              print(f\"| {e['name']} | {e['type']} | {e['reason']} | {e['base_url']} |\")
+          "
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### All catalog entries verified" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Open or update issue
+        if: steps.audit.outputs.exit_code != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BODY=$(mktemp)
+          {
+            echo "The weekly catalog audit found entries that no longer return a usable status."
+            echo ""
+            echo "These ship in the app and appear in the website catalog browser, so a user can"
+            echo "add one and it will never report a status."
+            echo ""
+            echo "| Service | Type | Reason | URL |"
+            echo "|---|---|---|---|"
+            python3 -c "
+          import json
+          for e in json.load(open('failures.json')):
+              print(f\"| \`{e['id']}\` {e['name']} | {e['type']} | {e['reason']} | {e['base_url']} |\")
+          "
+            echo ""
+            echo "Before removing an entry, check whether the service moved: a different domain,"
+            echo "or a different platform (Instatus, Better Stack, incident.io). Most \"broken\""
+            echo "entries have simply migrated."
+            echo ""
+            echo "_Run: [\`${GITHUB_RUN_ID}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})_"
+          } > "$BODY"
+
+          EXISTING=$(gh issue list --label catalog-audit --state open --limit 1 --json number --jq '.[0].number')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body-file "$BODY"
+          else
+            gh issue create \
+              --title "Catalog audit: broken entries" \
+              --label catalog-audit \
+              --body-file "$BODY"
+          fi

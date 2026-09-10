@@ -188,6 +188,5 @@ The UX polish requirements call for Fathom Analytics on the marketing website as
 - Superseded website v1 context: [docs/brainstorms/2026-04-09-statusmonitor-website-requirements.md](../brainstorms/2026-04-09-statusmonitor-website-requirements.md)
 - Related code: `website/index.html`
 - Related tests: `website/tests/website.visual.spec.js`
-- Local standard: `/Users/zaahirmoolla/projects/project-hub/standards/fathom-analytics.md`
 - External docs: `https://fathomanalytics.mintlify.dev/docs/events/overview`
 - External docs: `https://usefathom.com/docs/integrations/react`

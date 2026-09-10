@@ -51,8 +51,10 @@ def main():
 
             # Must have expected top-level keys
             if entry["type"] == "statuspage":
-                if "page" not in j or "status" not in j:
-                    failed.append((name, "Missing page/status keys in JSON"))
+                # Reject two lookalikes: pages that nest `status` inside `page`
+                # (Instatus and similar), and unclaimed pages that return nulls.
+                if not isinstance(j.get("page"), dict) or not isinstance(j.get("status"), dict):
+                    failed.append((name, "Missing or null page/status in JSON"))
                     print(f"FAIL  {name:30s}  Missing expected JSON structure")
                     continue
             elif entry["type"] == "betterstack":

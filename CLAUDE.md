@@ -18,7 +18,7 @@ StatusMonitor.xcodeproj   Xcode project
 Models/                   Data models (Provider, CatalogEntry, Statuspage API types)
 Views/                    SwiftUI views (Dashboard, Settings, Detail, Feedback, Icons)
 Services/                 StatusManager, NotificationService, RSSParser
-Resources/                catalog.json (1,727 verified services)
+Resources/                catalog.json (verified service catalog)
 scripts/                  Discovery, verification, and categorization tooling
 website/                  Marketing site (deployed to Cloudflare Pages)
 docs/
@@ -48,7 +48,7 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 
 ## Catalog
 
-1,727 verified services across 22 categories. Entries have working endpoints: `/api/v2/summary.json` for `statuspage`, the feed URL for `rss`, `/index.json` for `betterstack`.
+1,912 verified services across 23 categories. Entries have working endpoints: `/api/v2/summary.json` for `statuspage`, the feed URL for `rss`, `/index.json` for `betterstack`.
 
 To add services: use the `statuspage-discovery` skill or `scripts/discover-services.py`.
 To verify catalog: `python3 scripts/audit-catalog.py`
@@ -65,18 +65,18 @@ This project uses the compound engineering skill suite:
 - Plans live in `docs/plans/`
 - Keep commits short and factual
 
-## Issue Tracking (Linear — required)
+## Issue Tracking
 
-All work is tracked in Linear. **The Linear MCP must be connected before planning or implementation work begins.**
+All work is tracked in GitHub Issues: https://github.com/moollaza/nazar/issues
 
-- **Project**: Nazar — https://linear.app/moollaza/project/statusmonitor-ac69e82c3ceb
-- **Team**: Side Projects (`ZPR` prefix)
-- **MCP**: `plugin:linear:linear` — connect via OAuth when starting a session
+- Search open and closed issues before filing — avoid duplicates; comment on the existing issue instead
+- Use the templates in `.github/ISSUE_TEMPLATE/` (bug, feature, service request)
+- Reference issues in PRs (`Closes #N`)
 
 ## Deployment
 
-- **Website**: Deploys automatically to Cloudflare Pages on push to `main` via `.github/workflows/deploy-website.yml` -> https://usenazar.com/
-- **App**: Distribution via signed DMG (not yet set up)
+- **Website**: Cloudflare Pages Git integration deploys on push to `main` (no in-repo deploy workflow; see the `Cloudflare Pages` PR check) -> https://usenazar.com/
+- **App**: release-please opens a Release PR; merging it creates the tag + GitHub release. The maintainer then runs `scripts/release.sh` locally (build, sign, notarize, staple, DMG) and uploads with `gh release upload`. Signing credentials stay in the local Keychain, never CI. Details: README "Releasing".
 
 ## Status Page Support
 

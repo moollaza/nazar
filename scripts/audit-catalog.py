@@ -35,13 +35,26 @@ def main():
             resp = urllib.request.urlopen(req, timeout=15, context=ctx)
             data = resp.read()
 
+            # RSS/Atom entries serve a feed, not JSON.
+            if entry["type"] == "rss":
+                head = data[:400].lstrip()
+                if head.startswith(b"<?xml") or b"<rss" in head or b"<feed" in head:
+                    passed += 1
+                    print(f"OK    {name:30s}  feed")
+                else:
+                    failed.append((name, "Response is not an RSS/Atom feed"))
+                    print(f"FAIL  {name:30s}  NOT A FEED")
+                continue
+
             # Must be valid JSON
             j = json.loads(data)
 
             # Must have expected top-level keys
             if entry["type"] == "statuspage":
-                if "page" not in j or "status" not in j:
-                    failed.append((name, "Missing page/status keys in JSON"))
+                # Reject two lookalikes: pages that nest `status` inside `page`
+                # (Instatus and similar), and unclaimed pages that return nulls.
+                if not isinstance(j.get("page"), dict) or not isinstance(j.get("status"), dict):
+                    failed.append((name, "Missing or null page/status in JSON"))
                     print(f"FAIL  {name:30s}  Missing expected JSON structure")
                     continue
             elif entry["type"] == "betterstack":

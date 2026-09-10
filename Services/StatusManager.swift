@@ -352,6 +352,16 @@ class StatusManager {
                     logger.error("Better Stack parse failed for \(provider.name): \(error.localizedDescription)")
                     updateSnapshot(for: provider, error: "Status format not recognized")
                 }
+            case .instatus:
+                do {
+                    try parseInstatus(data: data, provider: provider)
+                } catch let error as DecodingError {
+                    logger.error("Instatus schema mismatch for \(provider.name): \(String(describing: error))")
+                    updateSnapshot(for: provider, error: "Status format not recognized")
+                } catch {
+                    logger.error("Instatus parse failed for \(provider.name): \(error.localizedDescription)")
+                    updateSnapshot(for: provider, error: "Status format not recognized")
+                }
             case .rss:
                 do {
                     try parseRSS(data: data, provider: provider)
@@ -484,6 +494,54 @@ class StatusManager {
     }
 
     // MARK: - Better Stack JSON:API Parsing
+
+    private func parseInstatus(data: Data, provider: Provider) throws {
+        let decoder = JSONDecoder()
+        let summary = try decoder.decode(InstatusSummary.self, from: data)
+
+        let pageStatus = ComponentStatus(fromInstatus: summary.page.status)
+
+        let incidents = (summary.activeIncidents ?? []).prefix(5).map { incident -> IncidentSnapshot in
+            IncidentSnapshot(
+                id: incident.id,
+                name: incident.name,
+                impact: ComponentStatus(fromInstatus: incident.impact ?? ""),
+                status: (incident.status ?? "").capitalized,
+                latestUpdate: nil,
+                updatedAt: incident.updatedAt.flatMap(Self.parseDate)
+            )
+        }
+
+        let maintenances = (summary.activeMaintenances ?? []).prefix(5).map { maint -> IncidentSnapshot in
+            IncidentSnapshot(
+                id: maint.id,
+                name: maint.name,
+                impact: .underMaintenance,
+                status: (maint.status ?? "").capitalized,
+                latestUpdate: nil,
+                updatedAt: maint.start.flatMap(Self.parseDate)
+            )
+        }
+
+        // `page.status` trails its own incidents on some pages — a page can
+        // report UP while carrying an open DEGRADEDPERFORMANCE incident — so
+        // the worst signal wins, matching how the Statuspage parser treats
+        // indicators that lag their components.
+        let combined = incidents + maintenances
+        let incidentMax = combined.map(\.impact).max() ?? .operational
+        let overall = max(pageStatus, incidentMax)
+
+        let snapshot = ProviderSnapshot(
+            id: provider.id,
+            name: provider.name,
+            overallStatus: overall,
+            components: [],
+            activeIncidents: Array(combined),
+            lastUpdated: Date(),
+            error: nil
+        )
+        applySnapshot(snapshot, for: provider)
+    }
 
     private func parseBetterStack(data: Data, provider: Provider) throws {
         let decoder = JSONDecoder()

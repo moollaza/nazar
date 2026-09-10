@@ -27,6 +27,8 @@ def main():
             url = f"{base_url}/api/v2/summary.json"
         elif entry["type"] == "betterstack":
             url = f"{base_url}/index.json"
+        elif entry["type"] == "instatus":
+            url = f"{base_url}/summary.json"
         else:
             url = base_url
 
@@ -57,6 +59,13 @@ def main():
                     failed.append((name, "Missing or null page/status in JSON"))
                     print(f"FAIL  {name:30s}  Missing expected JSON structure")
                     continue
+            elif entry["type"] == "instatus":
+                # Instatus nests `status` inside `page`, unlike Atlassian.
+                page = j.get("page")
+                if not isinstance(page, dict) or not isinstance(page.get("status"), str):
+                    failed.append((name, "Missing page.status in Instatus JSON"))
+                    print(f"FAIL  {name:30s}  Missing expected JSON structure")
+                    continue
             elif entry["type"] == "betterstack":
                 if "data" not in j or "attributes" not in j.get("data", {}):
                     failed.append((name, "Missing data.attributes in JSON:API document"))
@@ -64,7 +73,9 @@ def main():
                     continue
 
             passed += 1
-            if entry["type"] == "betterstack":
+            if entry["type"] == "instatus":
+                print(f"OK    {name:30s}  status={j['page']['status']}")
+            elif entry["type"] == "betterstack":
                 state = j.get("data", {}).get("attributes", {}).get("aggregate_state", "?")
                 print(f"OK    {name:30s}  aggregate_state={state}")
             else:

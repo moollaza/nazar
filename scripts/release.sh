@@ -32,6 +32,12 @@ EXPORT_DIR="$OUTPUT_DIR/export"
 EXPORT_OPTIONS="scripts/ExportOptions.plist"
 PUBLIC_APP_NAME="Nazar.app"
 LEGACY_APP_NAME="StatusMonitor.app"
+VERSION_XCCONFIG="Config/Version.xcconfig"
+
+# Print a setting's value from the version xcconfig, minus trailing comments.
+xcconfig_value() {
+    sed -nE "s|^[[:space:]]*$1[[:space:]]*=[[:space:]]*([^/[:space:]]+).*|\1|p" "$VERSION_XCCONFIG" | head -1
+}
 
 SKIP_NOTARIZE=0
 if [[ "${1:-}" == "--skip-notarize" ]]; then
@@ -41,26 +47,39 @@ fi
 # Ensure we're at the repo root.
 cd "$(dirname "$0")/.."
 
-# Prefer the latest git tag (set by release-please when a Release PR merges)
-# as the source of truth for the version — that way the DMG name tracks the
-# published GitHub release automatically. Fall back to pbxproj's
-# MARKETING_VERSION if there are no tags yet (first-ever release).
-TAG_VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
-PBX_VERSION=$(grep 'MARKETING_VERSION' "$PROJECT/project.pbxproj" | head -1 | awk -F'= ' '{print $2}' | tr -d '";')
-VERSION="${TAG_VERSION:-$PBX_VERSION}"
-BUILD=$(grep 'CURRENT_PROJECT_VERSION' "$PROJECT/project.pbxproj" | head -1 | awk -F'= ' '{print $2}' | tr -d '";')
+# Config/Version.xcconfig is the single source for the app version;
+# release-please bumps its MARKETING_VERSION in the same Release PR that
+# produces the tag. The tag and the xcconfig must agree, or the DMG name,
+# GitHub release, and CFBundleShortVersionString would diverge.
+TAG_VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || true)
+XCCONFIG_VERSION=$(xcconfig_value MARKETING_VERSION)
+XCCONFIG_BUILD=$(xcconfig_value CURRENT_PROJECT_VERSION)
+
+if [[ -z "$XCCONFIG_VERSION" || ! "$XCCONFIG_BUILD" =~ ^[0-9]+$ ]]; then
+    echo "✗ Could not read MARKETING_VERSION / CURRENT_PROJECT_VERSION from $VERSION_XCCONFIG"
+    exit 1
+fi
+if [[ -n "$TAG_VERSION" && "$TAG_VERSION" != "$XCCONFIG_VERSION" ]]; then
+    echo "✗ Version drift: git tag=v$TAG_VERSION, $VERSION_XCCONFIG=$XCCONFIG_VERSION"
+    echo "  Run this from the release tag commit (\`git checkout v$TAG_VERSION\`)."
+    exit 1
+fi
+VERSION="$XCCONFIG_VERSION"
+
+# CFBundleVersion must strictly increase across releases (Sparkle compares
+# it; App Store Connect rejects non-increasing uploads). Derive it from the
+# commit count so it can't be forgotten, floored at the xcconfig value.
+if [[ "$(git rev-parse --is-shallow-repository)" == "true" ]]; then
+    echo "✗ Shallow clone: commit count is wrong. Run \`git fetch --unshallow\`."
+    exit 1
+fi
+BUILD=$(git rev-list --count HEAD)
+if (( BUILD < XCCONFIG_BUILD )); then
+    BUILD="$XCCONFIG_BUILD"
+fi
+
 DMG_NAME="Nazar-${VERSION}.dmg"
 DMG_PATH="$OUTPUT_DIR/$DMG_NAME"
-
-# Warn if pbxproj is stale relative to the tag — a common failure mode when
-# running release.sh against a non-release commit. Archive still proceeds so
-# the DMG is named correctly, but the embedded CFBundleShortVersionString
-# comes from pbxproj (fix by bumping locally or re-running on the tag commit).
-if [[ -n "$TAG_VERSION" && "$TAG_VERSION" != "$PBX_VERSION" ]]; then
-    echo "⚠ Version drift: git tag=v$TAG_VERSION, pbxproj=$PBX_VERSION"
-    echo "  Building with DMG name from tag; app bundle version will read $PBX_VERSION."
-    echo "  Run this from a release tag commit (\`git checkout v$TAG_VERSION\`) for a matched build."
-fi
 
 echo "═══════════════════════════════════════════════════════════"
 echo "  Nazar release: v$VERSION (build $BUILD)"
@@ -80,6 +99,7 @@ xcodebuild archive \
     -destination "generic/platform=macOS" \
     CODE_SIGN_IDENTITY="$SIGNING_IDENTITY" \
     CODE_SIGN_STYLE=Manual \
+    CURRENT_PROJECT_VERSION="$BUILD" \
     | xcbeautify --quiet 2>/dev/null \
     || xcodebuild archive \
         -project "$PROJECT" \
@@ -88,7 +108,8 @@ xcodebuild archive \
         -archivePath "$ARCHIVE_PATH" \
         -destination "generic/platform=macOS" \
         CODE_SIGN_IDENTITY="$SIGNING_IDENTITY" \
-        CODE_SIGN_STYLE=Manual
+        CODE_SIGN_STYLE=Manual \
+        CURRENT_PROJECT_VERSION="$BUILD"
 
 # ── 2. Export signed .app ────────────────────────────────────
 echo
@@ -106,6 +127,15 @@ if [[ ! -d "$APP_PATH" && -d "$LEGACY_APP_PATH" ]]; then
 fi
 if [[ ! -d "$APP_PATH" ]]; then
     echo "✗ Expected app at $APP_PATH — export failed?"
+    exit 1
+fi
+
+# Backstop: the shipped bundle must report the version we're naming it.
+PLIST="$APP_PATH/Contents/Info.plist"
+APP_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$PLIST")
+APP_BUILD=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "$PLIST")
+if [[ "$APP_VERSION" != "$VERSION" || "$APP_BUILD" != "$BUILD" ]]; then
+    echo "✗ Bundle reports $APP_VERSION ($APP_BUILD), expected $VERSION ($BUILD)"
     exit 1
 fi
 

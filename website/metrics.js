@@ -41,6 +41,15 @@ const UI_HOST = 'https://us.posthog.com';
     api_host: API_HOST,
     ui_host: UI_HOST,
     defaults: '2026-05-30',
+    // No cookies or browser storage; visitors are counted with a server-side
+    // hash that rotates daily. Requires cookieless mode in project settings.
+    cookieless_mode: 'always',
+    person_profiles: 'never',
+    disable_session_recording: true,
+    before_send: (event) => {
+      if (event) event.properties.$geoip_disable = true;
+      return event;
+    },
     capture_exceptions: {
       capture_unhandled_errors: true,
       capture_unhandled_rejections: true,

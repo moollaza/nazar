@@ -59,6 +59,20 @@ jobs:
             echo "Only website/docs files changed - skipping the Xcode build."
           fi
 
+  # Not gated on `changes`: the count can drift from either side (catalog
+  # edits or copy edits), and the check takes seconds.
+  service-count:
+    name: Service count copy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Check stated service counts against the catalog
+        run: python3 scripts/check-service-count.py
+
   build-and-test:
     name: Build + Test
     needs: changes

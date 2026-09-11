@@ -589,7 +589,7 @@ function card() {
           color: '#334155',
         },
       },
-      'Nazar lives in your menu bar and notifies you about outages and service updates for GitHub, Slack, OpenAI, and 1,600+ more services.'
+      'Nazar lives in your menu bar and notifies you about outages and service updates for GitHub, Slack, OpenAI, and 1,800+ more services.'
     ),
     h(
       'div',

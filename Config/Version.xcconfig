@@ -3,7 +3,7 @@
 //
 // MARKETING_VERSION -> CFBundleShortVersionString. release-please rewrites
 // the annotated line in each Release PR; don't edit it by hand.
-MARKETING_VERSION = 1.2.0 // x-release-please-version
+MARKETING_VERSION = 1.3.0 // x-release-please-version
 
 // CURRENT_PROJECT_VERSION -> CFBundleVersion. Local/dev builds use this
 // value. scripts/release.sh overrides it with `git rev-list --count HEAD`

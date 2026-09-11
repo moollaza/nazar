@@ -44,14 +44,14 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 - `@AppStorage` only in Views, never in `@Observable` classes (Apple bug causes infinite loops)
 - Parser types: `statuspage` (Atlassian JSON API at `/api/v2/summary.json`), `rss` (generic RSS/Atom), `betterstack` (Better Stack JSON:API at `/index.json`), and `instatus` (Instatus JSON at `/summary.json`)
 - Bundle ID: `com.moollapps.StatusMonitor`
-- Catalog entries need `platform` field: `"atlassian"` or `"incident.io"`
+- Catalog entries need a `platform` field matching their `type`: `atlassian` or `incident.io` for `statuspage`; `betterstack`, `instatus`, or `rss` for those types (the AWS, Azure, and GCP feeds use `aws`, `azure`, `gcp`)
 
 ## Catalog
 
-1,912 verified services across 23 categories. Entries have working endpoints: `/api/v2/summary.json` for `statuspage`, the feed URL for `rss`, `/index.json` for `betterstack`.
+Every entry must have a working endpoint: `/api/v2/summary.json` for `statuspage`, `/index.json` for `betterstack`, `/summary.json` for `instatus`, and the feed URL itself for `rss`. Count entries from the file rather than recording a number here; it changes with every catalog edit.
 
 To add services: use the `statuspage-discovery` skill or `scripts/discover-services.py`.
-To verify catalog: `python3 scripts/audit-catalog.py`
+To verify catalog: `python3 scripts/audit-catalog.py` (also runs weekly via `.github/workflows/catalog-audit.yml`, which opens a `catalog-audit` issue when entries break)
 
 ## Workflow
 

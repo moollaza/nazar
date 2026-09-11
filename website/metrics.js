@@ -41,6 +41,7 @@ const UI_HOST = 'https://us.posthog.com';
     api_host: API_HOST,
     ui_host: UI_HOST,
     defaults: '2026-05-30',
+    disable_session_recording: true,
     capture_exceptions: {
       capture_unhandled_errors: true,
       capture_unhandled_rejections: true,

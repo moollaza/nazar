@@ -8,7 +8,7 @@ Nazar watches the services you depend on, right from your macOS menu bar.
 
 ## Features
 
-- Monitor 1,600+ services from your menu bar
+- Monitor 1,800+ services from your menu bar
 - Outage alerts and service updates for tools you rely on
 - Built-in catalog with one-click setup (5 services in under 60 seconds)
 - Color-coded menu bar icon (green/yellow/orange/red)

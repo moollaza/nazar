@@ -1,0 +1,11 @@
+// Single source of truth for the app version. Applied as the project-level
+// base configuration, so every target and configuration inherits it.
+//
+// MARKETING_VERSION -> CFBundleShortVersionString. release-please rewrites
+// the annotated line in each Release PR; don't edit it by hand.
+MARKETING_VERSION = 1.2.0 // x-release-please-version
+
+// CURRENT_PROJECT_VERSION -> CFBundleVersion. Local/dev builds use this
+// value. scripts/release.sh overrides it with `git rev-list --count HEAD`
+// (floored at this value) so every release build number increases.
+CURRENT_PROJECT_VERSION = 5

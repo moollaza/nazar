@@ -80,6 +80,8 @@ For a local smoke test without hitting Apple's notary service:
 scripts/release.sh --skip-notarize
 ```
 
+Versioning: `Config/Version.xcconfig` is the only place the app version lives. release-please bumps its `MARKETING_VERSION` in the Release PR, so the tag and `CFBundleShortVersionString` always match. `release.sh` fails if they don't, and sets `CFBundleVersion` to `git rev-list --count HEAD` (never lower than the xcconfig's `CURRENT_PROJECT_VERSION`) so every release gets a higher build number. Run it from a full clone of the tag commit.
+
 ## Tech Stack
 
 - Swift 5.9+, SwiftUI

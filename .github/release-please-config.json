@@ -18,7 +18,9 @@
         { "type": "build",    "section": "Build", "hidden": true },
         { "type": "style",    "section": "Style", "hidden": true }
       ],
-      "extra-files": []
+      "extra-files": [
+        { "type": "generic", "path": "Config/Version.xcconfig" }
+      ]
     }
   }
 }

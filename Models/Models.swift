@@ -185,6 +185,8 @@ struct Provider: Identifiable, Codable, Equatable {
             return URL(string: baseURL)
         case .betterstack:
             return URL(string: "\(baseURL)/index.json")
+        case .instatus:
+            return URL(string: "\(baseURL)/summary.json")
         }
     }
 
@@ -201,6 +203,7 @@ enum ProviderType: String, Codable, CaseIterable {
     case statuspage   // Atlassian Statuspage JSON API
     case rss          // Generic RSS/Atom feed
     case betterstack  // Better Stack status page JSON:API (index.json)
+    case instatus     // Instatus status page JSON (summary.json)
 }
 
 // MARK: - Atlassian Statuspage API Response
@@ -483,6 +486,20 @@ enum ComponentStatus: String, Codable, Comparable {
         }
     }
 
+    /// Maps Instatus vocabulary to Nazar's component model. Instatus uses
+    /// SCREAMINGCASE for both page status and incident impact, sharing most
+    /// values between the two.
+    init(fromInstatus raw: String) {
+        switch raw.uppercased() {
+        case "UP", "OPERATIONAL": self = .operational
+        case "DEGRADEDPERFORMANCE": self = .degradedPerformance
+        case "PARTIALOUTAGE", "MINOROUTAGE", "HASISSUES": self = .partialOutage
+        case "MAJOROUTAGE": self = .majorOutage
+        case "UNDERMAINTENANCE", "MAINTENANCE": self = .underMaintenance
+        default: self = .unknown
+        }
+    }
+
     /// Maps Better Stack status vocabulary (aggregate_state and resource status)
     /// to Nazar's component model. Unrecognised values surface as `.unknown`
     /// rather than masquerading as healthy.
@@ -495,6 +512,47 @@ enum ComponentStatus: String, Codable, Comparable {
         default: self = .unknown
         }
     }
+}
+
+// MARK: - Instatus API Response
+
+// Instatus status pages expose JSON at `{base_url}/summary.json`. The payload
+// is small: overall page status, plus active incidents and maintenances only
+// when some are open. There is no component list here — that lives at
+// `/components.json`, a second request this parser does not make.
+//
+// Note the page status can lag: a page reporting "UP" may still carry an
+// active incident with DEGRADEDPERFORMANCE impact, so the parser takes the
+// worst of the two rather than trusting `page.status` alone.
+struct InstatusSummary: Codable {
+    let page: InstatusPage
+    let activeIncidents: [InstatusIncident]?
+    let activeMaintenances: [InstatusMaintenance]?
+}
+
+struct InstatusPage: Codable {
+    let name: String
+    let url: String?
+    let status: String
+}
+
+struct InstatusIncident: Codable {
+    let id: String
+    let name: String
+    let started: String?
+    let status: String?
+    let impact: String?
+    let url: String?
+    let updatedAt: String?
+}
+
+struct InstatusMaintenance: Codable {
+    let id: String
+    let name: String
+    let start: String?
+    let status: String?
+    let duration: Int?
+    let url: String?
 }
 
 struct ProviderSnapshot: Identifiable {

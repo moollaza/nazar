@@ -74,7 +74,7 @@ jobs:
       - name: Show project targets
         run: xcodebuild -project StatusMonitor.xcodeproj -list
 
-      - name: Build (Debug)
+      - name: Build (Debug, DMG flavor)
         run: |
           set -o pipefail
           xcodebuild \
@@ -82,8 +82,55 @@ jobs:
             -scheme StatusMonitor \
             -configuration Debug \
             -destination 'platform=macOS' \
+            -derivedDataPath build/ci \
             CODE_SIGNING_ALLOWED=NO \
             build
+
+      # The App Store flavor shares every source file but links no Sparkle.
+      # Building it here is what catches a Sparkle reference that escaped its
+      # `#if !MAS` guard, or a new file added to only one target.
+      - name: Build (Release, App Store flavor)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project StatusMonitor.xcodeproj \
+            -scheme Nazar-MAS \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath build/ci \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Assert flavor split
+        run: |
+          set -euo pipefail
+          dmg_app=build/ci/Build/Products/Debug/Nazar.app
+          mas_app=build/ci/Build/Products/Release/Nazar-MAS.app
+
+          fail() { echo "::error::$1"; exit 1; }
+
+          [ -d "$dmg_app" ] || fail "DMG app not found at $dmg_app"
+          [ -d "$mas_app" ] || fail "App Store app not found at $mas_app"
+
+          # DMG flavor: Sparkle embedded, linked, and configured.
+          [ -d "$dmg_app/Contents/Frameworks/Sparkle.framework" ] \
+            || fail "DMG build is missing Sparkle.framework"
+          otool -L "$dmg_app/Contents/MacOS/Nazar" | grep -qi sparkle \
+            || fail "DMG executable does not link Sparkle"
+          /usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$dmg_app/Contents/Info.plist" >/dev/null \
+            || fail "DMG Info.plist is missing SUFeedURL"
+
+          # App Store flavor: none of the above.
+          [ ! -e "$mas_app/Contents/Frameworks/Sparkle.framework" ] \
+            || fail "App Store build contains Sparkle.framework"
+          if otool -L "$mas_app/Contents/MacOS/Nazar-MAS" | grep -qi sparkle; then
+            fail "App Store executable links Sparkle"
+          fi
+          if /usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$mas_app/Contents/Info.plist" >/dev/null 2>&1; then
+            fail "App Store Info.plist carries SUFeedURL"
+          fi
+
+          echo "Both flavors are correct."
 
       - name: Run unit tests
         run: |
@@ -93,6 +140,7 @@ jobs:
             -scheme StatusMonitor \
             -destination 'platform=macOS' \
             -only-testing:StatusMonitorTests \
+            -derivedDataPath build/ci \
             CODE_SIGNING_ALLOWED=NO \
             test
 
@@ -107,6 +155,7 @@ jobs:
             -scheme StatusMonitor \
             -destination 'platform=macOS' \
             -only-testing:StatusMonitorUITests \
+            -derivedDataPath build/ci \
             CODE_SIGNING_ALLOWED=NO \
             test
         continue-on-error: true

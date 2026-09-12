@@ -1,6 +1,9 @@
 import SwiftUI
 import UserNotifications
 import OSLog
+#if !MAS
+import Sparkle
+#endif
 
 private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "StatusMonitor", category: "ui")
 
@@ -61,6 +64,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var panel: FloatingPanel!
     let statusManager = StatusManager()
+    #if !MAS
+    let updater = Updater()
+    #endif
     private var eventMonitor: Any?
     private var localEventMonitor: Any?
     private var settingsWindow: NSWindow?
@@ -155,6 +161,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 )
             }
         }
+
+        #if !MAS
+        // Sparkle's own scheduled checks; the manual menu item works in every
+        // build, so a Debug run can still exercise the flow on demand.
+        updater.startIfNeeded(arguments: args)
+
+        NotificationService.shared.onUpdateNotificationTapped = { [weak self] in
+            self?.updater.checkForUpdates()
+        }
+        #endif
 
         // Status changes → update menu bar icon
         statusManager.onWorstStatusChanged = { [weak self] status in
@@ -341,7 +357,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Right-Click Menu
 
-    private func showContextMenu() {
+    /// Built separately from `showContextMenu` so tests can inspect it without
+    /// driving the status bar item.
+    func makeContextMenu() -> NSMenu {
         let menu = NSMenu()
 
         menu.addItem(withTitle: "About Nazar", action: #selector(showAbout), keyEquivalent: "")
@@ -354,6 +372,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         for item in menu.items {
             item.target = self
         }
+
+        #if !MAS
+        // Added after the loop above: this one targets Sparkle's controller,
+        // not the app delegate. Title flips to "Update Available…" when a
+        // background check has already found something.
+        let updateItem = NSMenuItem(
+            title: updater.menuItemTitle,
+            action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
+            keyEquivalent: ""
+        )
+        updateItem.target = updater.controller
+        updateItem.isEnabled = updater.canCheckForUpdates
+        menu.insertItem(updateItem, at: 1)
+        #endif
+
+        return menu
+    }
+
+    private func showContextMenu() {
+        let menu = makeContextMenu()
 
         statusItem.menu = menu
         statusItem.button?.performClick(nil)

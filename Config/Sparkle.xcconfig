@@ -1,0 +1,26 @@
+// Sparkle settings for the DMG (Developer ID) flavor only. The App Store
+// target uses Config/MAS.xcconfig and never sees these.
+//
+// Applied as the target-level base configuration for StatusMonitor; the
+// project-level base stays Version.xcconfig, so this has to include it or
+// the target would lose MARKETING_VERSION / CURRENT_PROJECT_VERSION.
+#include "Version.xcconfig"
+
+// `$()` is an empty build-setting expansion. It breaks up the `//` so
+// xcconfig doesn't read the rest of the line as a comment.
+SPARKLE_FEED_URL = https:/$()/usenazar.com/appcast.xml
+
+// Public half of the EdDSA (ed25519) key pair. Safe to commit — it is what
+// the app verifies downloads against. The private key lives only in the
+// maintainer's Keychain (see README "Releasing").
+SPARKLE_PUBLIC_EDKEY = 3+LbBzfWZiwEhpuadWIZXG7irKkkqqOjnPmGGklyWnM=
+
+// Sparkle keys are custom, so they can't be expressed as INFOPLIST_KEY_*
+// build settings. GENERATE_INFOPLIST_FILE merges this fragment with the
+// keys Xcode generates.
+INFOPLIST_FILE = Config/Sparkle-Info.plist
+
+// Sandboxed Sparkle needs mach-lookup exceptions for its Installer XPC
+// service. App Review rejects temporary exceptions, so they stay out of the
+// App Store flavor.
+CODE_SIGN_ENTITLEMENTS = Config/Nazar-DMG.entitlements

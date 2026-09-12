@@ -18,11 +18,32 @@ protocol NotificationServicing: AnyObject {
     func notify(providerId: UUID, provider: String, from: ComponentStatus, to: ComponentStatus, incident: String?, recentChangeCount: Int)
 }
 
-class NotificationService: NSObject, UNUserNotificationCenterDelegate, NotificationServicing {
+/// Seam for the Sparkle updater, which only needs the update notification.
+/// Declared unconditionally (it holds no Sparkle types) so the App Store
+/// build still compiles this file.
+@MainActor
+protocol UpdateNotifying: AnyObject {
+    /// Announce that a background update check found `version`.
+    func notifyUpdateAvailable(version: String)
+    /// Pull the announcement back once the user has engaged with the update.
+    func withdrawUpdateNotification(version: String)
+}
+
+/// Where a notification tap should land. Pure value so the routing decision
+/// is testable without constructing a `UNNotificationResponse`.
+enum NotificationRoute: Equatable {
+    case update
+    case provider(UUID?)
+}
+
+class NotificationService: NSObject, UNUserNotificationCenterDelegate, NotificationServicing, UpdateNotifying {
     static let shared = NotificationService()
 
     /// Called when user taps a notification with the provider ID for deep-linking.
     var onNotificationTapped: (@MainActor @Sendable (_ providerId: UUID?) -> Void)?
+
+    /// Called when the user taps an "update available" notification.
+    var onUpdateNotificationTapped: (@MainActor @Sendable () -> Void)?
 
     /// Cached authorization state. Refreshed after `requestPermission` and each
     /// app foreground event. Consulted before each `notify` so we don't enqueue
@@ -165,6 +186,57 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate, Notificat
         }
     }
 
+    // MARK: - Update Notifications
+
+    /// Separate category from outage alerts so the tap handler can tell the
+    /// two apart, and so users can mute one without the other.
+    nonisolated static let updateCategoryIdentifier = "update"
+
+    func notifyUpdateAvailable(version: String) {
+        // Deliberately not gated on `notificationsEnabled`: that preference
+        // covers outage alerts. An update the user can't see is an update
+        // they never install.
+        if authorizationStatus == .denied {
+            logger.warning("Not posting update notification: authorization denied")
+            return
+        }
+        UNUserNotificationCenter.current().add(Self.makeUpdateRequest(version: version)) { error in
+            if let error {
+                logger.error("Failed to deliver update notification: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+    }
+
+    func withdrawUpdateNotification(version: String) {
+        UNUserNotificationCenter.current()
+            .removeDeliveredNotifications(withIdentifiers: [Self.updateIdentifier(for: version)])
+    }
+
+    /// Stable per version, so a second reminder for the same version replaces
+    /// the first instead of stacking in Notification Center.
+    nonisolated static func updateIdentifier(for version: String) -> String {
+        "update-\(version)"
+    }
+
+    /// Pure builder, same pattern as `makeRequest`.
+    nonisolated static func makeUpdateRequest(version: String) -> UNNotificationRequest {
+        let content = UNMutableNotificationContent()
+        content.title = "Nazar \(version) is available"
+        content.body = "Click to see what's new and install the update."
+        content.categoryIdentifier = updateCategoryIdentifier
+        return UNNotificationRequest(
+            identifier: updateIdentifier(for: version),
+            content: content,
+            trigger: nil
+        )
+    }
+
+    /// Pure routing decision for a notification tap.
+    nonisolated static func route(categoryIdentifier: String, userInfo: [AnyHashable: Any]) -> NotificationRoute {
+        if categoryIdentifier == updateCategoryIdentifier { return .update }
+        return .provider((userInfo["providerId"] as? String).flatMap(UUID.init))
+    }
+
     // Show notification even when app is in foreground
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
@@ -180,8 +252,16 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate, Notificat
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        let providerId = (response.notification.request.content.userInfo["providerId"] as? String).flatMap(UUID.init)
-        Task { @MainActor in onNotificationTapped?(providerId) }
+        let content = response.notification.request.content
+        let route = Self.route(categoryIdentifier: content.categoryIdentifier, userInfo: content.userInfo)
+        Task { @MainActor in
+            switch route {
+            case .update:
+                onUpdateNotificationTapped?()
+            case .provider(let providerId):
+                onNotificationTapped?(providerId)
+            }
+        }
         completionHandler()
     }
 }

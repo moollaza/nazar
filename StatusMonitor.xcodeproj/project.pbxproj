@@ -88,7 +88,7 @@
 		8673B2792F884C760063B14E /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		8673B27A2F884C760063B14E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8919FBAB15BDA08FEEBBCF37 /* Nazar-MAS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nazar-MAS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8E5A2340904F9E21F99F7E08 /* Updater.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Updater.swift; path = Services/Updater.swift; sourceTree = "<group>"; };
+		8E5A2340904F9E21F99F7E08 /* Updater.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Updater.swift; path = Updater.swift; sourceTree = "<group>"; };
 		AA00000100000002000CATJN /* catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = catalog.json; sourceTree = "<group>"; };
 		AA00000100000007000SIVEW /* ServiceIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceIconView.swift; sourceTree = "<group>"; };
 		AA00000100000009000FBVEW /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
@@ -108,8 +108,8 @@
 		BB00000100000018000CLDTF /* CloudProviderRSSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudProviderRSSTests.swift; sourceTree = "<group>"; };
 		CC00000100000002000UIFRF /* StatusMonitorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusMonitorUITests.swift; sourceTree = "<group>"; };
 		CC00000100000003000UIXCT /* StatusMonitorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StatusMonitorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D06D8B42A6C227E732A87E10 /* UpdaterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpdaterTests.swift; path = StatusMonitorTests/UpdaterTests.swift; sourceTree = "<group>"; };
-		DC7DEBB5DFA9A34AE957180E /* UpdaterConfigurationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpdaterConfigurationTests.swift; path = StatusMonitorTests/UpdaterConfigurationTests.swift; sourceTree = "<group>"; };
+		D06D8B42A6C227E732A87E10 /* UpdaterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpdaterTests.swift; path = UpdaterTests.swift; sourceTree = "<group>"; };
+		DC7DEBB5DFA9A34AE957180E /* UpdaterConfigurationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpdaterConfigurationTests.swift; path = UpdaterConfigurationTests.swift; sourceTree = "<group>"; };
 		DD00000100000001000VRSCF /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Version.xcconfig; path = Config/Version.xcconfig; sourceTree = "<group>"; };
 		E86E713219B6AF8887942121 /* MAS.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = MAS.xcconfig; path = Config/MAS.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */

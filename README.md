@@ -66,13 +66,37 @@ xcrun notarytool store-credentials AC_PASSWORD \
 
 Generate the app-specific password at [appleid.apple.com](https://appleid.apple.com) → Sign-In and Security → App-Specific Passwords. The credentials live in your Keychain; `AC_PASSWORD` is just the default profile name the release script references. Set `KEYCHAIN_PROFILE=<profile>` when running the script to use a different profile name.
 
+**3.** Generate the Sparkle signing key (once, ever). Sparkle verifies every update against the public half, which is committed in `Config/Sparkle.xcconfig`; the private half signs the appcast and must never leave your Keychain.
+
+```bash
+# Resolve Sparkle first (open the project in Xcode once, or run any xcodebuild
+# with -clonedSourcePackagesDirPath build/release/SourcePackages).
+BIN=build/release/SourcePackages/artifacts/sparkle/Sparkle/bin
+"$BIN/generate_keys"                      # creates the pair, prints the public key
+"$BIN/generate_keys" -x /tmp/sparkle.key  # export the private half
+secret put sparkle-ed-private-key < /tmp/sparkle.key
+rm -P /tmp/sparkle.key
+```
+
+Put the printed public key in `Config/Sparkle.xcconfig` as `SPARKLE_PUBLIC_EDKEY`, and keep an offline backup of the exported private key. Losing it isn't fatal — a Developer ID-signed app can ship a new public key in an update signed with the same certificate — but recovery depends on that certificate surviving, so back it up anyway.
+
 Build a signed, notarized, stapled DMG:
 
 ```bash
 scripts/release.sh
 ```
 
-Output: `build/release/Nazar-<version>.dmg`.
+Output: `build/release/Nazar-<version>.dmg` and `build/release/appcast.xml`.
+
+Upload **both** to the release. The DMG without the appcast is invisible to the updater; the appcast without the DMG points at a 404:
+
+```bash
+gh release upload vX.Y.Z \
+    build/release/Nazar-X.Y.Z.dmg \
+    build/release/appcast.xml --repo moollaza/nazar
+```
+
+Installed copies fetch `https://usenazar.com/appcast.xml`, which redirects to the newest release's `appcast.xml` asset (`website/_redirects`).
 
 For a local smoke test without hitting Apple's notary service:
 

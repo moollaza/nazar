@@ -112,20 +112,30 @@ jobs:
           [ -d "$dmg_app" ] || fail "DMG app not found at $dmg_app"
           [ -d "$mas_app" ] || fail "App Store app not found at $mas_app"
 
+          # Capture otool output first. Piping it straight into `grep -q`
+          # makes grep close the pipe on its first match, which kills otool
+          # with SIGPIPE and, under `pipefail`, fails the whole pipeline.
+          dmg_links=$(otool -L "$dmg_app/Contents/MacOS/Nazar")
+          mas_links=$(otool -L "$mas_app/Contents/MacOS/Nazar-MAS")
+          echo "DMG links:"; echo "$dmg_links"
+          echo "App Store links:"; echo "$mas_links"
+
           # DMG flavor: Sparkle embedded, linked, and configured.
           [ -d "$dmg_app/Contents/Frameworks/Sparkle.framework" ] \
             || fail "DMG build is missing Sparkle.framework"
-          otool -L "$dmg_app/Contents/MacOS/Nazar" | grep -qi sparkle \
-            || fail "DMG executable does not link Sparkle"
+          case "$dmg_links" in
+            *Sparkle*) ;;
+            *) fail "DMG executable does not link Sparkle" ;;
+          esac
           /usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$dmg_app/Contents/Info.plist" >/dev/null \
             || fail "DMG Info.plist is missing SUFeedURL"
 
           # App Store flavor: none of the above.
           [ ! -e "$mas_app/Contents/Frameworks/Sparkle.framework" ] \
             || fail "App Store build contains Sparkle.framework"
-          if otool -L "$mas_app/Contents/MacOS/Nazar-MAS" | grep -qi sparkle; then
-            fail "App Store executable links Sparkle"
-          fi
+          case "$mas_links" in
+            *Sparkle*) fail "App Store executable links Sparkle" ;;
+          esac
           if /usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$mas_app/Contents/Info.plist" >/dev/null 2>&1; then
             fail "App Store Info.plist carries SUFeedURL"
           fi

@@ -112,11 +112,22 @@ jobs:
           [ -d "$dmg_app" ] || fail "DMG app not found at $dmg_app"
           [ -d "$mas_app" ] || fail "App Store app not found at $mas_app"
 
-          # Capture otool output first. Piping it straight into `grep -q`
-          # makes grep close the pipe on its first match, which kills otool
-          # with SIGPIPE and, under `pipefail`, fails the whole pipeline.
-          dmg_links=$(otool -L "$dmg_app/Contents/MacOS/Nazar")
-          mas_links=$(otool -L "$mas_app/Contents/MacOS/Nazar-MAS")
+          # A Debug build's executable is a shim that links Nazar.debug.dylib;
+          # the app's own dependencies live in that dylib, so both have to be
+          # inspected. Capture the output first — piping it straight into
+          # `grep -q` makes grep close the pipe on its first match, which
+          # kills otool with SIGPIPE and, under `pipefail`, fails the pipeline.
+          links_for() {
+            local app=$1 exe=$2
+            local binaries=("$app/Contents/MacOS/$exe")
+            while IFS= read -r dylib; do
+              binaries+=("$dylib")
+            done < <(find "$app" -name '*.debug.dylib')
+            otool -L "${binaries[@]}"
+          }
+
+          dmg_links=$(links_for "$dmg_app" Nazar)
+          mas_links=$(links_for "$mas_app" Nazar-MAS)
           echo "DMG links:"; echo "$dmg_links"
           echo "App Store links:"; echo "$mas_links"
 

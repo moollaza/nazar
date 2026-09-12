@@ -52,6 +52,7 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 Every entry must have a working endpoint: `/api/v2/summary.json` for `statuspage`, `/index.json` for `betterstack`, `/summary.json` for `instatus`, and the feed URL itself for `rss`. Count entries from the file rather than recording a number here; it changes with every catalog edit.
 
 To add services: use the `statuspage-discovery` skill or `scripts/discover-services.py`.
+After any catalog edit, run `python3 scripts/check-service-count.py`. The website, README, and OG image state the size as "N+" figures, and CI fails if a figure is above the real count, more than 200 below it, or if the `#catalog-cat-count` fallback doesn't match. To bring them in line, run `python3 scripts/check-service-count.py --fix` then `npm run build:og`, and commit the regenerated `website/og-image.*`.
 To verify catalog: `python3 scripts/audit-catalog.py` (also runs weekly via `.github/workflows/catalog-audit.yml`, which opens a `catalog-audit` issue when entries break)
 
 ## Workflow

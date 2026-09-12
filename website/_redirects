@@ -1,0 +1,5 @@
+# Sparkle's feed URL is baked into the app (Config/Sparkle.xcconfig), so it
+# has to stay stable across releases. GitHub's latest/download path 302s to
+# the newest non-prerelease asset, which is where scripts/release.sh uploads
+# each release's signed appcast.
+/appcast.xml  https://github.com/moollaza/nazar/releases/latest/download/appcast.xml  302

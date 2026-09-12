@@ -1,0 +1,6 @@
+// Build settings for the App Store flavor. No Sparkle: no package product,
+// no feed URL, no public key, no temporary-exception entitlements.
+#include "Version.xcconfig"
+
+// Gates every Sparkle reference in the source tree (`#if !MAS`).
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) MAS

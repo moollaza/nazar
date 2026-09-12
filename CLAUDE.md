@@ -43,6 +43,7 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 - Settings is a standalone `NSWindow` with `NSHostingController` — NOT the SwiftUI `Settings` scene (broken with `.accessory` policy)
 - `@AppStorage` only in Views, never in `@Observable` classes (Apple bug causes infinite loops)
 - Parser types: `statuspage` (Atlassian JSON API at `/api/v2/summary.json`), `rss` (generic RSS/Atom), `betterstack` (Better Stack JSON:API at `/index.json`), and `instatus` (Instatus JSON at `/summary.json`)
+- Two app targets share every source file: `StatusMonitor` (DMG, embeds Sparkle) and `Nazar-MAS` (App Store, no Sparkle) — add each new file to **both**, and wrap Sparkle code in `#if !MAS`
 - Bundle ID: `com.moollapps.StatusMonitor`
 - Catalog entries need a `platform` field matching their `type`: `atlassian` or `incident.io` for `statuspage`; `betterstack`, `instatus`, or `rss` for those types (the AWS, Azure, and GCP feeds use `aws`, `azure`, `gcp`)
 
@@ -77,7 +78,8 @@ All work is tracked in GitHub Issues: https://github.com/moollaza/nazar/issues
 ## Deployment
 
 - **Website**: Cloudflare Pages Git integration deploys on push to `main` (no in-repo deploy workflow; see the `Cloudflare Pages` PR check) -> https://usenazar.com/
-- **App**: release-please opens a Release PR; merging it creates the tag + GitHub release. The maintainer then runs `scripts/release.sh` locally (build, sign, notarize, staple, DMG) and uploads with `gh release upload`. Signing credentials stay in the local Keychain, never CI. Details: README "Releasing".
+- **App**: release-please opens a Release PR; merging it creates the tag + GitHub release. The maintainer then runs `scripts/release.sh` locally (build, sign, notarize, staple, DMG, signed `appcast.xml`) and uploads the DMG *and* the appcast with `gh release upload`. Signing credentials and the Sparkle EdDSA private key stay in the local Keychain, never CI. Details: README "Releasing".
+- **Updates**: the DMG build polls `https://usenazar.com/appcast.xml`, which `website/_redirects` 302s to the newest release's `appcast.xml` asset.
 
 ## Status Page Support
 

@@ -19,6 +19,9 @@ DerivedData/
 .build/
 Packages/
 Package.resolved
+# ...except the app project's pin file. Sparkle is pinned to an exact version
+# so the embedded framework and the release tooling never drift apart.
+!StatusMonitor.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
 # Node / browser test artifacts
 node_modules/

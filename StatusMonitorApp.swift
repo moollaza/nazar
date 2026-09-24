@@ -240,6 +240,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Settings Window
 
     func openSettings(tab: SettingsTab = .services) {
+        // Dismiss the dashboard panel when moving to the full settings window.
+        // The global outside-click monitor doesn't fire here because the
+        // Settings window belongs to the same app, so close it explicitly.
+        if isPanelShown { panel.close() }
+
         // Reuse the existing window regardless of visibility so tab selection
         // and other state persist across close/reopen. With
         // `isReleasedWhenClosed = false` the window lives as long as

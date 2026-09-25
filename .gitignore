@@ -60,3 +60,7 @@ CLAUDE.local.md
 !.env.example
 
 # Website catalog is tracked so every static host can serve the same asset.
+
+# Python
+__pycache__/
+*.pyc

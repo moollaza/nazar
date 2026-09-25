@@ -25,6 +25,12 @@ module.exports = defineConfig({
   ],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:4173',
+    // The hero demo auto-advances on a wall-clock timer, so which state is on
+    // screen when a screenshot is taken depends on how fast the assertions
+    // ran — that produced a spurious Argos diff on a Python-only commit. The
+    // page already pins the hero to state 0 and drops every transition under
+    // `prefers-reduced-motion: reduce`; this is what asks it to.
+    reducedMotion: 'reduce',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     bypassCSP: true,

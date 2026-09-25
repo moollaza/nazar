@@ -316,15 +316,17 @@ mv "$APPCAST_STAGING/appcast.xml" "$APPCAST_PATH"
 rm -rf "$APPCAST_STAGING"
 
 # Post-check: a wrong version or a missing signature only shows up as a
-# silent no-update for every user, so fail here instead.
+# silent no-update for every user, so fail here instead. generate_appcast
+# writes the versions as child elements and only the signature as an
+# enclosure attribute.
 ITEM_COUNT=$(grep -c "<item>" "$APPCAST_PATH" || true)
 if [[ "$ITEM_COUNT" != "1" ]]; then
     echo "✗ Appcast has $ITEM_COUNT items, expected exactly 1"
     exit 1
 fi
 for expected in \
-    "sparkle:version=\"$BUILD\"" \
-    "sparkle:shortVersionString=\"$VERSION\"" \
+    "<sparkle:version>$BUILD</sparkle:version>" \
+    "<sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>" \
     "sparkle:edSignature=\"" \
     "v$VERSION/$DMG_NAME"
 do

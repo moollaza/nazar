@@ -163,8 +163,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         #if !MAS
-        // Sparkle's own scheduled checks; the manual menu item works in every
-        // build, so a Debug run can still exercise the flow on demand.
+        // Release builds only: Debug and UI-test runs leave the updater
+        // stopped, which also disables "Check for Updates…".
         updater.startIfNeeded(arguments: args)
 
         NotificationService.shared.onUpdateNotificationTapped = { [weak self] in

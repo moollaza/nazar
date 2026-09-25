@@ -48,9 +48,10 @@ final class Updater: NSObject, SPUStandardUserDriverDelegate {
         updateAvailableVersion == nil ? "Check for Updates…" : "Update Available…"
     }
 
-    /// Starts scheduled update checks if this build should run them. The
-    /// manual "Check for Updates…" item works either way, so a Debug build can
-    /// still exercise the whole flow on demand.
+    /// Starts the updater if this build should run it. Sparkle ignores every
+    /// check, manual ones included, until the updater starts, so in Debug and
+    /// UI-test runs "Check for Updates…" stays disabled. Test the flow with a
+    /// Release build (see the plan's local update rehearsal).
     func startIfNeeded(arguments: [String] = ProcessInfo.processInfo.arguments) {
         guard !didStart else { return }
         guard Self.shouldStartUpdater(isDebugBuild: Self.isDebugBuild, arguments: arguments) else {

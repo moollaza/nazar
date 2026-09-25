@@ -41,37 +41,33 @@ jobs:
 
       - name: Summarize
         if: always()
-        env:
-          EXIT_CODE: ${{ steps.audit.outputs.exit_code }}
         run: |
-          # Decide from the audit's exit code, not the file: the script always
-          # writes failures.json (as `[]` on success), and a crash writes none.
-          if [ "$EXIT_CODE" = "0" ]; then
-            echo "### All catalog entries verified" >> "$GITHUB_STEP_SUMMARY"
-          elif python3 -c "import json,sys; sys.exit(0 if json.load(open('failures.json')) else 1)" 2>/dev/null; then
-            {
-              echo "### Catalog audit found broken entries"
-              echo ""
-              echo "| Service | Type | Reason | URL |"
-              echo "|---|---|---|---|"
-              python3 -c "
-          import json
-          for e in json.load(open('failures.json')):
-              print(f\"| {e['name']} | {e['type']} | {e['reason']} | {e['base_url']} |\")
-          "
-            } >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "### Catalog audit did not complete (exit code: ${EXIT_CODE:-none})" >> "$GITHUB_STEP_SUMMARY"
+          # Decide from the file, not the exit code: the audit now exits 0 when
+          # the only failures are blocked/unreachable ones, which still belong
+          # in the summary. A crash writes no file at all.
+          if [ ! -s failures.json ]; then
+            echo "### Catalog audit did not complete (exit code: ${{ steps.audit.outputs.exit_code }})" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
+          if python3 -c "import json,sys; sys.exit(1 if json.load(open('failures.json')) else 0)"; then
+            echo "### All catalog entries verified" >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "### Catalog audit found entries it could not verify"
+              echo ""
+              python3 scripts/report-failures.py failures.json
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
+      # Only confident findings — entries that are gone or serving the wrong
+      # shape — open an issue. A 403 from a WAF is not a catalog defect, and
+      # filing it weekly trained us to ignore the issue.
       - name: Open or update issue
         if: steps.audit.outputs.exit_code != '0'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # A crash also exits non-zero; only file an issue for real failures.
-          if ! python3 -c "import json,sys; sys.exit(0 if json.load(open('failures.json')) else 1)" 2>/dev/null; then
+          if [ ! -s failures.json ]; then
             echo "No failure list to report; see the Summarize step."
             exit 0
           fi
@@ -82,17 +78,11 @@ jobs:
             echo "These ship in the app and appear in the website catalog browser, so a user can"
             echo "add one and it will never report a status."
             echo ""
-            echo "| Service | Type | Reason | URL |"
-            echo "|---|---|---|---|"
-            python3 -c "
-          import json
-          for e in json.load(open('failures.json')):
-              print(f\"| \`{e['id']}\` {e['name']} | {e['type']} | {e['reason']} | {e['base_url']} |\")
-          "
+            python3 scripts/report-failures.py failures.json --ids --confident-only
             echo ""
             echo "Before removing an entry, check whether the service moved: a different domain,"
-            echo "or a different platform (Instatus, Better Stack, incident.io). Most \"broken\""
-            echo "entries have simply migrated."
+            echo "or a different platform (Instatus, Better Stack, incident.io, Datadog). Most"
+            echo "\"broken\" entries have simply migrated."
             echo ""
             echo "_Run: [\`${GITHUB_RUN_ID}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})_"
           } > "$BODY"

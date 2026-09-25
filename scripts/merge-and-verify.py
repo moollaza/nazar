@@ -14,7 +14,11 @@ import time
 import argparse
 from pathlib import Path
 
-HEADERS = {"User-Agent": "Nazar-Discovery/1.0"}
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import nazar_ua  # noqa: E402 — needs the sys.path line above
+
+# One identity across the repo's tooling — see scripts/nazar_ua.py.
+HEADERS = nazar_ua.HEADERS
 
 
 def load_existing_catalog():

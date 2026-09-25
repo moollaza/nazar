@@ -187,6 +187,8 @@ struct Provider: Identifiable, Codable, Equatable {
             return URL(string: "\(baseURL)/index.json")
         case .instatus:
             return URL(string: "\(baseURL)/summary.json")
+        case .datadog:
+            return URL(string: "\(baseURL)/config.json")
         }
     }
 
@@ -204,6 +206,7 @@ enum ProviderType: String, Codable, CaseIterable {
     case rss          // Generic RSS/Atom feed
     case betterstack  // Better Stack status page JSON:API (index.json)
     case instatus     // Instatus status page JSON (summary.json)
+    case datadog      // Datadog status page JSON (config.json)
 }
 
 // MARK: - Atlassian Statuspage API Response
@@ -500,6 +503,20 @@ enum ComponentStatus: String, Codable, Comparable {
         }
     }
 
+    /// Maps Datadog status-page component vocabulary to Nazar's model.
+    /// Datadog publishes no page-level rollup, so these component values are
+    /// the only status signal the page carries.
+    init(fromDatadog raw: String) {
+        switch raw.lowercased().replacingOccurrences(of: "_", with: "") {
+        case "operational", "up": self = .operational
+        case "degraded", "degradedperformance": self = .degradedPerformance
+        case "partialoutage", "minoroutage": self = .partialOutage
+        case "down", "outage", "majoroutage", "fulloutage": self = .majorOutage
+        case "maintenance", "undermaintenance": self = .underMaintenance
+        default: self = .unknown
+        }
+    }
+
     /// Maps Better Stack status vocabulary (aggregate_state and resource status)
     /// to Nazar's component model. Unrecognised values surface as `.unknown`
     /// rather than masquerading as healthy.
@@ -553,6 +570,72 @@ struct InstatusMaintenance: Codable {
     let status: String?
     let duration: Int?
     let url: String?
+}
+
+// MARK: - Datadog Status Page Response
+
+// Datadog-hosted status pages serve a client-rendered shell; the page data it
+// renders from lives at `{base_url}/config.json`. The payload carries the whole
+// page, not just a summary: every component, the full incident history, and
+// scheduled maintenances. It also embeds base64 `data:` blobs for the favicon
+// and logo, which is why these types decode only the fields the app uses —
+// the blobs are skipped rather than held in memory.
+//
+// Unlike Atlassian there is no `status.indicator` rollup, so the overall
+// status has to be derived from `components[].status`. Unlike Instatus the
+// incident array is *history*, not active incidents: entries carry `resolved`
+// and must be filtered on it.
+struct DatadogConfig: Codable {
+    let name: String
+    let components: [DatadogComponent]
+    let incidents: [DatadogIncident]?
+    let maintenances: [DatadogMaintenance]?
+}
+
+struct DatadogComponent: Codable {
+    let id: String
+    let name: String
+    let status: String?
+    let position: Int?
+    let type: String?
+}
+
+struct DatadogIncident: Codable {
+    let id: String
+    let title: String?
+    let description: String?
+    let currentStatus: String?
+    let resolved: Bool?
+    let publishedDate: String?
+    let resolvedDate: String?
+    let lastModifiedAt: String?
+    let componentsAffected: [DatadogComponent]?
+    let timeline: [DatadogTimelineEntry]?
+}
+
+/// Maintenances share the incident shape, plus the scheduled window.
+struct DatadogMaintenance: Codable {
+    let id: String
+    let title: String?
+    let description: String?
+    let currentStatus: String?
+    let resolved: Bool?
+    let scheduledStartDate: String?
+    let scheduledEndDate: String?
+    let publishedDate: String?
+    let lastModifiedAt: String?
+    let componentsAffected: [DatadogComponent]?
+    let timeline: [DatadogTimelineEntry]?
+}
+
+/// One posted update on an incident or maintenance. Datadog returns these
+/// newest-first, so `timeline.first` is the latest update.
+struct DatadogTimelineEntry: Codable {
+    let id: String
+    let status: String?
+    let description: String?
+    let createdAt: String?
+    let startedAt: String?
 }
 
 struct ProviderSnapshot: Identifiable {

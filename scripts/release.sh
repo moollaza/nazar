@@ -76,6 +76,17 @@ if [[ -n "$TAG_VERSION" && "$TAG_VERSION" != "$XCCONFIG_VERSION" ]]; then
     echo "  Run this from the release tag commit (\`git checkout v$TAG_VERSION\`)."
     exit 1
 fi
+# A matching xcconfig isn't enough: main between releases still reads the old
+# version, so building there ships unreleased commits under the last tag.
+if [[ -n "$TAG_VERSION" && "$(git rev-parse HEAD)" != "$(git rev-list -n1 "v$TAG_VERSION")" ]]; then
+    if [[ "$SKIP_NOTARIZE" -eq 1 ]]; then
+        echo "⚠ HEAD is not the v$TAG_VERSION commit — test build only (--skip-notarize)"
+    else
+        echo "✗ HEAD is not the v$TAG_VERSION commit."
+        echo "  Run this from the tag commit: \`git checkout v$TAG_VERSION\`."
+        exit 1
+    fi
+fi
 VERSION="$XCCONFIG_VERSION"
 
 # CFBundleVersion must strictly increase across releases (Sparkle compares

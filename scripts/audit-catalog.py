@@ -46,6 +46,7 @@ def endpoint(entry):
         "statuspage": base + "/api/v2/summary.json",
         "betterstack": base + "/index.json",
         "instatus": base + "/summary.json",
+        "datadog": base + "/config.json",
     }.get(entry["type"], base)
 
 
@@ -79,6 +80,14 @@ def check(entry, ctx, timeout=20):
             if not isinstance(page, dict) or not isinstance(page.get("status"), str):
                 return False, "Missing page.status in Instatus JSON"
             return True, f"status={page['status']}"
+
+        if entry["type"] == "datadog":
+            # Datadog pages carry no page-level rollup — `components` is the
+            # status signal, and its absence means this is not a Datadog page.
+            if not isinstance(j.get("components"), list):
+                return False, "Missing components array in Datadog config.json"
+            statuses = {c.get("status") for c in j["components"]}
+            return True, f"components={len(j['components'])} statuses={','.join(sorted(s for s in statuses if s))}"
 
         if entry["type"] == "betterstack":
             if "data" not in j or "attributes" not in j.get("data", {}):

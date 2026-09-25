@@ -42,14 +42,14 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 - Dashboard uses a floating `NSPanel` (FloatingPanel class), NOT NSPopover (NSPopover has an arrow that can't be removed)
 - Settings is a standalone `NSWindow` with `NSHostingController` — NOT the SwiftUI `Settings` scene (broken with `.accessory` policy)
 - `@AppStorage` only in Views, never in `@Observable` classes (Apple bug causes infinite loops)
-- Parser types: `statuspage` (Atlassian JSON API at `/api/v2/summary.json`), `rss` (generic RSS/Atom), `betterstack` (Better Stack JSON:API at `/index.json`), and `instatus` (Instatus JSON at `/summary.json`)
+- Parser types: `statuspage` (Atlassian JSON API at `/api/v2/summary.json`), `rss` (generic RSS/Atom), `betterstack` (Better Stack JSON:API at `/index.json`), `instatus` (Instatus JSON at `/summary.json`), and `datadog` (Datadog status page JSON at `/config.json`)
 - Two app targets share every source file: `StatusMonitor` (DMG, embeds Sparkle) and `Nazar-MAS` (App Store, no Sparkle) — add each new file to **both**, and wrap Sparkle code in `#if !MAS`
 - Bundle ID: `com.moollapps.StatusMonitor`
-- Catalog entries need a `platform` field matching their `type`: `atlassian` or `incident.io` for `statuspage`; `betterstack`, `instatus`, or `rss` for those types (the AWS, Azure, and GCP feeds use `aws`, `azure`, `gcp`)
+- Catalog entries need a `platform` field matching their `type`: `atlassian` or `incident.io` for `statuspage`; `betterstack`, `instatus`, `datadog`, or `rss` for those types (the AWS, Azure, and GCP feeds use `aws`, `azure`, `gcp`)
 
 ## Catalog
 
-Every entry must have a working endpoint: `/api/v2/summary.json` for `statuspage`, `/index.json` for `betterstack`, `/summary.json` for `instatus`, and the feed URL itself for `rss`. Count entries from the file rather than recording a number here; it changes with every catalog edit.
+Every entry must have a working endpoint: `/api/v2/summary.json` for `statuspage`, `/index.json` for `betterstack`, `/summary.json` for `instatus`, `/config.json` for `datadog`, and the feed URL itself for `rss`. Count entries from the file rather than recording a number here; it changes with every catalog edit.
 
 To add services: use the `statuspage-discovery` skill or `scripts/discover-services.py`.
 After any catalog edit, run `python3 scripts/check-service-count.py`. The website, README, and OG image state the size as "N+" figures, and CI fails if a figure is above the real count, more than 200 below it, or if the `#catalog-cat-count` fallback doesn't match. To bring them in line, run `python3 scripts/check-service-count.py --fix` then `npm run build:og`, and commit the regenerated `website/og-image.*`.
@@ -83,4 +83,4 @@ All work is tracked in GitHub Issues: https://github.com/moollaza/nazar/issues
 
 ## Status Page Support
 
-Most catalog services use Atlassian Statuspage or incident.io (compatible JSON schema). RSS/Atom feeds supported for non-Statuspage services. Better Stack status pages are supported via their public JSON:API at `{base_url}/index.json`. Instatus pages are supported via `{base_url}/summary.json` — note Instatus nests `status` inside `page`, so an Instatus payload looks like a malformed Statuspage one if you only check for top-level keys. Custom proprietary status pages are out of scope.
+Most catalog services use Atlassian Statuspage or incident.io (compatible JSON schema). RSS/Atom feeds supported for non-Statuspage services. Better Stack status pages are supported via their public JSON:API at `{base_url}/index.json`. Instatus pages are supported via `{base_url}/summary.json` — note Instatus nests `status` inside `page`, so an Instatus payload looks like a malformed Statuspage one if you only check for top-level keys. Datadog-hosted pages are supported via `{base_url}/config.json` — the page itself is a ~599-byte client-rendered shell titled "Status Pages Site" that returns S3 `AccessDenied` on every other parser's endpoint, which is how you recognise one. `config.json` has no page-level rollup, so overall status comes from `components[].status`; its `incidents` array is the full history, so filter on `resolved`. Custom proprietary status pages are out of scope.

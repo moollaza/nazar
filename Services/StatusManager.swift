@@ -362,6 +362,16 @@ class StatusManager {
                     logger.error("Instatus parse failed for \(provider.name): \(error.localizedDescription)")
                     updateSnapshot(for: provider, error: "Status format not recognized")
                 }
+            case .datadog:
+                do {
+                    try parseDatadog(data: data, provider: provider)
+                } catch let error as DecodingError {
+                    logger.error("Datadog schema mismatch for \(provider.name): \(String(describing: error))")
+                    updateSnapshot(for: provider, error: "Status format not recognized")
+                } catch {
+                    logger.error("Datadog parse failed for \(provider.name): \(error.localizedDescription)")
+                    updateSnapshot(for: provider, error: "Status format not recognized")
+                }
             case .rss:
                 do {
                     try parseRSS(data: data, provider: provider)
@@ -421,7 +431,28 @@ class StatusManager {
     // MARK: - Statuspage JSON Parsing
 
     private static func parseDate(_ string: String) -> Date? {
-        iso8601.date(from: string) ?? iso8601NoFraction.date(from: string)
+        if let date = iso8601.date(from: string) ?? iso8601NoFraction.date(from: string) {
+            return date
+        }
+        // ISO8601DateFormatter only accepts exactly three fractional digits.
+        // Datadog timestamps carry anywhere from two to six ("...:19.244657Z"),
+        // so pad or truncate to three and try once more.
+        guard let normalized = normalizingFractionalSeconds(string) else { return nil }
+        return iso8601.date(from: normalized)
+    }
+
+    /// Rewrites the fractional-seconds field of an ISO8601 string to exactly
+    /// three digits. Returns nil when the string carries no fractional part.
+    private static func normalizingFractionalSeconds(_ string: String) -> String? {
+        guard let dot = string.firstIndex(of: ".") else { return nil }
+        let afterDot = string.index(after: dot)
+        guard let endOffset = string[afterDot...].firstIndex(where: { !$0.isNumber }) else { return nil }
+        let digits = string[afterDot..<endOffset]
+        guard !digits.isEmpty else { return nil }
+        let padded = digits.count >= 3
+            ? String(digits.prefix(3))
+            : String(digits) + String(repeating: "0", count: 3 - digits.count)
+        return String(string[..<afterDot]) + padded + String(string[endOffset...])
     }
 
     private func parseStatuspage(data: Data, provider: Provider) throws {
@@ -545,6 +576,91 @@ class StatusManager {
             error: nil
         )
         applySnapshot(snapshot, for: provider)
+    }
+
+    // MARK: - Datadog Status Page Parsing
+
+    private func parseDatadog(data: Data, provider: Provider) throws {
+        let decoder = JSONDecoder()
+        let config = try decoder.decode(DatadogConfig.self, from: data)
+
+        let components = config.components
+            .sorted { ($0.position ?? Int.max) < ($1.position ?? Int.max) }
+            .map { comp in
+                ComponentSnapshot(
+                    id: comp.id,
+                    name: comp.name,
+                    status: ComponentStatus(fromDatadog: comp.status ?? "")
+                )
+            }
+
+        // Datadog publishes no page-level rollup, so the components are the
+        // only status signal on the page.
+        let componentMax = components.map(\.status).max() ?? .operational
+
+        // `incidents` is the page's full history. Only unresolved entries are
+        // active — without this filter every past outage would show as open.
+        let incidents = config.incidents?
+            .filter { $0.resolved != true }
+            .map { incident -> IncidentSnapshot in
+                let updates = Self.datadogUpdates(incident.timeline)
+                return IncidentSnapshot(
+                    id: incident.id,
+                    name: incident.title ?? incident.description ?? "Incident",
+                    // Affected components carry their own status; an incident
+                    // that names none inherits the page's worst component so it
+                    // never reads healthier than the page it belongs to.
+                    impact: (incident.componentsAffected ?? [])
+                        .map { ComponentStatus(fromDatadog: $0.status ?? "") }
+                        .max() ?? componentMax,
+                    status: (incident.currentStatus ?? "").capitalized,
+                    latestUpdate: incident.timeline?.first?.description ?? incident.description,
+                    updatedAt: (incident.lastModifiedAt ?? incident.publishedDate).flatMap(Self.parseDate),
+                    updates: updates
+                )
+            } ?? []
+
+        let maintenances = config.maintenances?
+            .filter { $0.resolved != true }
+            .map { maint -> IncidentSnapshot in
+                IncidentSnapshot(
+                    id: maint.id,
+                    name: maint.title ?? maint.description ?? "Scheduled maintenance",
+                    impact: .underMaintenance,
+                    status: (maint.currentStatus ?? "").capitalized,
+                    latestUpdate: maint.timeline?.first?.description ?? maint.description,
+                    updatedAt: (maint.scheduledStartDate ?? maint.lastModifiedAt ?? maint.publishedDate)
+                        .flatMap(Self.parseDate),
+                    updates: Self.datadogUpdates(maint.timeline)
+                )
+            } ?? []
+
+        // Capped after combining, matching the other parsers' limit of five.
+        let combined = Array((incidents + maintenances).prefix(5))
+        let incidentMax = combined.map(\.impact).max() ?? .operational
+        let overall = max(componentMax, incidentMax)
+
+        let snapshot = ProviderSnapshot(
+            id: provider.id,
+            name: provider.name,
+            overallStatus: overall,
+            components: components,
+            activeIncidents: combined,
+            lastUpdated: Date(),
+            error: nil
+        )
+        applySnapshot(snapshot, for: provider)
+    }
+
+    private static func datadogUpdates(_ timeline: [DatadogTimelineEntry]?) -> [IncidentUpdateSnapshot] {
+        (timeline ?? []).map { entry in
+            IncidentUpdateSnapshot(
+                id: entry.id,
+                status: entry.status ?? "update",
+                body: entry.description ?? "",
+                createdAt: (entry.createdAt ?? entry.startedAt).flatMap(Self.parseDate)
+            )
+        }
     }
 
     private func parseBetterStack(data: Data, provider: Provider) throws {

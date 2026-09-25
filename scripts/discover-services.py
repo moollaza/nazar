@@ -19,6 +19,11 @@ import ssl
 import argparse
 import time
 
+import pathlib
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import nazar_ua  # noqa: E402 — needs the sys.path line above
+
 URL_PATTERNS = [
     "https://status.{domain}",
     "https://{slug}status.com",
@@ -30,29 +35,22 @@ URL_PATTERNS = [
     "https://{slug}.betteruptime.com",
 ]
 
-HEADERS = {"User-Agent": "Nazar-Discovery/1.0"}
-
-# Some status pages block non-browser clients at the CDN/WAF layer (403/429).
-# fetch_json retries once with browser-like headers before giving up.
-BROWSER_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-    "Accept": "application/json, text/plain, */*",
-}
+# One identity across the repo's tooling — see scripts/nazar_ua.py. Discovery
+# asks the way the app asks, so a page it "discovers" is a page the app can
+# actually poll. A browser-impersonation retry used to live here; it found
+# nothing the honest UA missed (76/76 identical across a catalog sample) and
+# could only ever surface pages the app would then fail on.
+HEADERS = nazar_ua.HEADERS
 
 
 def fetch_json(url, ctx):
-    """GET a URL and parse JSON. Retries 403/429 with browser headers once."""
-    for headers in (HEADERS, BROWSER_HEADERS):
-        try:
-            req = urllib.request.Request(url, headers=headers)
-            resp = urllib.request.urlopen(req, timeout=15, context=ctx)
-            return json.loads(resp.read())
-        except urllib.error.HTTPError:
-            continue  # retry with browser headers, then give up
-        except Exception:
-            return None
-    return None
+    """GET a URL and parse JSON, using the app's User-Agent."""
+    try:
+        req = urllib.request.Request(url, headers=HEADERS)
+        resp = urllib.request.urlopen(req, timeout=15, context=ctx)
+        return json.loads(resp.read())
+    except Exception:
+        return None
 
 
 def try_url(url, ctx):

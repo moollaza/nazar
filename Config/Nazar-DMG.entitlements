@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Restated from the generated ENABLE_APP_SANDBOX /
+	     ENABLE_OUTGOING_NETWORK_CONNECTIONS settings so the app keeps them
+	     whether or not Xcode merges this file with the generated ones. -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<key>com.apple.security.network.client</key>
+	<true/>
+	<!-- Sparkle's Installer XPC services. Sparkle registers them under the
+	     host bundle ID with these suffixes; a sandboxed app needs a
+	     mach-lookup exception to reach them. The Downloader service is not
+	     enabled — the app already has network.client. -->
+	<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+	<array>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)-spks</string>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)-spki</string>
+	</array>
+</dict>
+</plist>

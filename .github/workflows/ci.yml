@@ -88,7 +88,7 @@ jobs:
       - name: Show project targets
         run: xcodebuild -project StatusMonitor.xcodeproj -list
 
-      - name: Build (Debug)
+      - name: Build (Debug, DMG flavor)
         run: |
           set -o pipefail
           xcodebuild \
@@ -96,8 +96,76 @@ jobs:
             -scheme StatusMonitor \
             -configuration Debug \
             -destination 'platform=macOS' \
+            -derivedDataPath build/ci \
             CODE_SIGNING_ALLOWED=NO \
             build
+
+      # The App Store flavor shares every source file but links no Sparkle.
+      # Building it here is what catches a Sparkle reference that escaped its
+      # `#if !MAS` guard, or a new file added to only one target.
+      - name: Build (Release, App Store flavor)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project StatusMonitor.xcodeproj \
+            -scheme Nazar-MAS \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath build/ci \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Assert flavor split
+        run: |
+          set -euo pipefail
+          dmg_app=build/ci/Build/Products/Debug/Nazar.app
+          mas_app=build/ci/Build/Products/Release/Nazar-MAS.app
+
+          fail() { echo "::error::$1"; exit 1; }
+
+          [ -d "$dmg_app" ] || fail "DMG app not found at $dmg_app"
+          [ -d "$mas_app" ] || fail "App Store app not found at $mas_app"
+
+          # A Debug build's executable is a shim that links Nazar.debug.dylib;
+          # the app's own dependencies live in that dylib, so both have to be
+          # inspected. Capture the output first — piping it straight into
+          # `grep -q` makes grep close the pipe on its first match, which
+          # kills otool with SIGPIPE and, under `pipefail`, fails the pipeline.
+          links_for() {
+            local app=$1 exe=$2
+            local binaries=("$app/Contents/MacOS/$exe")
+            while IFS= read -r dylib; do
+              binaries+=("$dylib")
+            done < <(find "$app" -name '*.debug.dylib')
+            otool -L "${binaries[@]}"
+          }
+
+          dmg_links=$(links_for "$dmg_app" Nazar)
+          mas_links=$(links_for "$mas_app" Nazar-MAS)
+          echo "DMG links:"; echo "$dmg_links"
+          echo "App Store links:"; echo "$mas_links"
+
+          # DMG flavor: Sparkle embedded, linked, and configured.
+          [ -d "$dmg_app/Contents/Frameworks/Sparkle.framework" ] \
+            || fail "DMG build is missing Sparkle.framework"
+          case "$dmg_links" in
+            *Sparkle*) ;;
+            *) fail "DMG executable does not link Sparkle" ;;
+          esac
+          /usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$dmg_app/Contents/Info.plist" >/dev/null \
+            || fail "DMG Info.plist is missing SUFeedURL"
+
+          # App Store flavor: none of the above.
+          [ ! -e "$mas_app/Contents/Frameworks/Sparkle.framework" ] \
+            || fail "App Store build contains Sparkle.framework"
+          case "$mas_links" in
+            *Sparkle*) fail "App Store executable links Sparkle" ;;
+          esac
+          if /usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$mas_app/Contents/Info.plist" >/dev/null 2>&1; then
+            fail "App Store Info.plist carries SUFeedURL"
+          fi
+
+          echo "Both flavors are correct."
 
       - name: Run unit tests
         run: |
@@ -107,6 +175,7 @@ jobs:
             -scheme StatusMonitor \
             -destination 'platform=macOS' \
             -only-testing:StatusMonitorTests \
+            -derivedDataPath build/ci \
             CODE_SIGNING_ALLOWED=NO \
             test
 
@@ -121,6 +190,7 @@ jobs:
             -scheme StatusMonitor \
             -destination 'platform=macOS' \
             -only-testing:StatusMonitorUITests \
+            -derivedDataPath build/ci \
             CODE_SIGNING_ALLOWED=NO \
             test
         continue-on-error: true

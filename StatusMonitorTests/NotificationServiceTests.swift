@@ -148,3 +148,54 @@ final class NotificationServiceTests: XCTestCase {
         // If the line above didn't crash, we're good.
     }
 }
+
+/// The update notification is a second category on the same delegate as the
+/// outage alerts, so both the request shape and the tap routing are covered
+/// here — outage routing must stay unchanged.
+final class UpdateNotificationTests: XCTestCase {
+
+    func testTitleNamesTheVersion() {
+        let req = NotificationService.makeUpdateRequest(version: "1.4.0")
+        XCTAssertEqual(req.content.title, "Nazar 1.4.0 is available")
+    }
+
+    func testUsesTheUpdateCategory() {
+        let req = NotificationService.makeUpdateRequest(version: "1.4.0")
+        XCTAssertEqual(req.content.categoryIdentifier, NotificationService.updateCategoryIdentifier)
+    }
+
+    func testIdentifierIsStablePerVersionSoRemindersReplace() {
+        let first = NotificationService.makeUpdateRequest(version: "1.4.0")
+        let second = NotificationService.makeUpdateRequest(version: "1.4.0")
+        XCTAssertEqual(first.identifier, second.identifier)
+    }
+
+    func testIdentifiersDifferAcrossVersions() {
+        let a = NotificationService.makeUpdateRequest(version: "1.4.0")
+        let b = NotificationService.makeUpdateRequest(version: "1.5.0")
+        XCTAssertNotEqual(a.identifier, b.identifier)
+    }
+
+    // MARK: - Tap routing
+
+    func testUpdateCategoryRoutesToTheUpdater() {
+        let route = NotificationService.route(
+            categoryIdentifier: NotificationService.updateCategoryIdentifier,
+            userInfo: [:]
+        )
+        XCTAssertEqual(route, .update)
+    }
+
+    func testOutageNotificationStillRoutesToItsProvider() {
+        let id = UUID()
+        let route = NotificationService.route(
+            categoryIdentifier: "",
+            userInfo: ["providerId": id.uuidString]
+        )
+        XCTAssertEqual(route, .provider(id))
+    }
+
+    func testOutageNotificationWithoutAProviderRoutesToThePanel() {
+        XCTAssertEqual(NotificationService.route(categoryIdentifier: "", userInfo: [:]), .provider(nil))
+    }
+}

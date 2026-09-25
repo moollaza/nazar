@@ -23,6 +23,9 @@ Download the latest `.dmg` from [GitHub Releases](https://github.com/moollaza/na
 
 Requires macOS 14 (Sonoma) or later.
 
+> [!NOTE]
+> Nazar keeps itself up to date, but 1.3.0 and earlier shipped without the updater. If you're on one of those, download the latest `.dmg` once and replace the app. Updates are automatic after that.
+
 ## Development Setup
 
 **Prerequisites:** Xcode 15+, macOS 14+

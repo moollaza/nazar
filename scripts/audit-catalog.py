@@ -12,6 +12,7 @@ service is gone" from "we asked too fast".
 
 import argparse
 import json
+import pathlib
 import ssl
 import sys
 import time
@@ -19,8 +20,24 @@ import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
-HEADERS = {"User-Agent": "Nazar-Audit/1.0"}
 CATALOG = "Resources/catalog.json"
+VERSION_CONFIG = "Config/Version.xcconfig"
+
+
+def app_version(default="1.0"):
+    """Read MARKETING_VERSION, the same value the app stamps into its User-Agent."""
+    try:
+        for line in pathlib.Path(VERSION_CONFIG).read_text().splitlines():
+            if line.strip().startswith("MARKETING_VERSION"):
+                return line.split("=", 1)[1].split("//")[0].strip()
+    except OSError:
+        pass
+    return default
+
+
+# Identical to the app's User-Agent (Services/StatusManager.swift). The audit
+# only predicts what the app will see if it asks the way the app asks.
+HEADERS = {"User-Agent": f"Nazar/{app_version()} (+https://usenazar.com)"}
 
 
 def endpoint(entry):

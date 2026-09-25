@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/moollaza/nazar/compare/v1.3.0...v1.4.0) (2026-09-25)
+
+
+### Features
+
+* Sparkle auto-updates for DMG build ([#73](https://github.com/moollaza/nazar/issues/73)) ([5372541](https://github.com/moollaza/nazar/commit/5372541c8bb558981d985960a9e4fcf46486e04e))
+
 ## [1.3.0](https://github.com/moollaza/nazar/compare/v1.2.0...v1.3.0) (2026-09-11)
 
 

@@ -195,15 +195,42 @@ class StatusManager {
         recalcWorstStatus()
     }
 
+    /// Sets the muted state for every provider in `ids` at once. Persists and
+    /// recalculates worst status a single time — preferable to looping
+    /// `toggleMute` when applying a bulk change from a multi-selection.
+    func setMuted(ids: Set<UUID>, isMuted: Bool) {
+        guard !ids.isEmpty else { return }
+        var changed = false
+        for idx in providers.indices where ids.contains(providers[idx].id)
+            && providers[idx].isMuted != isMuted {
+            providers[idx].isMuted = isMuted
+            changed = true
+        }
+        guard changed else { return }
+        saveProviders()
+        recalcWorstStatus()
+    }
+
     func removeProvider(_ provider: Provider) {
-        timers[provider.id]?.invalidate()
-        timers.removeValue(forKey: provider.id)
-        providers.removeAll { $0.id == provider.id }
-        snapshots.removeAll { $0.id == provider.id }
-        previousStatuses.removeValue(forKey: provider.id)
-        failureCounts.removeValue(forKey: provider.id)
-        lastFailure.removeValue(forKey: provider.id)
-        transitionTimes.removeValue(forKey: provider.id)
+        removeProviders(ids: [provider.id])
+    }
+
+    /// Removes every provider whose id is in `ids`, persisting and recalculating
+    /// worst status once at the end. Prefer this over looping `removeProvider`
+    /// when deleting multiple services from the UI — it keeps the UserDefaults
+    /// write and status recalculation to a single pass.
+    func removeProviders(ids: Set<UUID>) {
+        guard !ids.isEmpty else { return }
+        for id in ids {
+            timers[id]?.invalidate()
+            timers.removeValue(forKey: id)
+            previousStatuses.removeValue(forKey: id)
+            failureCounts.removeValue(forKey: id)
+            lastFailure.removeValue(forKey: id)
+            transitionTimes.removeValue(forKey: id)
+        }
+        providers.removeAll { ids.contains($0.id) }
+        snapshots.removeAll { ids.contains($0.id) }
         saveProviders()
         recalcWorstStatus()
     }

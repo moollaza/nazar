@@ -53,6 +53,10 @@
 		D877B9511A37DA86DC84CF0A /* StatusMonitorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2782F884C760063B14E /* StatusMonitorApp.swift */; };
 		E0265BD6DCEEEDCCE32C2F7C /* StatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2752F884C760063B14E /* StatusManager.swift */; };
 		FB7595698A5566C458096EBA /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2792F884C760063B14E /* DashboardView.swift */; };
+		A99000000000000000000002 /* AppleSystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99000000000000000000001 /* AppleSystemStatus.swift */; };
+		A99000000000000000000003 /* AppleSystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99000000000000000000001 /* AppleSystemStatus.swift */; };
+		A99000000000000000000005 /* AppleSystemStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99000000000000000000004 /* AppleSystemStatusTests.swift */; };
+		A99000000000000000000007 /* AppleSystemStatusPollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99000000000000000000006 /* AppleSystemStatusPollTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -114,6 +118,9 @@
 		DC7DEBB5DFA9A34AE957180E /* UpdaterConfigurationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UpdaterConfigurationTests.swift; path = UpdaterConfigurationTests.swift; sourceTree = "<group>"; };
 		DD00000100000001000VRSCF /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Version.xcconfig; path = Config/Version.xcconfig; sourceTree = "<group>"; };
 		E86E713219B6AF8887942121 /* MAS.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = MAS.xcconfig; path = Config/MAS.xcconfig; sourceTree = "<group>"; };
+		A99000000000000000000001 /* AppleSystemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSystemStatus.swift; sourceTree = "<group>"; };
+		A99000000000000000000004 /* AppleSystemStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSystemStatusTests.swift; sourceTree = "<group>"; };
+		A99000000000000000000006 /* AppleSystemStatusPollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSystemStatusPollTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -210,6 +217,7 @@
 		8673B2762F884C760063B14E /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				A99000000000000000000001 /* AppleSystemStatus.swift */,
 				8673B2732F884C760063B14E /* NotificationService.swift */,
 				8673B2742F884C760063B14E /* RSSParser.swift */,
 				8673B2752F884C760063B14E /* StatusManager.swift */,
@@ -242,6 +250,8 @@
 		BB00000100000010000TGRPP /* StatusMonitorTests */ = {
 			isa = PBXGroup;
 			children = (
+				A99000000000000000000006 /* AppleSystemStatusPollTests.swift */,
+				A99000000000000000000004 /* AppleSystemStatusTests.swift */,
 				BB00000100000002000CATTF /* CatalogTests.swift */,
 				BB00000100000004000CODTF /* CodableTests.swift */,
 				BB00000100000006000CMPTF /* ComponentStatusTests.swift */,
@@ -443,6 +453,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A99000000000000000000003 /* AppleSystemStatus.swift in Sources */,
 				4C1842AAB7D45C745B187946 /* NotificationService.swift in Sources */,
 				FB7595698A5566C458096EBA /* DashboardView.swift in Sources */,
 				4DFDBC95E95C007BE71028AC /* SettingsView.swift in Sources */,
@@ -461,6 +472,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A99000000000000000000002 /* AppleSystemStatus.swift in Sources */,
 				8673B27C2F884C760063B14E /* NotificationService.swift in Sources */,
 				8673B27D2F884C760063B14E /* DashboardView.swift in Sources */,
 				8673B27E2F884C760063B14E /* SettingsView.swift in Sources */,
@@ -479,6 +491,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A99000000000000000000007 /* AppleSystemStatusPollTests.swift in Sources */,
+				A99000000000000000000005 /* AppleSystemStatusTests.swift in Sources */,
 				BB00000100000001000CATTF /* CatalogTests.swift in Sources */,
 				BB00000100000003000CODTF /* CodableTests.swift in Sources */,
 				BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */,

@@ -241,7 +241,9 @@ struct AddCustomServiceView: View {
     private var validationMessage: String? {
         if trimmedName.isEmpty || trimmedURL.isEmpty { return nil }
         if !candidate.hasValidURL {
-            return "URL must be a valid https:// address with a host"
+            return type == .apple
+                ? "Use https://developer.apple.com/system-status/ or https://www.apple.com/support/systemstatus/"
+                : "URL must be a valid https:// address with a host"
         }
         if manager.providers.contains(where: { $0.baseURL == candidate.baseURL }) {
             return "A service with this URL is already being monitored"
@@ -269,9 +271,11 @@ struct AddCustomServiceView: View {
                     Text(t.rawValue).tag(t)
                 }
             }
-            .pickerStyle(.segmented)
+            .pickerStyle(.menu)
 
-            Text("Supports Atlassian Statuspage, incident.io, Better Stack, Instatus, and Datadog status pages, plus RSS/Atom feeds. For everything except RSS, use the status page base URL (e.g. https://status.example.com). For RSS, provide the full feed URL.")
+            Text(type == .apple
+                 ? "Apple supports https://developer.apple.com/system-status/ and https://www.apple.com/support/systemstatus/. Use either page URL."
+                 : "Supports Atlassian Statuspage, incident.io, Better Stack, Instatus, Datadog, and Apple status pages, plus RSS/Atom feeds. Use the status page base URL (e.g. https://status.example.com). For RSS, provide the full feed URL.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 

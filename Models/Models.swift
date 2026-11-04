@@ -173,7 +173,7 @@ struct Provider: Identifiable, Codable, Equatable {
               !host.isEmpty else {
             return false
         }
-        return true
+        return type != .apple || AppleSystemStatus.feedURL(for: baseURL) != nil
     }
 
     var apiURL: URL? {
@@ -189,6 +189,8 @@ struct Provider: Identifiable, Codable, Equatable {
             return URL(string: "\(baseURL)/summary.json")
         case .datadog:
             return URL(string: "\(baseURL)/config.json")
+        case .apple:
+            return AppleSystemStatus.feedURL(for: baseURL)
         }
     }
 
@@ -207,6 +209,7 @@ enum ProviderType: String, Codable, CaseIterable {
     case betterstack  // Better Stack status page JSON:API (index.json)
     case instatus     // Instatus status page JSON (summary.json)
     case datadog      // Datadog status page JSON (config.json)
+    case apple
 }
 
 // MARK: - Atlassian Statuspage API Response

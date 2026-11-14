@@ -64,3 +64,6 @@ CLAUDE.local.md
 # Python
 __pycache__/
 *.pyc
+
+# Verify skill: local builds, run state, and evidence
+.verify/

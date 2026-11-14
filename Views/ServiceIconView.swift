@@ -3,6 +3,8 @@ import SwiftUI
 struct ServiceIconView: View {
     let name: String
     let catalogId: String?
+    /// True while the containing row is hovered; shows the tile border.
+    var isHighlighted: Bool = false
 
     var body: some View {
         if let catalogId, let icon = NSImage(named: catalogId) {
@@ -12,13 +14,14 @@ struct ServiceIconView: View {
                 .frame(width: 20, height: 20)
                 .clipShape(RoundedRectangle(cornerRadius: 4))
         } else {
-            InitialsAvatarView(name: name)
+            InitialsAvatarView(name: name, isHighlighted: isHighlighted)
         }
     }
 }
 
 struct InitialsAvatarView: View {
     let name: String
+    var isHighlighted: Bool = false
 
     private var initials: String {
         let words = name.split(separator: " ")
@@ -76,12 +79,14 @@ struct InitialsAvatarView: View {
             // tint and lower the letter contrast.
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color(nsColor: .windowBackgroundColor))
-            // The hairline keeps pale tiles (blue, cyan) visible on the grey
-            // row hover fill.
             RoundedRectangle(cornerRadius: 4)
                 .fill(backgroundColor.opacity(0.2))
-            RoundedRectangle(cornerRadius: 4)
-                .strokeBorder(borderColor, lineWidth: 1)
+            // Only on hover: the hairline keeps pale tiles (blue, cyan)
+            // visible on the grey row hover fill. At rest it was distracting.
+            if isHighlighted {
+                RoundedRectangle(cornerRadius: 4)
+                    .strokeBorder(borderColor, lineWidth: 1)
+            }
             Text(initials)
                 .font(.system(size: 9, weight: .bold))
                 .foregroundColor(textColor)

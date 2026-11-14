@@ -564,7 +564,7 @@ struct CatalogAddRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            ServiceIconView(name: entry.name, catalogId: entry.id)
+            ServiceIconView(name: entry.name, catalogId: entry.id, isHighlighted: isHovered)
             VStack(alignment: .leading, spacing: 0) {
                 Text(entry.name)
                     .font(.system(.body, weight: .medium))
@@ -626,7 +626,7 @@ struct ProviderRowView: View {
         HStack(spacing: 10) {
             // Icon with status badge
             ZStack(alignment: .bottomTrailing) {
-                ServiceIconView(name: snapshot.name, catalogId: catalogId)
+                ServiceIconView(name: snapshot.name, catalogId: catalogId, isHighlighted: isHovered)
                 Circle()
                     .fill(Color(nsColor: snapshot.overallStatus.color))
                     .frame(width: 8, height: 8)

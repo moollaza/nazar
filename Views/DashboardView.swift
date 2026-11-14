@@ -356,51 +356,48 @@ struct DashboardView: View {
         Dictionary(uniqueKeysWithValues: manager.providers.map { ($0.id, $0) })
     }
 
-    private var serviceList: some View {
-        let lookup = providersById
-        let muted = mutedIds
-        let snapshots = filteredSnapshots
-        let matches = catalogMatches
-
-        // Muted services sink to the end of whichever group they are in, so
-        // a muted outage still reads as an outage without crowding live ones.
-        let byName: (ProviderSnapshot, ProviderSnapshot) -> Bool = {
-            let am = muted.contains($0.id), bm = muted.contains($1.id)
-            if am != bm { return !am }
-            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-        }
-        let bySeverity: (ProviderSnapshot, ProviderSnapshot) -> Bool = {
-            let am = muted.contains($0.id), bm = muted.contains($1.id)
-            if am != bm { return !am }
-            if $0.overallStatus != $1.overallStatus { return $0.overallStatus > $1.overallStatus }
-            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-        }
-
-        let issues = snapshots.filter(needsAttention).sorted(by: bySeverity)
-        // Recently recovered services lead the operational group, newest first.
-        let healthy = snapshots.filter { !needsAttention($0) }.sorted {
-            let ar = manager.recentRecovery(for: $0.id), br = manager.recentRecovery(for: $1.id)
-            switch (ar, br) {
-            case let (a?, b?): return a > b
-            case (_?, nil): return true
-            case (nil, _?): return false
-            case (nil, nil): return byName($0, $1)
+    private var sortedSnapshots: [ProviderSnapshot] {
+        switch sortOrder {
+        case .severity:
+            return filteredSnapshots.sorted {
+                if $0.overallStatus != $1.overallStatus {
+                    return $0.overallStatus > $1.overallStatus
+                }
+                return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+        case .alphabetical:
+            return filteredSnapshots.sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
             }
         }
+    }
+
+    private var serviceList: some View {
+        let lookup = providersById
+        let snapshots = sortedSnapshots
+        let matches = catalogMatches
 
         return ScrollView {
             LazyVStack(spacing: 0) {
-                switch sortOrder {
-                case .severity:
-                    rows(issues, lookup: lookup, compact: false)
-                    if !issues.isEmpty && !healthy.isEmpty {
-                        Divider()
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 4)
-                    }
-                    rows(healthy, lookup: lookup, compact: true)
-                case .alphabetical:
-                    rows(snapshots.sorted(by: byName), lookup: lookup, compact: false)
+                ForEach(snapshots) { snapshot in
+                    let provider = lookup[snapshot.id]
+                    ProviderRowView(
+                        snapshot: snapshot,
+                        catalogId: provider?.catalogEntryId,
+                        isMuted: provider?.isMuted ?? false,
+                        statusPageURL: provider?.externalURL,
+                        onTap: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedProviderId = snapshot.id
+                            }
+                        },
+                        onToggleMute: {
+                            if let p = provider { manager.toggleMute(for: p) }
+                        },
+                        onRemove: {
+                            pendingRemoval = provider
+                        }
+                    )
                 }
 
                 if !query.isEmpty {
@@ -435,7 +432,7 @@ struct DashboardView: View {
                     .foregroundStyle(Color.accentColor)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                } else if showIssuesOnly && issues.isEmpty {
+                } else if showIssuesOnly && snapshots.isEmpty {
                     Text("No issues right now.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -444,32 +441,6 @@ struct DashboardView: View {
                 }
             }
             .padding(.vertical, 2)
-        }
-    }
-
-    @ViewBuilder
-    private func rows(_ snapshots: [ProviderSnapshot], lookup: [UUID: Provider], compact: Bool) -> some View {
-        ForEach(snapshots) { snapshot in
-            let provider = lookup[snapshot.id]
-            ProviderRowView(
-                snapshot: snapshot,
-                catalogId: provider?.catalogEntryId,
-                isMuted: provider?.isMuted ?? false,
-                statusPageURL: provider?.externalURL,
-                recoveredAt: manager.recentRecovery(for: snapshot.id),
-                compact: compact,
-                onTap: {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        selectedProviderId = snapshot.id
-                    }
-                },
-                onToggleMute: {
-                    if let p = provider { manager.toggleMute(for: p) }
-                },
-                onRemove: {
-                    pendingRemoval = provider
-                }
-            )
         }
     }
 
@@ -566,10 +537,6 @@ struct ProviderRowView: View {
     var catalogId: String? = nil
     var isMuted: Bool = false
     var statusPageURL: URL? = nil
-    /// Set when the service came back from an incident in the last 24 hours.
-    var recoveredAt: Date? = nil
-    /// Compact rows drop the status label; the section header carries it.
-    var compact: Bool = false
     let onTap: () -> Void
     var onToggleMute: (() -> Void)?
     var onRemove: (() -> Void)?
@@ -608,47 +575,25 @@ struct ProviderRowView: View {
                     .help("Notifications muted")
             }
 
-            Spacer(minLength: 4)
-
-            if isHovered {
-                HStack(spacing: 0) {
-                    HoverButton(
-                        icon: isMuted ? "speaker.wave.2" : "speaker.slash",
-                        help: isMuted ? "Unmute notifications" : "Mute notifications"
-                    ) { onToggleMute?() }
-                    if let url = openableURL {
-                        HoverButton(icon: "arrow.up.right.square", help: "Open status page") {
-                            NSWorkspace.shared.open(url)
-                        }
-                    }
-                }
-                .transition(.opacity)
-            }
+            Spacer()
 
             // Status badge
             if snapshot.error != nil {
                 StatusBadge(label: "Unavailable", status: .unknown)
-            } else if snapshot.overallStatus != .operational {
-                StatusBadge(label: snapshot.overallStatus.label, status: snapshot.overallStatus)
-            } else if let recoveredAt {
-                Text("Recovered \(coarseTimeAgo(recoveredAt))")
-                    .font(.caption)
-                    .foregroundStyle(Color(nsColor: ComponentStatus.operational.textColor))
-                    .lineLimit(1)
-                    .help("Back to operational at \(recoveredAt.formatted(date: .omitted, time: .shortened))")
-            } else if !compact {
+            } else if snapshot.overallStatus == .operational {
                 Text("Operational")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            } else {
+                StatusBadge(label: snapshot.overallStatus.label, status: snapshot.overallStatus)
             }
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 9, weight: .medium))
                 .foregroundStyle(.tertiary)
         }
-        .frame(minHeight: 24)
         .padding(.horizontal, 16)
-        .padding(.vertical, compact ? 4 : 7)
+        .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 6)
                 .fill(isPressed ? Color(nsColor: .selectedContentBackgroundColor).opacity(0.15)

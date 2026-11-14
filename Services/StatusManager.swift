@@ -31,12 +31,6 @@ class StatusManager {
     /// is flapping, since we coalesce notifications to one per provider in
     /// Notification Center.
     private var transitionTimes: [UUID: [Date]] = [:]
-    /// When each provider last went from an incident back to operational.
-    /// Persisted so "Recovered 2h ago" survives a relaunch; entries older
-    /// than `recoveryWindow` are dropped on load and ignored by readers.
-    private(set) var recoveredAt: [UUID: Date] = [:]
-    static let recoveryWindow: TimeInterval = 24 * 3600
-    private static let recoveredAtKey = "recoveredAt"
     private var sleepObserver: NSObjectProtocol?
     private var wakeObserver: NSObjectProtocol?
 
@@ -84,7 +78,6 @@ class StatusManager {
         self.defaults = defaults
         self.now = now
         loadProviders()
-        loadRecoveredAt()
         observeSleepWake()
     }
 
@@ -164,30 +157,6 @@ class StatusManager {
         }
     }
 
-    private func loadRecoveredAt() {
-        let raw = defaults.dictionary(forKey: Self.recoveredAtKey) as? [String: Double] ?? [:]
-        let cutoff = now().addingTimeInterval(-Self.recoveryWindow)
-        let known = Set(providers.map(\.id))
-        recoveredAt = raw.reduce(into: [:]) { result, pair in
-            guard let id = UUID(uuidString: pair.key), known.contains(id) else { return }
-            let date = Date(timeIntervalSince1970: pair.value)
-            if date >= cutoff { result[id] = date }
-        }
-    }
-
-    private func saveRecoveredAt() {
-        let raw = Dictionary(uniqueKeysWithValues: recoveredAt.map { ($0.key.uuidString, $0.value.timeIntervalSince1970) })
-        defaults.set(raw, forKey: Self.recoveredAtKey)
-    }
-
-    /// The time `id` recovered from an incident, if that was within the last
-    /// `recoveryWindow`.
-    func recentRecovery(for id: UUID) -> Date? {
-        guard let date = recoveredAt[id],
-              now().timeIntervalSince(date) < Self.recoveryWindow else { return nil }
-        return date
-    }
-
     @discardableResult
     func addProvider(_ provider: Provider) -> Bool {
         guard provider.hasValidURL else {
@@ -235,7 +204,6 @@ class StatusManager {
         failureCounts.removeValue(forKey: provider.id)
         lastFailure.removeValue(forKey: provider.id)
         transitionTimes.removeValue(forKey: provider.id)
-        if recoveredAt.removeValue(forKey: provider.id) != nil { saveRecoveredAt() }
         saveProviders()
         recalcWorstStatus()
     }
@@ -895,23 +863,9 @@ class StatusManager {
             )
         }
 
-        recordRecovery(for: provider.id, from: previousStatus, to: snapshot.overallStatus)
         previousStatuses[provider.id] = snapshot.overallStatus
         recalcWorstStatus()
         onPollCycleComplete?()
-    }
-
-    /// Remembers when a provider returns to operational after a real incident
-    /// (not after `.unknown`, which only means we had no data), and forgets it
-    /// when a new incident starts.
-    func recordRecovery(for id: UUID, from previous: ComponentStatus?, to current: ComponentStatus) {
-        if current == .operational {
-            guard let previous, previous != .operational, previous != .unknown else { return }
-            recoveredAt[id] = now()
-            saveRecoveredAt()
-        } else if current != .unknown, recoveredAt.removeValue(forKey: id) != nil {
-            saveRecoveredAt()
-        }
     }
 
     /// Appends a transition timestamp for `id`, drops entries older than 1

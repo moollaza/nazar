@@ -16,21 +16,48 @@ enum DashboardSort: String {
 
 struct DashboardView: View {
     @Environment(StatusManager.self) var manager
-    var onOpenSettings: (() -> Void)?
+    var onOpenSettings: ((SettingsTab) -> Void)?
     @State private var selectedProviderId: UUID?
     @State private var searchText = ""
     @State private var showIssuesOnly = false
+    @State private var pendingRemoval: Provider?
+    @FocusState private var searchFocused: Bool
     @AppStorage("dashboardSort") private var sortOrder: DashboardSort = .severity
+    @AppStorage("dashboardOperationalCollapsed") private var operationalCollapsed = false
+
+    /// Most catalog matches to list while filtering; enough to find a service
+    /// without pushing the monitored matches out of view.
+    private static let catalogMatchLimit = 6
+
+    private var query: String {
+        searchText.trimmingCharacters(in: .whitespaces)
+    }
+
+    private func needsAttention(_ snapshot: ProviderSnapshot) -> Bool {
+        snapshot.overallStatus != .operational || snapshot.error != nil
+    }
 
     private var filteredSnapshots: [ProviderSnapshot] {
         var result = manager.snapshots
-        if !searchText.isEmpty {
-            result = result.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        if !query.isEmpty {
+            result = result.filter { $0.name.localizedCaseInsensitiveContains(query) }
         }
         if showIssuesOnly {
-            result = result.filter { $0.overallStatus != .operational || $0.error != nil }
+            result = result.filter(needsAttention)
         }
         return result
+    }
+
+    /// Catalog services matching the filter text that are not monitored yet.
+    private var catalogMatches: [CatalogEntry] {
+        guard !query.isEmpty else { return [] }
+        let monitored = Set(manager.providers.compactMap(\.catalogEntryId))
+        return Array(
+            Catalog.shared.search(query)
+                .lazy
+                .filter { !monitored.contains($0.id) }
+                .prefix(Self.catalogMatchLimit)
+        )
     }
 
     /// True when every monitored service is unreachable — suggests no connectivity.
@@ -53,22 +80,6 @@ struct DashboardView: View {
 
     private var unreachableCount: Int {
         visibleSnapshots.filter { $0.error != nil }.count
-    }
-
-    private var sortedSnapshots: [ProviderSnapshot] {
-        switch sortOrder {
-        case .severity:
-            return filteredSnapshots.sorted {
-                if $0.overallStatus != $1.overallStatus {
-                    return $0.overallStatus > $1.overallStatus
-                }
-                return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-            }
-        case .alphabetical:
-            return filteredSnapshots.sorted {
-                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-            }
-        }
     }
 
     private var selectedSnapshot: ProviderSnapshot? {
@@ -112,88 +123,24 @@ struct DashboardView: View {
     @ViewBuilder
     private var dashboardContent: some View {
         VStack(spacing: 0) {
-            // Header
-            HStack(spacing: 8) {
-                Text("Nazar")
-                    .font(.headline)
-                Spacer()
-                // Issues only filter
-                HoverButton(
-                    icon: showIssuesOnly ? "exclamationmark.triangle.fill" : "exclamationmark.triangle",
-                    isActive: showIssuesOnly,
-                    activeColor: .orange,
-                    help: showIssuesOnly ? "Show all services" : "Show issues only"
-                ) {
-                    showIssuesOnly.toggle()
-                }
+            header
 
-                Picker("Sort", selection: $sortOrder) {
-                    Image(systemName: "arrow.up.arrow.down")
-                        .tag(DashboardSort.severity)
-                    Image(systemName: "textformat.abc")
-                        .tag(DashboardSort.alphabetical)
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 72)
-                .labelsHidden()
-
-                // Refresh button with spin feedback. Spinner is tied to
-                // `manager.isRefreshing` so it reflects actual poll completion
-                // rather than a wall-clock timer. `pollAll` coalesces repeat
-                // invocations so rapid clicks don't spawn overlapping cycles.
-                HoverButton(
-                    icon: "arrow.clockwise",
-                    fontSize: 12,
-                    help: "Refresh all"
-                ) {
-                    logger.info("Manual refresh triggered")
-                    manager.pollAll()
-                }
-                .disabled(manager.isRefreshing)
-                .rotationEffect(.degrees(manager.isRefreshing ? 360 : 0))
-                .animation(manager.isRefreshing ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .default, value: manager.isRefreshing)
-
-                // Settings button — opens the Settings window
-                HoverButton(icon: "gearshape", fontSize: 12, help: "Settings") {
-                    logger.info("Opening Settings window")
-                    onOpenSettings?()
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-
-            // Search bar (always visible when services exist)
-            if !manager.providers.isEmpty {
-                HStack(spacing: 6) {
-                    Image(systemName: "magnifyingglass")
-                        .font(.system(size: 10))
-                        .foregroundStyle(.secondary)
-                    TextField("Filter services...", text: $searchText)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 12))
-                    if !searchText.isEmpty {
-                        Button(action: { searchText = "" }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 10))
-                                .foregroundStyle(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(Color(nsColor: .controlBackgroundColor))
-                .cornerRadius(6)
+            searchField
                 .padding(.horizontal, 16)
-                .padding(.bottom, 6)
+                .padding(.bottom, showIssuesOnly ? 4 : 8)
+
+            if showIssuesOnly {
+                issuesOnlyChip
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 8)
             }
 
             Divider()
 
             // Content
-            if manager.providers.isEmpty {
+            if manager.providers.isEmpty && query.isEmpty {
                 emptyState
-            } else if manager.snapshots.isEmpty {
+            } else if !manager.providers.isEmpty && manager.snapshots.isEmpty && query.isEmpty {
                 VStack(spacing: 8) {
                     ProgressView()
                     Text("Loading status pages...")
@@ -207,79 +154,188 @@ struct DashboardView: View {
 
             Divider()
 
-            // Footer
-            HStack(spacing: 6) {
-                if isOffline {
-                    Image(systemName: "wifi.slash")
+            if let provider = pendingRemoval {
+                removalBar(for: provider)
+            } else {
+                footer
+            }
+        }
+    }
+
+    // MARK: - Header
+
+    private var headerSubtitle: String {
+        if manager.providers.isEmpty { return "No services monitored" }
+        var parts = ["\(manager.providers.count) monitored"]
+        if !mutedIds.isEmpty { parts.append("\(mutedIds.count) muted") }
+        return parts.joined(separator: " · ")
+    }
+
+    private var header: some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Nazar")
+                    .font(.headline)
+                Text(headerSubtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .accessibilityElement(children: .combine)
+
+            Spacer()
+
+            HoverButton(icon: "plus", fontSize: 12, help: "Add a service") {
+                searchFocused = true
+            }
+
+            // Spinner is tied to `manager.isRefreshing` so it reflects actual
+            // poll completion rather than a wall-clock timer. `pollAll`
+            // coalesces repeat invocations so rapid clicks don't spawn
+            // overlapping cycles.
+            HoverButton(icon: "arrow.clockwise", fontSize: 12, help: "Refresh all (⌘R)") {
+                logger.info("Manual refresh triggered")
+                manager.pollAll()
+            }
+            .disabled(manager.isRefreshing)
+            .rotationEffect(.degrees(manager.isRefreshing ? 360 : 0))
+            .animation(manager.isRefreshing ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .default, value: manager.isRefreshing)
+
+            moreMenu
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 10)
+    }
+
+    private var moreMenu: some View {
+        Menu {
+            Picker("Sort", selection: $sortOrder) {
+                Text("Group by Status").tag(DashboardSort.severity)
+                Text("Sort by Name").tag(DashboardSort.alphabetical)
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
+
+            Toggle("Show Issues Only", isOn: $showIssuesOnly)
+
+            Divider()
+
+            Button("Add Custom Status Page…") { onOpenSettings?(.services) }
+            Button("Browse Catalog…") { onOpenSettings?(.catalog) }
+
+            Divider()
+
+            Button("Settings…") {
+                logger.info("Opening Settings window")
+                onOpenSettings?(.services)
+            }
+            Button("Send Feedback…") { onOpenSettings?(.feedback) }
+
+            Divider()
+
+            Button("Quit Nazar") { NSApp.terminate(nil) }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .frame(width: 24, height: 24)
+        .help("More")
+    }
+
+    // MARK: - Search
+
+    private var searchField: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+            TextField("Filter or add a service…", text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 12))
+                .focused($searchFocused)
+                .onExitCommand { searchText = "" }
+            if !searchText.isEmpty {
+                Button(action: { searchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("Clear")
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+    }
+
+    private var issuesOnlyChip: some View {
+        HStack {
+            Button {
+                showIssuesOnly = false
+            } label: {
+                HStack(spacing: 4) {
+                    Text("Issues only")
+                    Image(systemName: "xmark")
+                        .font(.system(size: 8, weight: .bold))
+                }
+                .font(.caption)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .foregroundStyle(.white)
+                .background(Capsule().fill(Color.accentColor))
+            }
+            .buttonStyle(.plain)
+            .help("Show all services")
+            Spacer()
+        }
+    }
+
+    // MARK: - Footer
+
+    private var footer: some View {
+        HStack(spacing: 6) {
+            if isOffline {
+                Image(systemName: "wifi.slash")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                Text("Offline")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            } else if !manager.snapshots.isEmpty {
+                Circle()
+                    .fill(Color(nsColor: manager.worstStatus.color))
+                    .frame(width: 8, height: 8)
+                if issueCount > 0 {
+                    Text(issueSummary(issues: issueCount, unreachable: unreachableCount))
                         .font(.caption)
-                        .foregroundStyle(.red)
-                    Text("Offline")
-                        .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color(nsColor: manager.worstStatus.textColor))
                 } else {
-                    Circle()
-                        .fill(Color(nsColor: manager.worstStatus.color))
-                        .frame(width: 8, height: 8)
-                    if issueCount > 0 {
-                        let summary = issueSummary(issues: issueCount, unreachable: unreachableCount)
-                        Text(summary)
-                            .font(.caption)
-                            .foregroundStyle(Color(nsColor: manager.worstStatus.textColor))
-                    } else {
-                        Text("All operational")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                Spacer()
-                if let lastUpdate = manager.snapshots.map(\.lastUpdated).max() {
-                    // Minute-resolution label (no seconds counter — the ticking
-                    // display was distracting). TimelineView re-renders every
-                    // 30s so the label stays fresh even if no poll lands.
-                    TimelineView(.periodic(from: .now, by: 30)) { context in
-                        Text("Updated \(coarseTimeAgo(lastUpdate, now: context.date))")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                    }
+                    Text("All operational")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-        }
-    }
-
-    // MARK: - Service List
-
-    /// Built once per body invocation; cuts the per-row provider lookup from
-    /// O(providers) to O(1). At 50+ providers the quadratic cost is visible.
-    private var providersById: [UUID: Provider] {
-        Dictionary(uniqueKeysWithValues: manager.providers.map { ($0.id, $0) })
-    }
-
-    private var serviceList: some View {
-        let lookup = providersById
-        return ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(sortedSnapshots) { snapshot in
-                    let provider = lookup[snapshot.id]
-                    ProviderRowView(
-                        snapshot: snapshot,
-                        catalogId: provider?.catalogEntryId,
-                        isMuted: provider?.isMuted ?? false,
-                        statusPageURL: provider?.externalURL?.absoluteString,
-                        onTap: {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                selectedProviderId = snapshot.id
-                            }
-                        },
-                        onToggleMute: {
-                            if let p = provider { manager.toggleMute(for: p) }
-                        }
-                    )
+            Spacer()
+            if let lastUpdate = manager.snapshots.map(\.lastUpdated).max() {
+                // Minute-resolution label (no seconds counter — the ticking
+                // display was distracting). TimelineView re-renders every
+                // 30s so the label stays fresh even if no poll lands.
+                TimelineView(.periodic(from: .now, by: 30)) { context in
+                    Text("Updated \(coarseTimeAgo(lastUpdate, now: context.date))")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                 }
             }
-            .padding(.vertical, 2)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
     }
 
     private func issueSummary(issues: Int, unreachable: Int) -> String {
@@ -292,6 +348,157 @@ struct DashboardView: View {
         return "\(issues) issue\(issues == 1 ? "" : "s") (\(unreachable) unreachable)"
     }
 
+    private func removalBar(for provider: Provider) -> some View {
+        HStack(spacing: 8) {
+            Text("Remove \(provider.name)?")
+                .font(.caption)
+                .lineLimit(1)
+            Spacer()
+            Button("Cancel") { pendingRemoval = nil }
+                .controlSize(.small)
+                .keyboardShortcut(.cancelAction)
+            Button("Remove", role: .destructive) {
+                logger.info("Removed from dashboard: \(provider.name)")
+                if selectedProviderId == provider.id { selectedProviderId = nil }
+                manager.removeProvider(provider)
+                pendingRemoval = nil
+            }
+            .controlSize(.small)
+            .buttonStyle(.borderedProminent)
+            .tint(.red)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
+    }
+
+    // MARK: - Service List
+
+    /// Built once per body invocation; cuts the per-row provider lookup from
+    /// O(providers) to O(1). At 50+ providers the quadratic cost is visible.
+    private var providersById: [UUID: Provider] {
+        Dictionary(uniqueKeysWithValues: manager.providers.map { ($0.id, $0) })
+    }
+
+    private var serviceList: some View {
+        let lookup = providersById
+        let muted = mutedIds
+        let snapshots = filteredSnapshots
+        let matches = catalogMatches
+
+        // Muted services sink to the end of whichever group they are in, so
+        // a muted outage still reads as an outage without crowding live ones.
+        let byName: (ProviderSnapshot, ProviderSnapshot) -> Bool = {
+            let am = muted.contains($0.id), bm = muted.contains($1.id)
+            if am != bm { return !am }
+            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+        let bySeverity: (ProviderSnapshot, ProviderSnapshot) -> Bool = {
+            let am = muted.contains($0.id), bm = muted.contains($1.id)
+            if am != bm { return !am }
+            if $0.overallStatus != $1.overallStatus { return $0.overallStatus > $1.overallStatus }
+            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+
+        let issues = snapshots.filter(needsAttention).sorted(by: bySeverity)
+        let healthy = snapshots.filter { !needsAttention($0) }.sorted(by: byName)
+        let showHealthy = !operationalCollapsed || !query.isEmpty
+
+        return ScrollView {
+            LazyVStack(spacing: 0) {
+                switch sortOrder {
+                case .severity:
+                    if !issues.isEmpty {
+                        SectionHeader(title: "Needs Attention", count: issues.count)
+                        rows(issues, lookup: lookup, compact: false)
+                    }
+                    if !healthy.isEmpty {
+                        SectionHeader(
+                            title: "Operational",
+                            count: healthy.count,
+                            isCollapsed: query.isEmpty ? operationalCollapsed : nil,
+                            onToggle: {
+                                withAnimation(.easeInOut(duration: 0.15)) {
+                                    operationalCollapsed.toggle()
+                                }
+                            }
+                        )
+                        if showHealthy {
+                            rows(healthy, lookup: lookup, compact: true)
+                        }
+                    }
+                case .alphabetical:
+                    rows(snapshots.sorted(by: byName), lookup: lookup, compact: false)
+                }
+
+                if !query.isEmpty {
+                    if snapshots.isEmpty {
+                        Text(showIssuesOnly
+                             ? "No services with issues match “\(query)”"
+                             : "No monitored service matches “\(query)”")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                    }
+                    if !matches.isEmpty {
+                        SectionHeader(title: "Add from Catalog")
+                        ForEach(matches) { entry in
+                            CatalogAddRow(entry: entry) {
+                                if manager.addProvider(Provider(from: entry)) {
+                                    logger.info("Added from dashboard: \(entry.name)")
+                                }
+                            }
+                        }
+                    }
+                    Button {
+                        onOpenSettings?(.services)
+                    } label: {
+                        Label("Add a custom status page in Settings…", systemImage: "link.badge.plus")
+                            .font(.caption)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Color.accentColor)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                } else if showIssuesOnly && issues.isEmpty {
+                    Text("No issues right now.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                }
+            }
+            .padding(.vertical, 2)
+        }
+    }
+
+    @ViewBuilder
+    private func rows(_ snapshots: [ProviderSnapshot], lookup: [UUID: Provider], compact: Bool) -> some View {
+        ForEach(snapshots) { snapshot in
+            let provider = lookup[snapshot.id]
+            ProviderRowView(
+                snapshot: snapshot,
+                catalogId: provider?.catalogEntryId,
+                isMuted: provider?.isMuted ?? false,
+                statusPageURL: provider?.externalURL,
+                compact: compact,
+                onTap: {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selectedProviderId = snapshot.id
+                    }
+                },
+                onToggleMute: {
+                    if let p = provider { manager.toggleMute(for: p) }
+                },
+                onRemove: {
+                    pendingRemoval = provider
+                }
+            )
+        }
+    }
+
     // MARK: - Empty State
 
     private var emptyState: some View {
@@ -302,12 +509,12 @@ struct DashboardView: View {
                 .foregroundStyle(.secondary)
             Text("No services monitored")
                 .font(.headline)
-            Text("Open Settings to add services from the catalog\nor add a custom status page URL.")
+            Text("Type a service name above to add it,\nor browse the full catalog.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            Button("Get Started") {
-                onOpenSettings?()
+            Button("Browse Catalog") {
+                onOpenSettings?(.catalog)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.regular)
@@ -317,17 +524,113 @@ struct DashboardView: View {
     }
 }
 
+// MARK: - Section Header
+
+struct SectionHeader: View {
+    let title: String
+    var count: Int? = nil
+    /// nil = not collapsible.
+    var isCollapsed: Bool? = nil
+    var onToggle: (() -> Void)? = nil
+
+    var body: some View {
+        let label = HStack(spacing: 4) {
+            Text(title.uppercased())
+                .font(.system(size: 10, weight: .semibold))
+                .tracking(0.5)
+            if let count {
+                Text("\(count)")
+                    .font(.system(size: 10, weight: .medium))
+                    .monospacedDigit()
+            }
+            Spacer()
+            if let isCollapsed {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 9, weight: .semibold))
+                    .rotationEffect(.degrees(isCollapsed ? -90 : 0))
+            }
+        }
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 4)
+        .contentShape(Rectangle())
+
+        if let isCollapsed, let onToggle {
+            Button(action: onToggle) { label }
+                .buttonStyle(.plain)
+                .help(isCollapsed ? "Show \(title.lowercased()) services" : "Hide \(title.lowercased()) services")
+                .accessibilityAddTraits(.isHeader)
+        } else {
+            label.accessibilityAddTraits(.isHeader)
+        }
+    }
+}
+
+// MARK: - Catalog Add Row
+
+struct CatalogAddRow: View {
+    let entry: CatalogEntry
+    let onAdd: () -> Void
+    @State private var isHovered = false
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ServiceIconView(name: entry.name, catalogId: entry.id)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(entry.name)
+                    .font(.system(.body, weight: .medium))
+                    .lineLimit(1)
+                Text(entry.category)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            Spacer()
+            Button(action: onAdd) {
+                Label("Add", systemImage: "plus")
+                    .font(.caption.weight(.semibold))
+            }
+            .controlSize(.small)
+            .buttonStyle(.bordered)
+            .help("Monitor \(entry.name)")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor).opacity(0.5) : .clear)
+                .padding(.horizontal, 4)
+        )
+        .onHover { isHovered = $0 }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Add \(entry.name), \(entry.category)")
+    }
+}
+
 // MARK: - Provider Row
 
 struct ProviderRowView: View {
     let snapshot: ProviderSnapshot
     var catalogId: String? = nil
     var isMuted: Bool = false
-    var statusPageURL: String? = nil
+    var statusPageURL: URL? = nil
+    /// Compact rows drop the status label; the section header carries it.
+    var compact: Bool = false
     let onTap: () -> Void
     var onToggleMute: (() -> Void)?
+    var onRemove: (() -> Void)?
     @State private var isHovered = false
     @State private var isPressed = false
+
+    private var openableURL: URL? {
+        guard let url = statusPageURL, url.scheme?.lowercased() == "https" else { return nil }
+        return url
+    }
+
+    private var statusLabel: String {
+        snapshot.error != nil ? "Unavailable" : snapshot.overallStatus.label
+    }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -337,40 +640,57 @@ struct ProviderRowView: View {
                 Circle()
                     .fill(Color(nsColor: snapshot.overallStatus.color))
                     .frame(width: 8, height: 8)
-                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    .overlay(Circle().stroke(Color(nsColor: .windowBackgroundColor), lineWidth: 2))
                     .offset(x: 2, y: 2)
             }
 
-            // Name + mute indicator
             Text(snapshot.name)
                 .font(.system(.body, weight: .medium))
+                .foregroundStyle(isMuted ? .secondary : .primary)
                 .lineLimit(1)
 
             if isMuted {
                 Image(systemName: "speaker.slash.fill")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .help("Notifications muted")
             }
 
-            Spacer()
+            Spacer(minLength: 4)
+
+            if isHovered {
+                HStack(spacing: 0) {
+                    HoverButton(
+                        icon: isMuted ? "speaker.wave.2" : "speaker.slash",
+                        help: isMuted ? "Unmute notifications" : "Mute notifications"
+                    ) { onToggleMute?() }
+                    if let url = openableURL {
+                        HoverButton(icon: "arrow.up.right.square", help: "Open status page") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    }
+                }
+                .transition(.opacity)
+            }
 
             // Status badge
             if snapshot.error != nil {
                 StatusBadge(label: "Unavailable", status: .unknown)
-            } else if snapshot.overallStatus == .operational {
+            } else if snapshot.overallStatus != .operational {
+                StatusBadge(label: snapshot.overallStatus.label, status: snapshot.overallStatus)
+            } else if !compact {
                 Text("Operational")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-            } else {
-                StatusBadge(label: snapshot.overallStatus.label, status: snapshot.overallStatus)
             }
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 9, weight: .medium))
                 .foregroundStyle(.tertiary)
         }
+        .frame(minHeight: 24)
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.vertical, compact ? 4 : 7)
         .background(
             RoundedRectangle(cornerRadius: 6)
                 .fill(isPressed ? Color(nsColor: .selectedContentBackgroundColor).opacity(0.15)
@@ -386,26 +706,45 @@ struct ProviderRowView: View {
                 .onEnded { _ in isPressed = false }
         )
         .onHover { hovering in isHovered = hovering }
-        .opacity(isMuted ? 0.5 : 1.0)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(snapshot.name), \(snapshot.error != nil ? "Unavailable" : snapshot.overallStatus.label)\(isMuted ? ", muted" : "")")
+        .accessibilityLabel("\(snapshot.name), \(statusLabel)\(isMuted ? ", muted" : "")")
         .accessibilityHint("Double-click to view details")
+        .accessibilityAction(named: isMuted ? "Unmute" : "Mute") { onToggleMute?() }
         .contextMenu {
+            Button {
+                onTap()
+            } label: {
+                Label("View Details", systemImage: "info.circle")
+            }
+            if let url = openableURL {
+                Button {
+                    NSWorkspace.shared.open(url)
+                } label: {
+                    Label("Open Status Page", systemImage: "arrow.up.right.square")
+                }
+            }
             if let url = statusPageURL {
                 Button {
                     NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(url, forType: .string)
+                    NSPasteboard.general.setString(url.absoluteString, forType: .string)
                 } label: {
                     Label("Copy Status Page URL", systemImage: "doc.on.doc")
                 }
             }
+            Divider()
             Button {
                 onToggleMute?()
             } label: {
                 Label(
-                    isMuted ? "Unmute Service" : "Mute Service",
+                    isMuted ? "Unmute Notifications" : "Mute Notifications",
                     systemImage: isMuted ? "speaker.wave.2.fill" : "speaker.slash.fill"
                 )
+            }
+            Divider()
+            Button(role: .destructive) {
+                onRemove?()
+            } label: {
+                Label("Remove \(snapshot.name)…", systemImage: "trash")
             }
             #if DEBUG
             Divider()

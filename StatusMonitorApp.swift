@@ -115,8 +115,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: panelSize))
 
         let hostingView = NSHostingView(
-            rootView: DashboardView(onOpenSettings: { [weak self] in
-                self?.openSettings()
+            rootView: DashboardView(onOpenSettings: { [weak self] tab in
+                self?.openSettings(tab: tab)
             })
             .environment(statusManager)
         )

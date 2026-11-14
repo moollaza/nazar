@@ -37,13 +37,24 @@ struct InitialsAvatarView: View {
         return colors[hash % colors.count]
     }
 
+    /// The tile hue pushed toward black (light) or white (dark). The raw
+    /// system hue on its own 20% tint measured as low as 1.4:1 (yellow).
+    private var textColor: Color {
+        let base = NSColor(backgroundColor)
+        return Color(nsColor: NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+                ? base.blended(withFraction: 0.45, of: .white) ?? base
+                : base.blended(withFraction: 0.6, of: .black) ?? base
+        })
+    }
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 4)
                 .fill(backgroundColor.opacity(0.2))
             Text(initials)
                 .font(.system(size: 9, weight: .bold))
-                .foregroundColor(backgroundColor)
+                .foregroundColor(textColor)
         }
         .frame(width: 20, height: 20)
     }

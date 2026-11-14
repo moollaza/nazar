@@ -332,7 +332,7 @@ struct DashboardView: View {
                 TimelineView(.periodic(from: .now, by: 30)) { context in
                     Text("Updated \(coarseTimeAgo(lastUpdate, now: context.date))")
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                 }
             }
         }

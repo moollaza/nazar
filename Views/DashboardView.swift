@@ -444,7 +444,9 @@ struct DashboardView: View {
                         .padding(.vertical, 24)
                 }
             }
-            .padding(.vertical, 2)
+            // Matches the 4pt inset of the row hover fill, so a hovered first
+            // or last row doesn't touch the dividers above and below the list.
+            .padding(.vertical, 4)
         }
     }
 

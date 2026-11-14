@@ -125,8 +125,10 @@ struct DashboardView: View {
         VStack(spacing: 0) {
             header
 
+            // The field's 8pt inner padding plus this 8pt outer padding puts
+            // the magnifying glass on the same 16pt line as the header text.
             searchField
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 8)
                 .padding(.bottom, showIssuesOnly ? 4 : 8)
 
             if showIssuesOnly {

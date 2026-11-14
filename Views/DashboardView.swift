@@ -166,24 +166,10 @@ struct DashboardView: View {
 
     // MARK: - Header
 
-    private var headerSubtitle: String {
-        if manager.providers.isEmpty { return "No services monitored" }
-        var parts = ["\(manager.providers.count) monitored"]
-        if !mutedIds.isEmpty { parts.append("\(mutedIds.count) muted") }
-        return parts.joined(separator: " · ")
-    }
-
     private var header: some View {
         HStack(spacing: 8) {
-            VStack(alignment: .leading, spacing: 1) {
-                Text("Nazar")
-                    .font(.headline)
-                Text(headerSubtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-            .accessibilityElement(children: .combine)
+            Text("Nazar")
+                .font(.headline)
 
             Spacer()
 

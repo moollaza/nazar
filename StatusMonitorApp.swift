@@ -209,6 +209,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         lastUpdated: Date(),
                         error: nil
                     )
+                    self.statusManager.recordRecovery(for: id, from: oldStatus, to: status)
                     self.statusManager.recalcWorstStatus()
                     // Fire notification on simulated status change
                     if oldStatus != status {

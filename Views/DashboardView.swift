@@ -386,6 +386,7 @@ struct DashboardView: View {
                         catalogId: provider?.catalogEntryId,
                         isMuted: provider?.isMuted ?? false,
                         statusPageURL: provider?.externalURL,
+                        recoveredAt: manager.recentRecovery(for: snapshot.id),
                         onTap: {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 selectedProviderId = snapshot.id
@@ -537,6 +538,8 @@ struct ProviderRowView: View {
     var catalogId: String? = nil
     var isMuted: Bool = false
     var statusPageURL: URL? = nil
+    /// Set when the service came back from an incident in the last 24 hours.
+    var recoveredAt: Date? = nil
     let onTap: () -> Void
     var onToggleMute: (() -> Void)?
     var onRemove: (() -> Void)?
@@ -549,7 +552,11 @@ struct ProviderRowView: View {
     }
 
     private var statusLabel: String {
-        snapshot.error != nil ? "Unavailable" : snapshot.overallStatus.label
+        if snapshot.error != nil { return "Unavailable" }
+        if snapshot.overallStatus == .operational, let recoveredAt {
+            return "Recovered \(coarseTimeAgo(recoveredAt))"
+        }
+        return snapshot.overallStatus.label
     }
 
     var body: some View {
@@ -580,6 +587,9 @@ struct ProviderRowView: View {
             // Status badge
             if snapshot.error != nil {
                 StatusBadge(label: "Unavailable", status: .unknown)
+            } else if snapshot.overallStatus == .operational, let recoveredAt {
+                StatusBadge(label: "Recovered", status: .operational)
+                    .help("Recovered \(coarseTimeAgo(recoveredAt))")
             } else if snapshot.overallStatus == .operational {
                 Text("Operational")
                     .font(.caption)

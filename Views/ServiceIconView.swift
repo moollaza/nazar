@@ -3,8 +3,6 @@ import SwiftUI
 struct ServiceIconView: View {
     let name: String
     let catalogId: String?
-    /// True while the containing row is hovered; shows the tile border.
-    var isHighlighted: Bool = false
 
     var body: some View {
         if let catalogId, let icon = NSImage(named: catalogId) {
@@ -14,14 +12,13 @@ struct ServiceIconView: View {
                 .frame(width: 20, height: 20)
                 .clipShape(RoundedRectangle(cornerRadius: 4))
         } else {
-            InitialsAvatarView(name: name, isHighlighted: isHighlighted)
+            InitialsAvatarView(name: name)
         }
     }
 }
 
 struct InitialsAvatarView: View {
     let name: String
-    var isHighlighted: Bool = false
 
     private var initials: String {
         let words = name.split(separator: " ")
@@ -62,31 +59,16 @@ struct InitialsAvatarView: View {
         })
     }
 
-    /// Measured at 4.4:1 or better against the panel and the row hover
-    /// fill for all palette hues in both modes (WCAG non-text needs 3:1).
-    private var borderColor: Color {
-        let base = NSColor(backgroundColor)
-        return Color(nsColor: NSColor(name: nil) { appearance in
-            appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
-                ? base.blended(withFraction: 0.3, of: .white) ?? base
-                : base.blended(withFraction: 0.5, of: .black) ?? base
-        })
-    }
-
     var body: some View {
         ZStack {
             // Opaque base so the row's hover fill can't show through the
             // tint and lower the letter contrast.
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color(nsColor: .windowBackgroundColor))
+            // A stronger tint than the old 20% so pale hues (blue, cyan)
+            // still stand out on the grey row hover fill, without a border.
             RoundedRectangle(cornerRadius: 4)
-                .fill(backgroundColor.opacity(0.2))
-            // Only on hover: the hairline keeps pale tiles (blue, cyan)
-            // visible on the grey row hover fill. At rest it was distracting.
-            if isHighlighted {
-                RoundedRectangle(cornerRadius: 4)
-                    .strokeBorder(borderColor, lineWidth: 1)
-            }
+                .fill(backgroundColor.opacity(0.35))
             Text(initials)
                 .font(.system(size: 9, weight: .bold))
                 .foregroundColor(textColor)

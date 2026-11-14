@@ -54,7 +54,7 @@ struct InitialsAvatarView: View {
         let base = NSColor(backgroundColor)
         return Color(nsColor: NSColor(name: nil) { appearance in
             appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
-                ? base.blended(withFraction: 0.55, of: .white) ?? base
+                ? base.blended(withFraction: 0.65, of: .white) ?? base
                 : base.blended(withFraction: 0.7, of: .black) ?? base
         })
     }

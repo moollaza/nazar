@@ -290,8 +290,8 @@ struct DashboardView: View {
                 .font(.caption)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 2)
-                .foregroundStyle(.white)
-                .background(Capsule().fill(Color.accentColor))
+                .foregroundStyle(.primary)
+                .background(Capsule().fill(Color.accentColor.opacity(0.2)))
             }
             .buttonStyle(.plain)
             .help("Show all services")
@@ -660,7 +660,6 @@ struct ProviderRowView: View {
 
             Text(snapshot.name)
                 .font(.system(.body, weight: .medium))
-                .foregroundStyle(isMuted ? .secondary : .primary)
                 .lineLimit(1)
 
             if isMuted {

@@ -129,13 +129,7 @@ struct DashboardView: View {
             // the magnifying glass on the same 16pt line as the header text.
             searchField
                 .padding(.horizontal, 8)
-                .padding(.bottom, showIssuesOnly ? 4 : 8)
-
-            if showIssuesOnly {
-                issuesOnlyChip
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 8)
-            }
+                .padding(.bottom, 8)
 
             Divider()
 
@@ -173,21 +167,20 @@ struct DashboardView: View {
 
             Spacer()
 
+            HoverButton(
+                icon: showIssuesOnly ? "exclamationmark.triangle.fill" : "exclamationmark.triangle",
+                fontSize: 12,
+                isActive: showIssuesOnly,
+                help: showIssuesOnly ? "Showing issues only. Click to show all services" : "Show issues only"
+            ) {
+                showIssuesOnly.toggle()
+            }
+
+            sortMenu
+
             HoverButton(icon: "plus", fontSize: 12, help: "Add a service") {
                 searchFocused = true
             }
-
-            // Spinner is tied to `manager.isRefreshing` so it reflects actual
-            // poll completion rather than a wall-clock timer. `pollAll`
-            // coalesces repeat invocations so rapid clicks don't spawn
-            // overlapping cycles.
-            HoverButton(icon: "arrow.clockwise", fontSize: 12, help: "Refresh all (⌘R)") {
-                logger.info("Manual refresh triggered")
-                manager.pollAll()
-            }
-            .disabled(manager.isRefreshing)
-            .rotationEffect(.degrees(manager.isRefreshing ? 360 : 0))
-            .animation(manager.isRefreshing ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .default, value: manager.isRefreshing)
 
             moreMenu
         }
@@ -196,16 +189,34 @@ struct DashboardView: View {
         .padding(.bottom, 10)
     }
 
-    private var moreMenu: some View {
+    private var sortMenu: some View {
         Menu {
             Picker("Sort", selection: $sortOrder) {
-                Text("Group by Status").tag(DashboardSort.severity)
-                Text("Sort by Name").tag(DashboardSort.alphabetical)
+                Label("Group by Status", systemImage: "square.stack").tag(DashboardSort.severity)
+                Label("Name (A–Z)", systemImage: "textformat").tag(DashboardSort.alphabetical)
             }
             .pickerStyle(.inline)
             .labelsHidden()
+        } label: {
+            Image(systemName: "arrow.up.arrow.down")
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .frame(width: 24, height: 24)
+        .help(sortOrder == .severity ? "Sorted by status" : "Sorted by name")
+    }
 
-            Toggle("Show Issues Only", isOn: $showIssuesOnly)
+    private var moreMenu: some View {
+        Menu {
+            Button("Refresh Now") {
+                logger.info("Manual refresh triggered")
+                manager.pollAll()
+            }
+            .keyboardShortcut("r")
+            .disabled(manager.isRefreshing)
 
             Divider()
 
@@ -261,28 +272,6 @@ struct DashboardView: View {
         .padding(.vertical, 6)
         .background(Color(nsColor: .controlBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 6))
-    }
-
-    private var issuesOnlyChip: some View {
-        HStack {
-            Button {
-                showIssuesOnly = false
-            } label: {
-                HStack(spacing: 4) {
-                    Text("Issues only")
-                    Image(systemName: "xmark")
-                        .font(.system(size: 8, weight: .bold))
-                }
-                .font(.caption)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-                .foregroundStyle(.primary)
-                .background(Capsule().fill(Color.accentColor.opacity(0.2)))
-            }
-            .buttonStyle(.plain)
-            .help("Show all services")
-            Spacer()
-        }
     }
 
     // MARK: - Footer
@@ -847,13 +836,17 @@ struct HoverButton: View {
                 .frame(width: 24, height: 24)
                 .background(
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor) : .clear)
+                        .fill(isActive ? activeColor.opacity(0.18)
+                              : isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor)
+                              : .clear)
                 )
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
         .help(help)
+        .accessibilityLabel(help)
+        .accessibilityAddTraits(isActive ? .isSelected : [])
     }
 }
 

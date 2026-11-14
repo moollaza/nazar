@@ -400,7 +400,16 @@ struct DashboardView: View {
         }
 
         let issues = snapshots.filter(needsAttention).sorted(by: bySeverity)
-        let healthy = snapshots.filter { !needsAttention($0) }.sorted(by: byName)
+        // Recently recovered services lead the operational group, newest first.
+        let healthy = snapshots.filter { !needsAttention($0) }.sorted {
+            let ar = manager.recentRecovery(for: $0.id), br = manager.recentRecovery(for: $1.id)
+            switch (ar, br) {
+            case let (a?, b?): return a > b
+            case (_?, nil): return true
+            case (nil, _?): return false
+            case (nil, nil): return byName($0, $1)
+            }
+        }
         let showHealthy = !operationalCollapsed || !query.isEmpty
 
         return ScrollView {
@@ -483,6 +492,7 @@ struct DashboardView: View {
                 catalogId: provider?.catalogEntryId,
                 isMuted: provider?.isMuted ?? false,
                 statusPageURL: provider?.externalURL,
+                recoveredAt: manager.recentRecovery(for: snapshot.id),
                 compact: compact,
                 onTap: {
                     withAnimation(.easeInOut(duration: 0.2)) {
@@ -615,6 +625,8 @@ struct ProviderRowView: View {
     var catalogId: String? = nil
     var isMuted: Bool = false
     var statusPageURL: URL? = nil
+    /// Set when the service came back from an incident in the last 24 hours.
+    var recoveredAt: Date? = nil
     /// Compact rows drop the status label; the section header carries it.
     var compact: Bool = false
     let onTap: () -> Void
@@ -678,6 +690,12 @@ struct ProviderRowView: View {
                 StatusBadge(label: "Unavailable", status: .unknown)
             } else if snapshot.overallStatus != .operational {
                 StatusBadge(label: snapshot.overallStatus.label, status: snapshot.overallStatus)
+            } else if let recoveredAt {
+                Text("Recovered \(coarseTimeAgo(recoveredAt))")
+                    .font(.caption)
+                    .foregroundStyle(Color(nsColor: ComponentStatus.operational.textColor))
+                    .lineLimit(1)
+                    .help("Back to operational at \(recoveredAt.formatted(date: .omitted, time: .shortened))")
             } else if !compact {
                 Text("Operational")
                     .font(.caption)

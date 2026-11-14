@@ -303,6 +303,42 @@ final class StatusManagerPollTests: XCTestCase {
         XCTAssertEqual(spy.calls.first?.to, .majorOutage)
     }
 
+    // MARK: - Recovery tracking
+
+    func testRecoveryIsRecordedPersistedAndExpires() async {
+        let url = URL(string: "https://status.example.com/api/v2/summary.json")!
+        let suiteName = "recovery-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        var clock = Date(timeIntervalSince1970: 1_800_000_000)
+
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: defaults, now: { clock })
+        let provider = Provider(name: "R", baseURL: "https://status.example.com")
+        manager.providers = [provider]
+        manager.saveProviders()
+
+        StubURLProtocol.register(url: url, response: (operationalJSON, 200))
+        await manager.poll(provider: provider)
+        XCTAssertNil(manager.recentRecovery(for: provider.id), "First operational poll is not a recovery")
+
+        StubURLProtocol.register(url: url, response: (majorOutageJSON, 200))
+        await manager.poll(provider: provider)
+        XCTAssertNil(manager.recentRecovery(for: provider.id))
+
+        let recoveredAt = clock
+        StubURLProtocol.register(url: url, response: (operationalJSON, 200))
+        await manager.poll(provider: provider)
+        XCTAssertEqual(manager.recentRecovery(for: provider.id), recoveredAt)
+
+        // Survives a relaunch.
+        let relaunched = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: defaults, now: { clock })
+        XCTAssertEqual(relaunched.recentRecovery(for: provider.id), recoveredAt)
+
+        // Gone after 24 hours.
+        clock = recoveredAt.addingTimeInterval(StatusManager.recoveryWindow + 1)
+        XCTAssertNil(manager.recentRecovery(for: provider.id))
+    }
+
     func testSameStatusDoesNotNotify() async {
         let url = URL(string: "https://status.example.com/api/v2/summary.json")!
         StubURLProtocol.register(url: url, response: (operationalJSON, 200))

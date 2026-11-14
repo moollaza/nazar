@@ -54,13 +54,17 @@ struct InitialsAvatarView: View {
         let base = NSColor(backgroundColor)
         return Color(nsColor: NSColor(name: nil) { appearance in
             appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
-                ? base.blended(withFraction: 0.45, of: .white) ?? base
-                : base.blended(withFraction: 0.6, of: .black) ?? base
+                ? base.blended(withFraction: 0.55, of: .white) ?? base
+                : base.blended(withFraction: 0.7, of: .black) ?? base
         })
     }
 
     var body: some View {
         ZStack {
+            // Opaque base so the row's hover fill can't show through the
+            // tint and lower the letter contrast.
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(nsColor: .windowBackgroundColor))
             RoundedRectangle(cornerRadius: 4)
                 .fill(backgroundColor.opacity(0.2))
             Text(initials)

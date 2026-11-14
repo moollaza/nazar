@@ -32,11 +32,18 @@ class StatusManager {
     /// Notification Center.
     private var transitionTimes: [UUID: [Date]] = [:]
     /// When each provider last went from an incident back to operational.
-    /// Persisted so "Recovered 2h ago" survives a relaunch; entries older
-    /// than `recoveryWindow` are dropped on load and ignored by readers.
+    /// Persisted so "Recovered" survives a relaunch.
     private(set) var recoveredAt: [UUID: Date] = [:]
+    /// When the user first had the panel open while a recovery was showing.
+    /// The badge goes away `recoverySeenWindow` after that.
+    private(set) var recoverySeenAt: [UUID: Date] = [:]
+    /// Hard cap for recoveries the user never saw.
     static let recoveryWindow: TimeInterval = 24 * 3600
+    static let recoverySeenWindow: TimeInterval = 5 * 60
     private static let recoveredAtKey = "recoveredAt"
+    private static let recoverySeenAtKey = "recoverySeenAt"
+    /// Set by the app delegate. True while the dashboard panel is on screen.
+    var isPanelVisible: () -> Bool = { false }
     private var sleepObserver: NSObjectProtocol?
     private var wakeObserver: NSObjectProtocol?
 
@@ -165,27 +172,55 @@ class StatusManager {
     }
 
     private func loadRecoveredAt() {
-        let raw = defaults.dictionary(forKey: Self.recoveredAtKey) as? [String: Double] ?? [:]
-        let cutoff = now().addingTimeInterval(-Self.recoveryWindow)
         let known = Set(providers.map(\.id))
-        recoveredAt = raw.reduce(into: [:]) { result, pair in
-            guard let id = UUID(uuidString: pair.key), known.contains(id) else { return }
-            let date = Date(timeIntervalSince1970: pair.value)
-            if date >= cutoff { result[id] = date }
+        func load(_ key: String) -> [UUID: Date] {
+            let raw = defaults.dictionary(forKey: key) as? [String: Double] ?? [:]
+            return raw.reduce(into: [:]) { result, pair in
+                guard let id = UUID(uuidString: pair.key), known.contains(id) else { return }
+                result[id] = Date(timeIntervalSince1970: pair.value)
+            }
         }
+        recoveredAt = load(Self.recoveredAtKey)
+        recoverySeenAt = load(Self.recoverySeenAtKey).filter { recoveredAt[$0.key] != nil }
+        recoveredAt = recoveredAt.filter { recentRecovery(for: $0.key) != nil }
     }
 
     private func saveRecoveredAt() {
-        let raw = Dictionary(uniqueKeysWithValues: recoveredAt.map { ($0.key.uuidString, $0.value.timeIntervalSince1970) })
-        defaults.set(raw, forKey: Self.recoveredAtKey)
+        func encode(_ dates: [UUID: Date]) -> [String: Double] {
+            Dictionary(uniqueKeysWithValues: dates.map { ($0.key.uuidString, $0.value.timeIntervalSince1970) })
+        }
+        defaults.set(encode(recoveredAt), forKey: Self.recoveredAtKey)
+        defaults.set(encode(recoverySeenAt), forKey: Self.recoverySeenAtKey)
     }
 
-    /// The time `id` recovered from an incident, if that was within the last
-    /// `recoveryWindow`.
+    /// The time `id` recovered from an incident, while the badge should still
+    /// show: until `recoverySeenWindow` after the user first saw it, and never
+    /// past `recoveryWindow`.
     func recentRecovery(for id: UUID) -> Date? {
         guard let date = recoveredAt[id],
               now().timeIntervalSince(date) < Self.recoveryWindow else { return nil }
+        if let seen = recoverySeenAt[id], now().timeIntervalSince(seen) >= Self.recoverySeenWindow {
+            return nil
+        }
         return date
+    }
+
+    /// Called when the panel opens. Starts the 5-minute clock for every
+    /// recovery that is showing and has not been seen yet.
+    func markRecoveriesSeen() {
+        var changed = false
+        for id in recoveredAt.keys where recoverySeenAt[id] == nil && recentRecovery(for: id) != nil {
+            recoverySeenAt[id] = now()
+            changed = true
+        }
+        if changed { saveRecoveredAt() }
+    }
+
+    /// Removes the Recovered badge for `id` right away.
+    func clearRecovery(for id: UUID) {
+        let removed = recoveredAt.removeValue(forKey: id) != nil
+        recoverySeenAt.removeValue(forKey: id)
+        if removed { saveRecoveredAt() }
     }
 
     @discardableResult
@@ -235,7 +270,7 @@ class StatusManager {
         failureCounts.removeValue(forKey: provider.id)
         lastFailure.removeValue(forKey: provider.id)
         transitionTimes.removeValue(forKey: provider.id)
-        if recoveredAt.removeValue(forKey: provider.id) != nil { saveRecoveredAt() }
+        clearRecovery(for: provider.id)
         saveProviders()
         recalcWorstStatus()
     }
@@ -908,9 +943,10 @@ class StatusManager {
         if current == .operational {
             guard let previous, previous != .operational, previous != .unknown else { return }
             recoveredAt[id] = now()
+            recoverySeenAt[id] = isPanelVisible() ? now() : nil
             saveRecoveredAt()
-        } else if current != .unknown, recoveredAt.removeValue(forKey: id) != nil {
-            saveRecoveredAt()
+        } else if current != .unknown {
+            clearRecovery(for: id)
         }
     }
 

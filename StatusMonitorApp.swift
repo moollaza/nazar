@@ -179,6 +179,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // Update tooltip after every poll cycle (not just worst-status changes)
+        statusManager.isPanelVisible = { [weak self] in self?.isPanelShown ?? false }
         statusManager.onPollCycleComplete = { [weak self] in
             self?.updateTooltip()
         }
@@ -335,6 +336,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             positionPanel()
             panel.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
+            statusManager.markRecoveriesSeen()
         }
     }
 

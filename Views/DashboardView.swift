@@ -397,6 +397,9 @@ struct DashboardView: View {
                         },
                         onRemove: {
                             pendingRemoval = provider
+                        },
+                        onClearRecovery: {
+                            manager.clearRecovery(for: snapshot.id)
                         }
                     )
                 }
@@ -538,11 +541,12 @@ struct ProviderRowView: View {
     var catalogId: String? = nil
     var isMuted: Bool = false
     var statusPageURL: URL? = nil
-    /// Set when the service came back from an incident in the last 24 hours.
+    /// Set while the Recovered badge should show (see StatusManager.recentRecovery).
     var recoveredAt: Date? = nil
     let onTap: () -> Void
     var onToggleMute: (() -> Void)?
     var onRemove: (() -> Void)?
+    var onClearRecovery: (() -> Void)?
     @State private var isHovered = false
     @State private var isPressed = false
 
@@ -588,8 +592,11 @@ struct ProviderRowView: View {
             if snapshot.error != nil {
                 StatusBadge(label: "Unavailable", status: .unknown)
             } else if snapshot.overallStatus == .operational, let recoveredAt {
-                StatusBadge(label: "Recovered", status: .operational)
-                    .help("Recovered \(coarseTimeAgo(recoveredAt))")
+                Button { onClearRecovery?() } label: {
+                    StatusBadge(label: "Recovered", status: .operational)
+                }
+                .buttonStyle(.plain)
+                .help("Recovered \(coarseTimeAgo(recoveredAt)). Click to clear.")
             } else if snapshot.overallStatus == .operational {
                 Text("Operational")
                     .font(.caption)
@@ -642,6 +649,13 @@ struct ProviderRowView: View {
                     NSPasteboard.general.setString(url.absoluteString, forType: .string)
                 } label: {
                     Label("Copy Status Page URL", systemImage: "doc.on.doc")
+                }
+            }
+            if recoveredAt != nil {
+                Button {
+                    onClearRecovery?()
+                } label: {
+                    Label("Clear Recovered", systemImage: "checkmark.circle")
                 }
             }
             Divider()

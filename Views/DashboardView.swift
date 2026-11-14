@@ -23,7 +23,6 @@ struct DashboardView: View {
     @State private var pendingRemoval: Provider?
     @FocusState private var searchFocused: Bool
     @AppStorage("dashboardSort") private var sortOrder: DashboardSort = .severity
-    @AppStorage("dashboardOperationalCollapsed") private var operationalCollapsed = false
 
     /// Most catalog matches to list while filtering; enough to find a service
     /// without pushing the monitored matches out of view.
@@ -388,31 +387,18 @@ struct DashboardView: View {
             case (nil, nil): return byName($0, $1)
             }
         }
-        let showHealthy = !operationalCollapsed || !query.isEmpty
 
         return ScrollView {
             LazyVStack(spacing: 0) {
                 switch sortOrder {
                 case .severity:
-                    if !issues.isEmpty {
-                        SectionHeader(title: "Needs Attention", count: issues.count)
-                        rows(issues, lookup: lookup, compact: false)
+                    rows(issues, lookup: lookup, compact: false)
+                    if !issues.isEmpty && !healthy.isEmpty {
+                        Divider()
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 4)
                     }
-                    if !healthy.isEmpty {
-                        SectionHeader(
-                            title: "Operational",
-                            count: healthy.count,
-                            isCollapsed: query.isEmpty ? operationalCollapsed : nil,
-                            onToggle: {
-                                withAnimation(.easeInOut(duration: 0.15)) {
-                                    operationalCollapsed.toggle()
-                                }
-                            }
-                        )
-                        if showHealthy {
-                            rows(healthy, lookup: lookup, compact: true)
-                        }
-                    }
+                    rows(healthy, lookup: lookup, compact: true)
                 case .alphabetical:
                     rows(snapshots.sorted(by: byName), lookup: lookup, compact: false)
                 }
@@ -516,42 +502,19 @@ struct DashboardView: View {
 
 struct SectionHeader: View {
     let title: String
-    var count: Int? = nil
-    /// nil = not collapsible.
-    var isCollapsed: Bool? = nil
-    var onToggle: (() -> Void)? = nil
 
     var body: some View {
-        let label = HStack(spacing: 4) {
+        HStack {
             Text(title.uppercased())
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(0.5)
-            if let count {
-                Text("\(count)")
-                    .font(.system(size: 10, weight: .medium))
-                    .monospacedDigit()
-            }
             Spacer()
-            if let isCollapsed {
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 9, weight: .semibold))
-                    .rotationEffect(.degrees(isCollapsed ? -90 : 0))
-            }
         }
         .foregroundStyle(.secondary)
         .padding(.horizontal, 16)
         .padding(.top, 10)
         .padding(.bottom, 4)
-        .contentShape(Rectangle())
-
-        if let isCollapsed, let onToggle {
-            Button(action: onToggle) { label }
-                .buttonStyle(.plain)
-                .help(isCollapsed ? "Show \(title.lowercased()) services" : "Hide \(title.lowercased()) services")
-                .accessibilityAddTraits(.isHeader)
-        } else {
-            label.accessibilityAddTraits(.isHeader)
-        }
+        .accessibilityAddTraits(.isHeader)
     }
 }
 

@@ -28,13 +28,24 @@ struct InitialsAvatarView: View {
         return String(name.prefix(2)).uppercased()
     }
 
+    static let palette: [Color] = [
+        .blue, .purple, .pink, .red, .orange,
+        .yellow, .green, .teal, .cyan, .indigo,
+    ]
+
+    /// FNV-1a over the UTF-8 bytes. `String.hashValue` is seeded per launch,
+    /// so it gave a service a different tile color each time the app started.
+    static func paletteIndex(for name: String) -> Int {
+        var hash: UInt64 = 0xcbf29ce484222325
+        for byte in name.utf8 {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x100000001b3
+        }
+        return Int(hash % UInt64(palette.count))
+    }
+
     private var backgroundColor: Color {
-        let hash = abs(name.hashValue)
-        let colors: [Color] = [
-            .blue, .purple, .pink, .red, .orange,
-            .yellow, .green, .teal, .cyan, .indigo,
-        ]
-        return colors[hash % colors.count]
+        Self.palette[Self.paletteIndex(for: name)]
     }
 
     /// The tile hue pushed toward black (light) or white (dark). The raw

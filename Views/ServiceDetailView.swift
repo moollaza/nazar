@@ -296,7 +296,7 @@ struct IncidentRow: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor).opacity(0.4) : .clear)
+                .background(isHovered ? Color(nsColor: .quaternarySystemFill) : .clear)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)

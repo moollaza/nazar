@@ -587,7 +587,7 @@ struct CatalogAddRow: View {
         .padding(.vertical, 6)
         .background(
             RoundedRectangle(cornerRadius: 6)
-                .fill(isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor).opacity(0.5) : .clear)
+                .fill(isHovered ? Color(nsColor: .quaternarySystemFill) : .clear)
                 .padding(.horizontal, 4)
         )
         .onHover { isHovered = $0 }
@@ -689,7 +689,7 @@ struct ProviderRowView: View {
         .background(
             RoundedRectangle(cornerRadius: 6)
                 .fill(isPressed ? Color(nsColor: .selectedContentBackgroundColor).opacity(0.15)
-                      : isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor).opacity(0.5)
+                      : isHovered ? Color(nsColor: .quaternarySystemFill)
                       : Color.clear)
                 .padding(.horizontal, 4)
         )
@@ -838,7 +838,7 @@ struct HoverButton: View {
                 .background(
                     RoundedRectangle(cornerRadius: 4)
                         .fill(isActive ? activeColor.opacity(0.18)
-                              : isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor)
+                              : isHovered ? Color(nsColor: .quaternarySystemFill)
                               : .clear)
                 )
                 .contentShape(Rectangle())

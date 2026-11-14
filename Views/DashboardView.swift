@@ -168,17 +168,18 @@ struct DashboardView: View {
             Spacer()
 
             HoverButton(
-                icon: showIssuesOnly ? "exclamationmark.triangle.fill" : "exclamationmark.triangle",
-                fontSize: 12,
+                icon: showIssuesOnly ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle",
+                fontSize: 13,
                 isActive: showIssuesOnly,
-                help: showIssuesOnly ? "Showing issues only. Click to show all services" : "Show issues only"
+                activeColor: .accentColor,
+                help: showIssuesOnly ? "Show all services" : "Show issues only"
             ) {
                 showIssuesOnly.toggle()
             }
 
             sortMenu
 
-            HoverButton(icon: "plus", fontSize: 12, help: "Add a service") {
+            HoverButton(icon: "plus", fontSize: 13, help: "Add a service") {
                 searchFocused = true
             }
 
@@ -198,15 +199,15 @@ struct DashboardView: View {
             .pickerStyle(.inline)
             .labelsHidden()
         } label: {
-            Image(systemName: "arrow.up.arrow.down")
-                .font(.system(size: 12))
+            Image(systemName: sortOrder == .severity ? "list.bullet.indent" : "textformat")
+                .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.secondary)
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
         .frame(width: 24, height: 24)
-        .help(sortOrder == .severity ? "Sorted by status" : "Sorted by name")
+        .help(sortOrder == .severity ? "Grouped by status" : "Sorted by name (A–Z)")
     }
 
     private var moreMenu: some View {
@@ -236,7 +237,7 @@ struct DashboardView: View {
             Button("Quit Nazar") { NSApp.terminate(nil) }
         } label: {
             Image(systemName: "ellipsis.circle")
-                .font(.system(size: 13))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.secondary)
         }
         .menuStyle(.borderlessButton)
@@ -831,7 +832,7 @@ struct HoverButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: fontSize))
+                .font(.system(size: fontSize, weight: .medium))
                 .foregroundStyle(isActive ? activeColor : .secondary)
                 .frame(width: 24, height: 24)
                 .background(

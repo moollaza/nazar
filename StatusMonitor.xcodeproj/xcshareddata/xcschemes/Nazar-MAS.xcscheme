@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A3121744AC045DC7CF9C0334"
-               BuildableName = "Nazar.app"
+               BuildableName = "Nazar-MAS.app"
                BlueprintName = "Nazar-MAS"
                ReferencedContainer = "container:StatusMonitor.xcodeproj">
             </BuildableReference>
@@ -31,7 +31,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A3121744AC045DC7CF9C0334"
-            BuildableName = "Nazar.app"
+            BuildableName = "Nazar-MAS.app"
             BlueprintName = "Nazar-MAS"
             ReferencedContainer = "container:StatusMonitor.xcodeproj">
          </BuildableReference>
@@ -54,7 +54,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A3121744AC045DC7CF9C0334"
-            BuildableName = "Nazar.app"
+            BuildableName = "Nazar-MAS.app"
             BlueprintName = "Nazar-MAS"
             ReferencedContainer = "container:StatusMonitor.xcodeproj">
          </BuildableReference>
@@ -71,7 +71,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A3121744AC045DC7CF9C0334"
-            BuildableName = "Nazar.app"
+            BuildableName = "Nazar-MAS.app"
             BlueprintName = "Nazar-MAS"
             ReferencedContainer = "container:StatusMonitor.xcodeproj">
          </BuildableReference>

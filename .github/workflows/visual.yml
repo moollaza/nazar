@@ -34,7 +34,9 @@ concurrency:
 jobs:
   visual:
     name: Playwright + Argos
-    runs-on: ubuntu-latest
+    # ubuntu-latest is now 26.04, where the pinned Playwright can't install
+    # Chromium. A fixed image also keeps font rendering stable for baselines.
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout

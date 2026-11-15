@@ -125,7 +125,7 @@ struct ServicesSettingsView: View {
                         .foregroundStyle(.secondary)
                     Text("Browse the catalog to find services to monitor.")
                         .font(.caption)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                     Button("Add Services") {
                         onAddServices?()
                     }
@@ -282,7 +282,7 @@ struct AddCustomServiceView: View {
             if let message = validationMessage {
                 HStack(spacing: 4) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color(nsColor: ComponentStatus.partialOutage.textColor))
                     Text(message)
                 }
                 .font(.caption)
@@ -468,7 +468,7 @@ struct CatalogSettingsView: View {
                             HStack {
                                 Text("Based on apps in /Applications. Nothing leaves your device.")
                                     .font(.caption2)
-                                    .foregroundStyle(.tertiary)
+                                    .foregroundStyle(.secondary)
                                 Spacer()
                                 Button("Rescan") { generateSuggestions() }
                                     .font(.caption2)
@@ -531,7 +531,7 @@ struct CatalogSettingsView: View {
                     if let host = URL(string: entry.baseURL)?.host {
                         Text(host)
                             .font(.caption)
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -577,7 +577,7 @@ struct PreferencesSettingsView: View {
                 if systemNotificationsAllowed == false {
                     HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Color(nsColor: ComponentStatus.partialOutage.textColor))
                             .font(.body)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Notifications are disabled in System Settings")

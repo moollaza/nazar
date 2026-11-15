@@ -11,6 +11,7 @@ struct ServiceIconView: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 20, height: 20)
                 .clipShape(RoundedRectangle(cornerRadius: 4))
+                .accessibilityIgnoresInvertColors()
         } else {
             InitialsAvatarView(name: name)
         }

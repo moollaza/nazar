@@ -16,6 +16,7 @@ enum DashboardSort: String {
 
 struct DashboardView: View {
     @Environment(StatusManager.self) var manager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var onOpenSettings: ((SettingsTab) -> Void)?
     @State private var selectedProviderId: UUID?
     @State private var searchText = ""
@@ -100,10 +101,10 @@ struct DashboardView: View {
                         }
                     }
                 )
-                .transition(.move(edge: .trailing))
+                .transition(reduceMotion ? .opacity : .move(edge: .trailing))
             } else {
                 dashboardContent
-                    .transition(.move(edge: .leading))
+                    .transition(reduceMotion ? .opacity : .move(edge: .leading))
             }
         }
         .frame(width: 420, height: 520)
@@ -281,10 +282,10 @@ struct DashboardView: View {
             if isOffline {
                 Image(systemName: "wifi.slash")
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color(nsColor: ComponentStatus.majorOutage.textColor))
                 Text("Offline")
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color(nsColor: ComponentStatus.majorOutage.textColor))
             } else if !manager.snapshots.isEmpty {
                 Circle()
                     .fill(Color(nsColor: manager.worstStatus.color))
@@ -342,7 +343,7 @@ struct DashboardView: View {
             }
             .controlSize(.small)
             .buttonStyle(.borderedProminent)
-            .tint(.red)
+            .tint(Color(red: 0.73, green: 0.11, blue: 0.11)) // #B91C1C: white label stays 6.5:1 in both modes
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
@@ -433,7 +434,7 @@ struct DashboardView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color(nsColor: .accessibleLink))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                 } else if showIssuesOnly && snapshots.isEmpty {
@@ -609,7 +610,7 @@ struct ProviderRowView: View {
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
@@ -710,9 +711,12 @@ struct StatusBadge: View {
         case .partialOutage:
             // Orange: orange-800 on orange-100 / orange-300 on orange-900
             return (Color(red: 0.60, green: 0.22, blue: 0.02), Color(red: 1.0, green: 0.93, blue: 0.84)) // #9a3412, #ffedd5
-        case .degradedPerformance, .underMaintenance:
+        case .degradedPerformance:
             // Amber: amber-800 on amber-100 / amber-300 on amber-900
             return (Color(red: 0.57, green: 0.29, blue: 0.01), Color(red: 0.996, green: 0.95, blue: 0.78)) // #92400e, #fef3c7
+        case .underMaintenance:
+            // Blue: blue-800 on blue-100, so planned work doesn't read as degraded
+            return (Color(red: 0.12, green: 0.25, blue: 0.69), Color(red: 0.86, green: 0.92, blue: 1.0)) // #1e40af, #dbeafe
         case .unknown:
             // Gray: gray-700 on gray-100 / gray-300 on gray-800
             return (Color(red: 0.22, green: 0.25, blue: 0.32), Color(red: 0.95, green: 0.96, blue: 0.96)) // #374151, #f3f4f6
@@ -728,8 +732,10 @@ struct StatusBadge: View {
             return (Color(red: 0.99, green: 0.68, blue: 0.68), Color(red: 0.45, green: 0.06, blue: 0.06)) // #fca5a5, #7f1d1d
         case .partialOutage:
             return (Color(red: 0.99, green: 0.73, blue: 0.47), Color(red: 0.49, green: 0.15, blue: 0.01)) // #fdba74, #7c2d12
-        case .degradedPerformance, .underMaintenance:
+        case .degradedPerformance:
             return (Color(red: 0.99, green: 0.82, blue: 0.36), Color(red: 0.47, green: 0.22, blue: 0.01)) // #fcd34d, #78350f
+        case .underMaintenance:
+            return (Color(red: 0.58, green: 0.77, blue: 0.99), Color(red: 0.12, green: 0.23, blue: 0.54)) // #93c5fd, #1e3a8a
         case .unknown:
             return (Color(red: 0.61, green: 0.64, blue: 0.69), Color(red: 0.19, green: 0.22, blue: 0.26)) // #9ca3af, #1f2937
         case .operational:

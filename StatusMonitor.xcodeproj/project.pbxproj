@@ -37,6 +37,7 @@
 		BB00000100000001000CATTF /* CatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000002000CATTF /* CatalogTests.swift */; };
 		BB00000100000003000CODTF /* CodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000004000CODTF /* CodableTests.swift */; };
 		BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000CMPTF /* ComponentStatusTests.swift */; };
+		BB00000100000005000CNTRS /* ContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000CNTRS /* ContrastTests.swift */; };
 		BB00000100000005000INSTA /* InstatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000INSTA /* InstatusTests.swift */; };
 		BB00000100000005000DDOG1 /* DatadogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000DDOG1 /* DatadogTests.swift */; };
 		BB00000100000007000PRVTF /* ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000008000PRVTF /* ProviderTests.swift */; };
@@ -97,6 +98,7 @@
 		BB00000100000002000CATTF /* CatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTests.swift; sourceTree = "<group>"; };
 		BB00000100000004000CODTF /* CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableTests.swift; sourceTree = "<group>"; };
 		BB00000100000006000CMPTF /* ComponentStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentStatusTests.swift; sourceTree = "<group>"; };
+		BB00000100000006000CNTRS /* ContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContrastTests.swift; sourceTree = "<group>"; };
 		BB00000100000006000INSTA /* InstatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstatusTests.swift; sourceTree = "<group>"; };
 		BB00000100000006000DDOG1 /* DatadogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatadogTests.swift; sourceTree = "<group>"; };
 		BB00000100000008000PRVTF /* ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderTests.swift; sourceTree = "<group>"; };
@@ -245,6 +247,7 @@
 				BB00000100000002000CATTF /* CatalogTests.swift */,
 				BB00000100000004000CODTF /* CodableTests.swift */,
 				BB00000100000006000CMPTF /* ComponentStatusTests.swift */,
+				BB00000100000006000CNTRS /* ContrastTests.swift */,
 				BB00000100000006000INSTA /* InstatusTests.swift */,
 				BB00000100000006000DDOG1 /* DatadogTests.swift */,
 				BB00000100000008000PRVTF /* ProviderTests.swift */,
@@ -482,6 +485,7 @@
 				BB00000100000001000CATTF /* CatalogTests.swift in Sources */,
 				BB00000100000003000CODTF /* CodableTests.swift in Sources */,
 				BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */,
+				BB00000100000005000CNTRS /* ContrastTests.swift in Sources */,
 				BB00000100000005000INSTA /* InstatusTests.swift in Sources */,
 				BB00000100000005000DDOG1 /* DatadogTests.swift in Sources */,
 				BB00000100000007000PRVTF /* ProviderTests.swift in Sources */,

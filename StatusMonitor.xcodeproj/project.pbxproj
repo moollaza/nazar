@@ -556,7 +556,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
 				PRODUCT_NAME = "Nazar-MAS";
 				REGISTER_APP_GROUPS = YES;
@@ -892,7 +892,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
 				PRODUCT_NAME = "Nazar-MAS";
 				REGISTER_APP_GROUPS = YES;

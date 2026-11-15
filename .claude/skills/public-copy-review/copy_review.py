@@ -22,7 +22,7 @@ SKILL = ".claude/skills/public-copy-review/SKILL.md"
 RULES = "docs/public-writing.md"
 
 FORBIDDEN = [
-    ("internal agent link", re.compile(r"\bclaude\.ai/(?!code(?:[)\s>]|$))\S*", re.I | re.M)),
+    ("internal agent link", re.compile(r"\bclaude\.ai/(?!code(?:[^\w/?#-]|$))\S*", re.I | re.M)),
     ("session trailer", re.compile(r"^Claude-Session:.*$", re.M)),
     ("project attribution comment", re.compile(r"<!--\s*claude-projects-attribution.*?-->", re.S)),
     ("internal ID", re.compile(r"\b(?:session|cmsg|chan|env)_01[A-Za-z0-9]{8,}\b")),

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)" />
+
+    <title>Privacy Policy · Nazar</title>
+    <meta name="description" content="How the Nazar app and usenazar.com handle your data. The app collects no personal data; the website uses cookieless analytics." />
+    <link rel="canonical" href="https://usenazar.com/privacy" />
+
+    <script>
+      (function () {
+        try {
+          const saved = localStorage.getItem('theme') || 'auto';
+          if (saved === 'light') document.documentElement.style.colorScheme = 'light';
+          else if (saved === 'dark') document.documentElement.style.colorScheme = 'dark';
+        } catch {}
+      })();
+    </script>
+
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.2"
+      integrity="sha384-qKt1F1k7v69ebd7q6Na1d2FGVMI+43GgA5hpfz7i+zDfrz8rIjXYu7majL1fXSeS"
+      crossorigin="anonymous"
+    ></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-surface: light-dark(#ffffff, #0a0a0f);
+        --color-border-subtle: light-dark(#e5e5ea, #26263a);
+        --color-accent: light-dark(#4f46e5, #818cf8);
+        --color-text-primary: light-dark(#111113, #f0f0f5);
+        --color-text-secondary: light-dark(#4a4a52, #b0b0c8);
+        --color-text-tertiary: light-dark(#6b6b77, #8a8aa4);
+      }
+
+      @layer base {
+        :root { color-scheme: light dark; }
+        h1, h2 { text-wrap: balance; }
+        p, li { text-wrap: pretty; }
+        :focus-visible {
+          outline: 2px solid var(--color-accent);
+          outline-offset: 2px;
+          border-radius: 6px;
+        }
+        main h2 { @apply mt-10 text-xl font-semibold text-text-primary; }
+        main h3 { @apply text-text-primary; }
+        main p, main ul { @apply mt-4 leading-relaxed text-text-secondary; }
+        main ul { @apply list-disc space-y-2 pl-6; }
+        main a { @apply text-accent underline underline-offset-2; }
+        main strong { @apply font-semibold text-text-primary; }
+      }
+    </style>
+  </head>
+  <body class="bg-surface text-text-primary antialiased">
+    <header class="border-b border-border-subtle">
+      <div class="mx-auto flex max-w-3xl items-center px-6 py-4">
+        <a href="/" class="text-lg font-semibold tracking-tight">Nazar</a>
+      </div>
+    </header>
+
+    <main id="main" class="mx-auto max-w-3xl px-6 py-16">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Privacy Policy</h1>
+      <p class="text-sm text-text-tertiary">Last updated: November 15, 2026</p>
+
+      <p>
+        Nazar is a macOS menu bar app that watches public status pages and tells you when a service has an outage.
+        This policy covers the Nazar app and this website, usenazar.com. Nazar is made by MoollApps.
+      </p>
+
+      <h2>The short version</h2>
+      <ul>
+        <li><strong>The Nazar app</strong> does not collect personal data. It has no accounts, no ads, and no tracking.</li>
+        <li><strong>This website</strong> collects anonymous visit statistics, without cookies, to see how people use it.</li>
+      </ul>
+
+      <h2>The Nazar app</h2>
+      <p>The app does not send us any personal data. Here is everything it does that uses the network or your files:</p>
+      <ul>
+        <li>
+          <strong>Status checks.</strong> Nazar requests each status page you add directly from that service
+          (for example, githubstatus.com). Those services see a normal web request: your IP address and an
+          app identifier such as "Nazar/1.2.0". We do not see these requests.
+        </li>
+        <li>
+          <strong>Your settings.</strong> Nazar stores your list of services and your preferences on your Mac only.
+        </li>
+        <li>
+          <strong>Notifications.</strong> Nazar creates alerts on your Mac. They do not go through any server of ours.
+        </li>
+        <li>
+          <strong>Find services from your installed apps.</strong> This optional feature reads the names of apps in
+          your Applications folder and matches them against Nazar's built-in list of services. It runs on your Mac
+          and sends nothing anywhere.
+        </li>
+        <li>
+          <strong>Feedback.</strong> "Report a Bug", "Request a Feature", and suggesting a service for the catalog open
+          a pre-filled GitHub issue in your browser. Nothing is sent unless you choose to submit it on GitHub, under
+          GitHub's own privacy policy.
+        </li>
+        <li>
+          <strong>Update checks (direct download only).</strong> The version you download from this website checks
+          usenazar.com for new versions. That request includes the app version. The Mac App Store version
+          does not do this; the App Store handles updates.
+        </li>
+      </ul>
+
+      <h3 class="mt-8 text-lg font-semibold">Possible future changes to the app</h3>
+      <p>
+        A future version of Nazar may send anonymous crash reports and basic usage data, such as app launches, which
+        features are used, and how many services are monitored, so we can fix bugs and improve the app. If we add this:
+      </p>
+      <ul>
+        <li>It will not include your name, your email, or the list of services you monitor, and we will not store your IP address.</li>
+        <li>It will not be linked to you or used for advertising or tracking across apps or websites.</li>
+        <li>You will be able to turn it off in Settings.</li>
+        <li>We will update this policy and the app's App Store privacy details before that version is released.</li>
+      </ul>
+
+      <h2>This website (usenazar.com)</h2>
+      <p>
+        The website collects anonymous statistics about visits: which pages people view, which links and buttons they
+        click, which site sent them, their country, and their browser and device type. We use this to see how people find Nazar and
+        to fix problems with the site. It does not use cookies, and we do not use it to identify you.
+      </p>
+      <p>We use two services for this:</p>
+      <ul>
+        <li><a href="https://usefathom.com/legal/privacy" rel="noopener noreferrer">Fathom Analytics</a> counts visits and clicks.</li>
+        <li><a href="https://posthog.com/privacy" rel="noopener noreferrer">PostHog</a> counts visits and clicks, and reports errors on the site.</li>
+      </ul>
+      <p>
+        Like any website, the servers that deliver the site see your IP address. Your theme choice is saved in your
+        browser only.
+      </p>
+
+      <h2>Sharing and selling</h2>
+      <p>We do not sell personal data or share it for advertising.</p>
+
+      <h2>Children</h2>
+      <p>Nazar is suitable for all ages. We do not knowingly collect personal data from children.</p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        If this policy changes, we will update the date at the top of this page. The full history is public in the
+        <a href="https://github.com/moollaza/nazar/commits/main/website/privacy.html" rel="noopener noreferrer">Nazar GitHub repository</a>.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions? Open an issue on
+        <a href="https://github.com/moollaza/nazar/issues" rel="noopener noreferrer">GitHub</a>.
+      </p>
+    </main>
+
+    <footer class="border-t border-border-subtle py-10">
+      <div class="mx-auto flex max-w-3xl flex-col items-center gap-4 px-6 text-sm text-text-tertiary sm:flex-row sm:justify-between">
+        <a href="/" class="transition hover:text-text-secondary">&larr; Back to Nazar</a>
+        <a href="https://github.com/moollaza/nazar" class="transition hover:text-text-secondary" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -48,7 +48,9 @@ $S/nazar-app.sh doctor
 
 Read-only. Checks that the running PID is our build, the bundle ID is the verify one, the build is newer than every source file (else rebuild), the log stream is alive, and the terminal has Accessibility and Screen Recording permission. It also names any other running Nazar so you leave it alone. Run it first whenever a step fails in a way you do not expect.
 
-First run on a Mac: macOS asks to grant the terminal app (Terminal, iTerm, Ghostty, or the Claude app) **Accessibility** and **Screen Recording** in System Settings > Privacy & Security. Without them `ax` cannot see or click anything and screenshots show only the desktop. A person must grant these; an agent cannot. Stop and ask.
+First run on a Mac: the app that runs your shell needs **Accessibility** (called **Device Control and Data Access** on newer macOS) and **Screen & System Audio Recording** in System Settings > Privacy & Security. Without them `ax` cannot see or click anything and `shot` saves only the `.ax.txt`. A person must switch them on; an agent cannot. `doctor` asks macOS to add the right entry to both lists and prints its name. Stop and ask the person to switch it on.
+
+Which app that is: the nearest `.app` above the shell. In Terminal, iTerm, or Ghostty it is that app. In the Claude desktop app it is **not** the orange "Claude" entry: Claude disclaims its child process, so the entry is the lowercase **claude** (grey icon, bundle "Claude Code", under `~/Library/Application Support/Claude/claude-code/<version>/…/claude.app`). Tell the person to choose "Later" if macOS offers "Quit & Reopen"; restarting kills the session. Accessibility applies at once; Screen Recording can lag by a minute. A Claude Code update can change that path and need a new grant.
 
 ### Drive
 
@@ -57,11 +59,13 @@ First run on a Mac: macOS asks to grant the terminal app (Terminal, iTerm, Ghost
 ```bash
 $S/nazar-app.sh ax statusitem              # left-click the menu bar icon: toggles the dashboard panel
 $S/nazar-app.sh ax statusitem --right      # right-click: context menu (About, Check for Updates…, Preferences…, Send Feedback…, Quit)
-$S/nazar-app.sh ax wait "Nazar" --timeout 5
+$S/nazar-app.sh ax wait "Refresh all" --timeout 5   # the panel is open
 $S/nazar-app.sh ax dump                    # whole AX tree: role, labels, center point, size, [disabled]
 $S/nazar-app.sh ax press "Settings"        # AXPress, or a real click if the element has none
-$S/nazar-app.sh ax click "Search services..."   # real click (focus a field)
+$S/nazar-app.sh ax click "Catalog"                 # real click; refuses if another window covers the point
+$S/nazar-app.sh ax focus "Search services..."     # keyboard focus without a click (field under the panel)
 $S/nazar-app.sh ax type "GitHub"
+$S/nazar-app.sh ax press "GitHub, www.githubstatus.com"   # catalog checkbox
 $S/nazar-app.sh ax rightclick "GitHub, Operational"
 $S/nazar-app.sh ax key escape              # escape | return | tab | cmd-r | cmd-w
 $S/nazar-app.sh ax windows                 # on-screen windows of the app
@@ -69,17 +73,22 @@ $S/nazar-app.sh ax windows                 # on-screen windows of the app
 
 Stable handles in this app (from the source, not guesses):
 
-- Dashboard panel header: `Nazar`; header buttons have tooltips `Show issues only`, `Refresh all`, `Settings`; filter field placeholder `Filter services...`; status line `All operational` / `Updated …`.
-- Service row: one combined element labelled `<Name>, <Status>` (for example `GitHub, Operational`, `GitHub, Major Outage`, `GitHub, Unavailable`, `…, muted`).
+- Dashboard panel header: buttons have tooltips `Show issues only`, `Refresh all`, `Settings`; filter field placeholder `Filter services...`; status line `All operational` / `Updated …`. To prove the panel is open, wait for `Refresh all`. Do not wait for `Nazar`: that matches the application element and passes even with no panel.
+- Service row: one combined `AXStaticText` labelled `<Name>, <Status>` (for example `GitHub, Operational`, `GitHub, Major Outage`, `GitHub, Unavailable`, `…, muted`), tooltip `Double-click to view details`.
 - Empty dashboard: `No services monitored`, button `Get Started`.
 - Settings window title `Nazar Settings`; sidebar items `Services`, `Catalog`, `Preferences`, `Feedback`, `Help`.
 - Services tab: `Browse Catalog`, `Add Custom...`; custom sheet fields `Name (e.g. My Service)`, `Status Page URL (e.g. https://status.example.com)`, buttons `Cancel`, `Add`; bad URL message `URL must be a valid https:// address with a host`.
-- Catalog tab: `Search services...`, one checkbox per service, `Scan Apps`.
+- Catalog tab: header `Service Catalog`, `(<N> available)`, `<N> monitoring`; field `Search services...` (once typed in, its value is the query, so `GitHub` matches the field too); one `AXCheckBox` per service labelled `<Name>, <status page host>` (for example `GitHub, www.githubstatus.com`), value `0`/`1`; `Scan Apps`.
+- Settings sidebar items are `AXStaticText` inside rows: use `ax click "Catalog"`, not `press`.
 - Detail view: back button `Services`, `View Status Page`, `Filter components...`.
 
 Prefer `wait` over `sleep`. The panel and Settings animate in; status values arrive after a network poll.
 
 Mouse events are real. Do not move the mouse or type while a drive runs, and tell the user that before starting on their own Mac.
+
+- Before every real click `ax` raises the element's window and checks that the window under the point belongs to the verify app (or, for `statusitem`, the menu bar). If another app covers the point it refuses with `refusing to click … covered by <app>` instead of clicking into the user's app. Do not work around this.
+- The dashboard panel closes on any mouse click in another app, including the person using their Mac. If `wait "Refresh all"` fails right after `statusitem`, the panel was closed by outside activity: chain `statusitem` and the next steps in one command, and ask the person to keep hands off.
+- The panel floats above Settings and covers part of it (the catalog search field among others). Neither `ax statusitem` nor Escape closes it while Settings is open (see the dashboard Gotchas). For a covered field use `ax focus "<label>"`, then `ax type`. `type` and `key` refuse unless the verify app is frontmost.
 
 ### Evidence
 
@@ -89,7 +98,9 @@ $S/nazar-app.sh log "Added provider"   # grep this run's app log
 $S/nazar-app.sh evidence         # prints .verify/evidence/<run>/
 ```
 
-Everything lands in `.verify/evidence/<run>/` (gitignored). `quit` and `clean` copy the run's app log there as `app.log`. Cleanup never deletes this folder.
+Everything lands in `.verify/evidence/<run>/` (gitignored). `launch --fresh` starts a new run; a plain `launch` continues the current one, so a persistence check stays in the same folder. `quit` and `clean` append the app log there as `app.log`. Cleanup never deletes this folder.
+
+`<name>.screen.png` is the whole screen, including whatever else the person has open. Look at and share the `<name>.winN.png` window shots; keep `.screen.png` local.
 
 Proof standards:
 

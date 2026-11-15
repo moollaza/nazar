@@ -27,6 +27,31 @@ CONTAINER_PREFS="$HOME/Library/Containers/$BID/Data/Library/Preferences/$BID"
 
 mkdir -p "$RUN"
 
+# The app macOS asks permission for: the nearest .app above this shell. (Claude's
+# desktop app disclaims its child, so there it is "Claude Code", not "Claude".)
+responsible_app() {
+  local p=$$ c
+  while [[ "$p" -gt 1 ]]; do
+    c=$(ps -o comm= -p "$p")
+    if [[ "$c" == *.app/Contents/MacOS/* ]]; then
+      /usr/libexec/PlistBuddy -c 'Print :CFBundleName' "${c%%/Contents/MacOS/*}/Contents/Info.plist" 2>/dev/null \
+        || basename "${c%%.app/Contents/MacOS/*}"
+      return
+    fi
+    p=$(ps -o ppid= -p "$p" | tr -d ' ')
+  done
+  echo "your terminal app"
+}
+
+responsible_exe() {
+  local p=$$ c
+  while [[ "$p" -gt 1 ]]; do
+    c=$(ps -o comm= -p "$p")
+    [[ "$c" == *.app/Contents/MacOS/* ]] && { basename "$c"; return; }
+    p=$(ps -o ppid= -p "$p" | tr -d ' ')
+  done
+}
+
 alive() { [[ -f "$RUN/$1.pid" ]] && kill -0 "$(cat "$RUN/$1.pid")" 2>/dev/null; }
 app_pid() { alive app || { echo "verify app is not running; run: nazar-app.sh launch" >&2; exit 1; }; cat "$RUN/app.pid"; }
 run_id() { cat "$RUN/run_id" 2>/dev/null || echo "no-run"; }
@@ -76,7 +101,8 @@ launch)
     shift
   done
   [[ $fresh == 1 ]] && reset_state
-  date +%Y%m%d-%H%M%S > "$RUN/run_id"
+  # --fresh starts a new evidence folder; a plain relaunch (persistence check) keeps the run.
+  if [[ $fresh == 1 || ! -f "$RUN/run_id" ]]; then date +%Y%m%d-%H%M%S > "$RUN/run_id"; fi
   stop logstream
   : > "$RUN/app.log"
   log stream --style compact --level debug --predicate "subsystem == \"$BID\"" >> "$RUN/app.log" 2>&1 &
@@ -113,7 +139,15 @@ doctor)
   else
     echo "FAIL not built"; ok=0
   fi
-  if [[ -x "$AX" ]]; then "$AX" check | sed 's/^/     /' || { echo "FAIL grant the terminal Accessibility and Screen Recording in System Settings > Privacy & Security"; ok=0; }; fi
+  if [[ -x "$AX" ]]; then
+    if ! "$AX" check --prompt | sed 's/^/     /'; then
+      host=$(responsible_app)
+      echo "FAIL a person must switch on \"$host\" in System Settings > Privacy & Security, under both"
+      echo "     Accessibility (called \"Device Control and Data Access\" on newer macOS) and Screen & System Audio Recording."
+      echo "     The list may show it as \"$(responsible_exe)\". Do not restart $host; rerun doctor after."
+      ok=0
+    fi
+  fi
   real=$(pgrep -x Nazar | grep -v "^$(cat "$RUN/app.pid" 2>/dev/null || echo none)$" || true)
   [[ -n "$real" ]] && echo "note another Nazar is running (pid $real): it is the user's copy, do not touch it"
   echo "run $(run_id), evidence $(evidence_dir)"
@@ -128,13 +162,17 @@ ax)
 
 shot)
   name=${1:?usage: shot <name>}; pid=$(app_pid); dir=$(evidence_dir)
-  screencapture -x "$dir/$name.screen.png"
+  # Without Screen Recording permission screencapture fails; keep the AX tree anyway.
+  "$AX" dump "$pid" > "$dir/$name.ax.txt"
+  if ! screencapture -x "$dir/$name.screen.png" 2>/dev/null; then
+    echo "WARN no screenshot (Screen Recording not granted; run doctor); saved $dir/$name.ax.txt only" >&2
+    exit 1
+  fi
   i=0
   while IFS=$'\t' read -r wid layer _bounds _title; do
     [[ "$layer" == "layer=25" ]] && continue  # the menu bar icon itself
     screencapture -x -o -l "$wid" "$dir/$name.win$i.png" && i=$((i+1))
   done < <("$AX" windows "$pid")
-  "$AX" dump "$pid" > "$dir/$name.ax.txt"
   echo "saved $dir/$name.screen.png, $i window shot(s), $dir/$name.ax.txt"
   ;;
 
@@ -143,7 +181,9 @@ log)
   ;;
 
 quit)
-  [[ -f "$RUN/app.log" && "$(run_id)" != no-run ]] && cp "$RUN/app.log" "$(evidence_dir)/app.log"
+  # Append: a relaunch in the same run must not overwrite the first launch's log.
+  [[ -f "$RUN/app.log" && "$(run_id)" != no-run ]] && cat "$RUN/app.log" >> "$(evidence_dir)/app.log"
+  : > "$RUN/app.log"
   stop app
   stop logstream
   ;;

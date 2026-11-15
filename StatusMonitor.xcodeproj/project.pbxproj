@@ -88,7 +88,7 @@
 		8673B2782F884C760063B14E /* StatusMonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusMonitorApp.swift; sourceTree = "<group>"; };
 		8673B2792F884C760063B14E /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		8673B27A2F884C760063B14E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		8919FBAB15BDA08FEEBBCF37 /* Nazar-MAS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nazar-MAS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8919FBAB15BDA08FEEBBCF37 /* Nazar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nazar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E5A2340904F9E21F99F7E08 /* Updater.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Updater.swift; path = Updater.swift; sourceTree = "<group>"; };
 		AA00000100000002000CATJN /* catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = catalog.json; sourceTree = "<group>"; };
 		AA00000100000007000SIVEW /* ServiceIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceIconView.swift; sourceTree = "<group>"; };
@@ -194,7 +194,7 @@
 				8673B25C2F884BFF0063B14E /* StatusMonitor.app */,
 				BB0000010000000E000XCTEST /* StatusMonitorTests.xctest */,
 				CC00000100000003000UIXCT /* StatusMonitorUITests.xctest */,
-				8919FBAB15BDA08FEEBBCF37 /* Nazar-MAS.app */,
+				8919FBAB15BDA08FEEBBCF37 /* Nazar.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -314,7 +314,7 @@
 			);
 			name = "Nazar-MAS";
 			productName = "Nazar-MAS";
-			productReference = 8919FBAB15BDA08FEEBBCF37 /* Nazar-MAS.app */;
+			productReference = 8919FBAB15BDA08FEEBBCF37 /* Nazar.app */;
 			productType = "com.apple.product-type.application";
 		};
 		BB00000100000011000TESTT /* StatusMonitorTests */ = {
@@ -531,6 +531,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)-MAS";
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -558,7 +559,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
-				PRODUCT_NAME = "Nazar-MAS";
+				PRODUCT_NAME = Nazar;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -867,6 +868,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)-MAS";
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -894,7 +896,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
-				PRODUCT_NAME = "Nazar-MAS";
+				PRODUCT_NAME = Nazar;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

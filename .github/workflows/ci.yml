@@ -119,7 +119,7 @@ jobs:
         run: |
           set -euo pipefail
           dmg_app=build/ci/Build/Products/Debug/Nazar.app
-          mas_app=build/ci/Build/Products/Release/Nazar-MAS.app
+          mas_app=build/ci/Build/Products/Release-MAS/Nazar.app
 
           fail() { echo "::error::$1"; exit 1; }
 
@@ -141,7 +141,7 @@ jobs:
           }
 
           dmg_links=$(links_for "$dmg_app" Nazar)
-          mas_links=$(links_for "$mas_app" Nazar-MAS)
+          mas_links=$(links_for "$mas_app" Nazar)
           echo "DMG links:"; echo "$dmg_links"
           echo "App Store links:"; echo "$mas_links"
 

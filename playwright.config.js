@@ -46,6 +46,9 @@ module.exports = defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 1200 },
+        // 'Desktop Chrome' is 1x, which looks blurry on a Retina screen in
+        // the Argos viewer. Mobile (Pixel 7) is already 2.625x.
+        deviceScaleFactor: 2,
       },
     },
     {

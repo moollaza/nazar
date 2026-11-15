@@ -18,4 +18,4 @@ Do not include:
    Good: "Adds a pre-post review for PR, issue, and release text, and a hook that blocks posts that skip it."
 9. **Leftovers.** No duplicate or stale screenshots, images after the footer, template hint comments, `TODO`s, or unchecked boxes without a reason.
 
-The `public-copy-review` skill (`.claude/skills/public-copy-review/`) checks text against these rules. Its hook blocks rules 1, 4, and 6 outright, because a script can find them without judgment.
+In Claude Code, a hook in `.claude/settings.json` checks every PR, issue, comment, review, and release post against this guide and blocks the post until the text follows it.

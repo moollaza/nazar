@@ -11,7 +11,7 @@ Do not include:
 5. **Internal status, dates, and plans.** No "CI is down until Nov 30", no quota or billing details, no unreleased plans or private deadlines. If CI did not run, say "CI did not run on this PR" and say what was run instead.
 6. **Secrets.** No tokens, keys, passwords, signing identities, or private URLs, even partial or expired ones.
 7. **Claims you did not check.** No "fully tested" or "fixes all". State what was run and what was not. Mark a guess as a guess.
-8. **Meta-commentary.** Don't talk about the repo being public, who reads it, or how the text or code was produced. Don't explain that an AI or agent did or reviewed something. Write like a senior engineer: what changed, why, how it was tested. Cut anything a reviewer would skim past.
+8. **Meta-commentary.** Don't talk about the repo being public, who reads it, or how the text or code was produced. Don't explain that an AI or agent wrote, ran, or reviewed the work. Describing a feature that itself uses a model is fine. Write like a senior engineer: what changed, why, how it was tested. Cut anything a reviewer would skim past.
 
    Bad: "This repository is public, so every PR, issue, comment, and release note is read by strangers. This PR adds a Claude Code skill and hook. The skill has an AI agent review that text before it is posted, and the hook blocks GitHub posts that skip the review."
 

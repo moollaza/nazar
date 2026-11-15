@@ -234,10 +234,10 @@ final class JourneyUITests: XCTestCase {
         let label = row.value as? String ?? ""
         XCTAssertTrue(label.hasPrefix("GitHub, "), "Row should read 'GitHub, <status>', got '\(label)'")
 
-        // The panel floats above Settings and would cover the catalog, so
-        // close it while editing and reopen it to see the result.
+        // Opening Settings closes the panel, so it can't cover the catalog.
+        // Reopen the panel afterwards to see the result.
         app.buttons["Settings"].click()
-        app.statusItems.firstMatch.click()
+        XCTAssertTrue(row.waitForNonExistence(timeout: 5), "Opening Settings should close the panel")
         setGitHubMonitored(false, in: app)
         openPanelFromMenuBar(app)
         XCTAssertTrue(app.staticTexts["No services monitored"].waitForExistence(timeout: 5),

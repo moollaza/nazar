@@ -391,6 +391,7 @@ struct CatalogSettingsView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
                 TextField("Search services...", text: $searchText)
+                    .accessibilityIdentifier("catalog-search")
                     .textFieldStyle(.plain)
                     .font(.system(size: 13))
                 if !searchText.isEmpty {
@@ -536,6 +537,7 @@ struct CatalogSettingsView: View {
                 }
             }
             .toggleStyle(.checkbox)
+            .accessibilityIdentifier("catalog-toggle-\(entry.id)")
 
             Spacer()
 

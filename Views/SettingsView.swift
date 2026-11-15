@@ -49,6 +49,9 @@ extension Notification.Name {
 struct SettingsView: View {
     @Environment(StatusManager.self) var manager
     @State private var selectedTab: SettingsTab = SettingsInitialTab.value
+    /// Starts a Sparkle update check. nil in the App Store build, which has
+    /// no updater, so the update controls are hidden there.
+    var onCheckForUpdates: (() -> Void)?
 
     var body: some View {
         NavigationSplitView {
@@ -67,11 +70,11 @@ struct SettingsView: View {
                     CatalogSettingsView()
                         .environment(manager)
                 case .preferences:
-                    PreferencesSettingsView()
+                    PreferencesSettingsView(onCheckForUpdates: onCheckForUpdates)
                 case .feedback:
                     FeedbackView()
                 case .help:
-                    HelpSettingsView()
+                    HelpSettingsView(onCheckForUpdates: onCheckForUpdates)
                 }
             }
             .frame(minWidth: 450, minHeight: 400)
@@ -553,6 +556,7 @@ struct CatalogSettingsView: View {
 // MARK: - Preferences Tab
 
 struct PreferencesSettingsView: View {
+    var onCheckForUpdates: (() -> Void)?
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @State private var systemNotificationsAllowed: Bool? = nil
 
@@ -573,6 +577,14 @@ struct PreferencesSettingsView: View {
                         }
                     }
                 ))
+            }
+
+            if let onCheckForUpdates {
+                Section("Updates") {
+                    LabeledContent("Software update") {
+                        Button("Check for Updates…", action: onCheckForUpdates)
+                    }
+                }
             }
 
             Section("Notifications") {
@@ -615,6 +627,8 @@ struct PreferencesSettingsView: View {
 // MARK: - Help Tab
 
 struct HelpSettingsView: View {
+    var onCheckForUpdates: (() -> Void)?
+
     private var appVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
     }
@@ -636,6 +650,10 @@ struct HelpSettingsView: View {
                     Text("Made by MoollApps")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if let onCheckForUpdates {
+                    Button("Check for Updates…", action: onCheckForUpdates)
                 }
             }
 

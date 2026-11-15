@@ -131,6 +131,17 @@ final class StatusMonitorUITests: XCTestCase {
         XCTAssertGreaterThan(descendants.count, 0,
                              "Help tab should surface the GitHub Repository link")
     }
+
+    func testSettingsOffersCheckForUpdates() {
+        for tab in ["Preferences", "Help"] {
+            let app = launchSettings(tab: tab)
+            let window = app.windows["Nazar Settings"]
+            XCTAssertTrue(window.waitForExistence(timeout: 5))
+            XCTAssertTrue(window.buttons["Check for Updates…"].waitForExistence(timeout: 5),
+                          "\(tab) tab should offer Check for Updates")
+            app.terminate()
+        }
+    }
 }
 
 /// User journeys from the verify skill, run headless on CI instead of driving
@@ -223,10 +234,10 @@ final class JourneyUITests: XCTestCase {
         let label = row.value as? String ?? ""
         XCTAssertTrue(label.hasPrefix("GitHub, "), "Row should read 'GitHub, <status>', got '\(label)'")
 
-        // The panel floats above Settings and would cover the catalog, so
-        // close it while editing and reopen it to see the result.
+        // Opening Settings closes the panel, so it can't cover the catalog.
+        // Reopen the panel afterwards to see the result.
         app.buttons["Settings"].click()
-        app.statusItems.firstMatch.click()
+        XCTAssertTrue(row.waitForNonExistence(timeout: 5), "Opening Settings should close the panel")
         setGitHubMonitored(false, in: app)
         openPanelFromMenuBar(app)
         XCTAssertTrue(app.staticTexts["No services monitored"].waitForExistence(timeout: 5),

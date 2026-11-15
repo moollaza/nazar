@@ -284,6 +284,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Settings Window
 
     func openSettings(tab: SettingsTab = .services) {
+        // The panel floats at pop-up-menu level and only closes on clicks
+        // outside the app, so left open it would sit on top of Settings.
+        panel?.close()
+
         // Reuse the existing window regardless of visibility so tab selection
         // and other state persist across close/reopen. With
         // `isReleasedWhenClosed = false` the window lives as long as
@@ -297,7 +301,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         SettingsInitialTab.value = tab
-        let settingsView = SettingsView()
+        #if MAS
+        let checkForUpdates: (() -> Void)? = nil
+        #else
+        let checkForUpdates: (() -> Void)? = { [weak self] in self?.updater.checkForUpdates() }
+        #endif
+        let settingsView = SettingsView(onCheckForUpdates: checkForUpdates)
             .environment(statusManager)
 
         let controller = NSHostingController(rootView: settingsView)

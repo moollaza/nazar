@@ -131,6 +131,17 @@ final class StatusMonitorUITests: XCTestCase {
         XCTAssertGreaterThan(descendants.count, 0,
                              "Help tab should surface the GitHub Repository link")
     }
+
+    func testSettingsOffersCheckForUpdates() {
+        for tab in ["Preferences", "Help"] {
+            let app = launchSettings(tab: tab)
+            let window = app.windows["Nazar Settings"]
+            XCTAssertTrue(window.waitForExistence(timeout: 5))
+            XCTAssertTrue(window.buttons["Check for Updates…"].waitForExistence(timeout: 5),
+                          "\(tab) tab should offer Check for Updates")
+            app.terminate()
+        }
+    }
 }
 
 /// User journeys from the verify skill, run headless on CI instead of driving

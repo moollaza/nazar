@@ -54,6 +54,7 @@ struct ServiceDetailView: View {
                         .foregroundStyle(.blue)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("detail-back")
                     .onHover { hovering in
                         if hovering {
                             NSCursor.pointingHand.push()
@@ -77,6 +78,7 @@ struct ServiceDetailView: View {
                             .foregroundStyle(.blue)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("detail-view-status-page")
                         .onHover { hovering in
                             if hovering {
                                 NSCursor.pointingHand.push()

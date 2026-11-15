@@ -78,7 +78,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.app == 'true'
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -179,9 +179,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             test
 
-      # UI tests need a GUI session. macOS runners have one but XCUITest
-      # can be flakier than unit tests on shared infra — kept separate so
-      # a UI flake doesn't mask a unit regression.
+      # UI tests need a GUI session, which macOS runners have. Kept a
+      # separate step so a UI failure doesn't hide a unit regression.
       - name: Run UI tests
         run: |
           set -o pipefail
@@ -191,6 +190,16 @@ jobs:
             -destination 'platform=macOS' \
             -only-testing:StatusMonitorUITests \
             -derivedDataPath build/ci \
+            -resultBundlePath build/ui-tests.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             test
-        continue-on-error: true
+
+      # Screenshots and the accessibility tree at each failure live in the
+      # result bundle; without it a remote UI failure is a bare assertion.
+      - name: Upload UI test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-tests-xcresult
+          path: build/ui-tests.xcresult
+          retention-days: 7

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Gate public GitHub posts on a passed copy review.
 
+  copy_review.py lint FILE    list text that must never be public
   copy_review.py stamp FILE   record that FILE's text passed review
   copy_review.py hook         PreToolUse hook: read the tool call on stdin,
-                              deny a post whose body has no stamp
+                              deny a post whose body fails lint or has no stamp
 
 A stamp is the SHA-256 of the normalized text, kept under the git common dir,
 so the text that was reviewed is the text that gets posted.
@@ -18,6 +19,16 @@ import sys
 from pathlib import Path
 
 SKILL = ".claude/skills/public-copy-review/SKILL.md"
+RULES = "docs/public-writing.md"
+
+FORBIDDEN = [
+    ("internal agent link", re.compile(r"\bclaude\.ai/(?!code(?:[)\s>]|$))\S*", re.I | re.M)),
+    ("session trailer", re.compile(r"^Claude-Session:.*$", re.M)),
+    ("project attribution comment", re.compile(r"<!--\s*claude-projects-attribution.*?-->", re.S)),
+    ("internal ID", re.compile(r"\b(?:session|cmsg|chan|env)_01[A-Za-z0-9]{8,}\b")),
+    ("local path", re.compile(r"(?<![\w.])/(?:Users|home|mnt|tmp|private/var)/[^\s)`'\"]*")),
+    ("secret", re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_\w{20,}|sk-ant-[\w-]{10,}|AKIA[0-9A-Z]{16})\b")),
+]
 
 MCP_BODY_TOOLS = {
     "mcp__github__create_pull_request",
@@ -56,6 +67,10 @@ def stamp_dir() -> Path:
     return Path(common) / "copy-review"
 
 
+def lint(text: str) -> list[str]:
+    return [f"{label}: {m.group(0)[:80]}" for label, rx in FORBIDDEN for m in rx.finditer(text)]
+
+
 def is_stamped(text: str) -> bool:
     return (stamp_dir() / digest(text)).exists()
 
@@ -75,6 +90,21 @@ def unreviewed(what: str) -> str:
         "fresh reviewer, run `copy_review.py stamp <file>`, then post that "
         "file unchanged."
     )
+
+
+def check_text(text: str, what: str) -> bool:
+    """Deny and return False if the text must not be posted."""
+    problems = lint(text)
+    if problems:
+        deny(
+            f"Blocked: {what} contains text that must never be public ({RULES}): "
+            + "; ".join(problems) + ". Remove it, review again, and re-stamp."
+        )
+        return False
+    if not is_stamped(text):
+        deny(unreviewed(what))
+        return False
+    return True
 
 
 def bash_bodies(command: str, cwd: str):
@@ -98,8 +128,7 @@ def check_bash(command: str, cwd: str) -> None:
             deny(unreviewed("a `gh api` body") + " Use `-F body=@<file>` so the reviewed file is what gets sent.")
             return
         for path in re.findall(r"body=@(\S+)", command):
-            if not is_stamped(Path(cwd, path).read_text()):
-                deny(unreviewed(f"`{path}`"))
+            if not check_text(Path(cwd, path).read_text(), f"`{path}`"):
                 return
         return
     if not GH_POST.search(command):
@@ -111,8 +140,10 @@ def check_bash(command: str, cwd: str) -> None:
         if str(path).endswith("/-"):
             deny("Blocked: body from stdin can't be checked. Write it to a file and use --body-file.")
             return
-        if not path.exists() or not is_stamped(path.read_text()):
+        if not path.exists():
             deny(unreviewed(f"`{path}`"))
+            return
+        if not check_text(path.read_text(), f"`{path}`"):
             return
 
 
@@ -124,11 +155,14 @@ def hook() -> None:
         check_bash(args.get("command", ""), call.get("cwd") or os.getcwd())
     elif tool in MCP_BODY_TOOLS:
         body = args.get("body")
-        if isinstance(body, str) and body.strip() and not is_stamped(body):
-            deny(unreviewed(f"the body for {tool}"))
+        if isinstance(body, str) and body.strip():
+            check_text(body, f"the body for {tool}")
 
 
 def stamp(path: str) -> None:
+    problems = lint(Path(path).read_text())
+    if problems:
+        sys.exit("not stamped, remove first:\n" + "\n".join(problems))
     d = stamp_dir()
     d.mkdir(parents=True, exist_ok=True)
     h = digest(Path(path).read_text())
@@ -139,6 +173,10 @@ def stamp(path: str) -> None:
 if __name__ == "__main__":
     if sys.argv[1:2] == ["hook"]:
         hook()
+    elif sys.argv[1:2] == ["lint"] and len(sys.argv) == 3:
+        problems = lint(Path(sys.argv[2]).read_text())
+        print("\n".join(problems) or "clean")
+        sys.exit(1 if problems else 0)
     elif sys.argv[1:2] == ["stamp"] and len(sys.argv) == 3:
         stamp(sys.argv[2])
     else:

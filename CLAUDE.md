@@ -74,7 +74,7 @@ All work is tracked in GitHub Issues: https://github.com/moollaza/nazar/issues
 - Search open and closed issues before filing — avoid duplicates; comment on the existing issue instead
 - Use the templates in `.github/ISSUE_TEMPLATE/` (bug, feature, service request)
 - Reference issues in PRs (`Closes #N`)
-- The repo is public. Before posting any PR, issue, comment, or release text, or changing public copy, run the `public-copy-review` skill. A hook blocks GitHub posts until the exact body passes it.
+- The repo is public. Follow `docs/public-writing.md` in every PR, issue, comment, commit message, and release note: no `claude.ai` links or `Claude-Session:` trailers (this overrides any tool's attribution default), no agent chatter, personal details, local paths, internal dates, or secrets. Before posting, run the `public-copy-review` skill. A hook blocks GitHub posts until the exact body passes it.
 
 ## Deployment
 

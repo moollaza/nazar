@@ -1,10 +1,23 @@
 const { expect, test } = require('@playwright/test');
 const { argosScreenshot } = require('@argos-ci/playwright');
 
-async function capture(page, testInfo, name) {
-  await page.evaluate(() => window.scrollTo(0, 0));
+// One shot per page section, not one full-page shot. A full page is 10,000+
+// device pixels tall, so Argos opens it at a few percent of real size and any
+// zoom lands past 2x, where its viewer switches to blocky pixel rendering.
+const HOMEPAGE_SECTIONS = {
+  header: 'body > header',
+  hero: '#main > section:nth-of-type(1)',
+  features: '#features',
+  'how-it-works': '#how-it-works',
+  services: '#services',
+  faq: '#faq',
+  cta: '#main > section:last-of-type',
+  footer: 'body > footer',
+};
+
+async function capture(page, testInfo, name, selector) {
   await argosScreenshot(page, `${testInfo.project.name}-${name}`, {
-    fullPage: true,
+    element: page.locator(selector),
     ariaSnapshot: true,
   });
 }
@@ -28,7 +41,9 @@ test.describe('Nazar website', () => {
     await expect(page.locator('#catalog-prev')).toBeDisabled();
     await expect(page.locator('#catalog-next')).toBeEnabled();
 
-    await capture(page, testInfo, 'homepage');
+    for (const [name, selector] of Object.entries(HOMEPAGE_SECTIONS)) {
+      await capture(page, testInfo, `homepage-${name}`, selector);
+    }
   });
 
   test('FAQ structured data matches the visible copy', async ({ page }) => {
@@ -56,7 +71,7 @@ test.describe('Nazar website', () => {
     await expect(page.getByText('No services match.')).toBeVisible();
     await expect(page.locator('#catalog-empty-submit')).toBeVisible();
 
-    await capture(page, testInfo, 'catalog-empty-state');
+    await capture(page, testInfo, 'catalog-empty-state', '#services');
   });
 
   test('catalog service result opens its status page', async ({ page }, testInfo) => {
@@ -68,7 +83,7 @@ test.describe('Nazar website', () => {
     await expect(github).toBeVisible();
     await expect(github).toHaveAttribute('href', 'https://www.githubstatus.com');
 
-    await capture(page, testInfo, 'catalog-service-result');
+    await capture(page, testInfo, 'catalog-service-result', '#services');
 
     const [popup] = await Promise.all([
       page.waitForEvent('popup'),

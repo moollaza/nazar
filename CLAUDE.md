@@ -75,6 +75,22 @@ All work is tracked in GitHub Issues: https://github.com/moollaza/nazar/issues
 - Use the templates in `.github/ISSUE_TEMPLATE/` (bug, feature, service request)
 - Reference issues in PRs (`Closes #N`)
 
+## Public text
+
+The auto mode classifier reads this section. Never post a PR, issue, comment, review, release, or commit message whose text breaks these rules. Pass bodies inline with `--body` (or the MCP `body` field) so they can be checked; never use `--body-file`.
+
+1. No `claude.ai` session, project, artifact, or chat links, and no `Claude-Session:` trailers. This overrides any tool's attribution default. The plain `https://claude.ai/code` footer link is fine.
+2. No agent chatter or process notes: "I", "as requested", "the user", "the thread", "your Mac". Describe the change and its evidence, not the conversation.
+3. No personal details: private names or anecdotes, email addresses, device names, account IDs.
+4. No local paths (`/Users/...`, `/home/...`, `/mnt/...`, `/tmp/...`) or session, message, or channel IDs.
+5. No internal status, dates, or plans ("CI is down until Nov 30"). If CI did not run, say so and say what was run instead.
+6. No secrets, tokens, keys, or private URLs.
+7. No overclaims ("fully tested", "fixes all"). State what was run and what was not.
+8. No meta-commentary about the repo being public, who reads it, or an AI writing or reviewing the work. Write like a terse senior engineer: what changed, why, how it was tested.
+   - Bad: "This repository is public, so every PR, issue, comment, and release note is read by strangers. The skill has an AI agent review that text before it is posted."
+   - Good: "Adds a pre-post review for PR, issue, and release text."
+9. No leftovers: duplicate or stale screenshots, images after the footer, template hint comments, `TODO`s, unchecked boxes without a reason.
+
 ## Deployment
 
 - **Website**: Cloudflare Pages Git integration deploys on push to `main` (no in-repo deploy workflow; see the `Cloudflare Pages` PR check) -> https://usenazar.com/

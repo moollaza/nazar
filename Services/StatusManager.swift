@@ -31,6 +31,7 @@ class StatusManager {
     /// is flapping, since we coalesce notifications to one per provider in
     /// Notification Center.
     private var transitionTimes: [UUID: [Date]] = [:]
+    private(set) var recovery: RecoveryTracker
     private var sleepObserver: NSObjectProtocol?
     private var wakeObserver: NSObjectProtocol?
 
@@ -77,7 +78,9 @@ class StatusManager {
         self.notifier = notifier
         self.defaults = defaults
         self.now = now
+        self.recovery = RecoveryTracker(defaults: defaults, now: now)
         loadProviders()
+        recovery.load(knownProviders: Set(providers.map(\.id)))
         observeSleepWake()
     }
 
@@ -157,6 +160,14 @@ class StatusManager {
         }
     }
 
+    func recentRecovery(for id: UUID) -> Date? { recovery.recentRecovery(for: id) }
+
+    /// Called while the panel is on screen. Starts the 5-minute clock for
+    /// every recovery that is showing and has not been seen yet.
+    func markRecoveriesSeen() { recovery.markSeen() }
+
+    func clearRecovery(for id: UUID) { recovery.clear(for: id) }
+
     @discardableResult
     func addProvider(_ provider: Provider) -> Bool {
         guard provider.hasValidURL else {
@@ -204,6 +215,7 @@ class StatusManager {
         failureCounts.removeValue(forKey: provider.id)
         lastFailure.removeValue(forKey: provider.id)
         transitionTimes.removeValue(forKey: provider.id)
+        clearRecovery(for: provider.id)
         saveProviders()
         recalcWorstStatus()
     }
@@ -863,9 +875,14 @@ class StatusManager {
             )
         }
 
+        recordRecovery(for: provider.id, from: previousStatus, to: snapshot.overallStatus)
         previousStatuses[provider.id] = snapshot.overallStatus
         recalcWorstStatus()
         onPollCycleComplete?()
+    }
+
+    func recordRecovery(for id: UUID, from previous: ComponentStatus?, to current: ComponentStatus) {
+        recovery.record(for: id, from: previous, to: current)
     }
 
     /// Appends a transition timestamp for `id`, drops entries older than 1

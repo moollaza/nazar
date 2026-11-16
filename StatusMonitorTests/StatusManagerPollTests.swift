@@ -33,6 +33,13 @@ final class StatusManagerPollTests: XCTestCase {
         return URLSession(configuration: config)
     }
 
+    /// A throwaway defaults suite, removed when the test ends.
+    private func freshDefaults() -> UserDefaults {
+        let name = "poll-\(UUID().uuidString)"
+        addTeardownBlock { UserDefaults().removePersistentDomain(forName: name) }
+        return UserDefaults(suiteName: name)!
+    }
+
     override func tearDown() {
         super.tearDown()
         StubURLProtocol.clearStubs()
@@ -301,6 +308,121 @@ final class StatusManagerPollTests: XCTestCase {
         XCTAssertEqual(spy.calls.count, 1)
         XCTAssertEqual(spy.calls.first?.from, .operational)
         XCTAssertEqual(spy.calls.first?.to, .majorOutage)
+    }
+
+    // MARK: - Recovery tracking
+
+    func testRecoveryIsRecordedPersistedAndExpires() async {
+        let url = URL(string: "https://status.example.com/api/v2/summary.json")!
+        let suiteName = "recovery-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        var clock = Date(timeIntervalSince1970: 1_800_000_000)
+
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: defaults, now: { clock })
+        let provider = Provider(name: "R", baseURL: "https://status.example.com")
+        manager.providers = [provider]
+        manager.saveProviders()
+
+        StubURLProtocol.register(url: url, response: (operationalJSON, 200))
+        await manager.poll(provider: provider)
+        XCTAssertNil(manager.recentRecovery(for: provider.id), "First operational poll is not a recovery")
+
+        StubURLProtocol.register(url: url, response: (majorOutageJSON, 200))
+        await manager.poll(provider: provider)
+        XCTAssertNil(manager.recentRecovery(for: provider.id))
+
+        let recoveredAt = clock
+        StubURLProtocol.register(url: url, response: (operationalJSON, 200))
+        await manager.poll(provider: provider)
+        XCTAssertEqual(manager.recentRecovery(for: provider.id), recoveredAt)
+
+        // Survives a relaunch.
+        let relaunched = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: defaults, now: { clock })
+        XCTAssertEqual(relaunched.recentRecovery(for: provider.id), recoveredAt)
+
+        // Unseen: still showing well past 5 minutes.
+        clock = recoveredAt.addingTimeInterval(RecoveryTracker.recoverySeenWindow * 10)
+        XCTAssertEqual(manager.recentRecovery(for: provider.id), recoveredAt)
+
+        // Gone after the 24-hour cap even if never seen.
+        clock = recoveredAt.addingTimeInterval(RecoveryTracker.recoveryWindow + 1)
+        XCTAssertNil(manager.recentRecovery(for: provider.id))
+    }
+
+    /// Recovers `provider` at the current clock time via two polls.
+    private func recover(_ manager: StatusManager, _ provider: Provider, url: URL) async {
+        StubURLProtocol.register(url: url, response: (majorOutageJSON, 200))
+        await manager.poll(provider: provider)
+        StubURLProtocol.register(url: url, response: (operationalJSON, 200))
+        await manager.poll(provider: provider)
+    }
+
+    func testSeenRecoveryExpiresFiveMinutesAfterSeen() async {
+        let url = URL(string: "https://status.example.com/api/v2/summary.json")!
+        let suiteName = "recovery-seen-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        var clock = Date(timeIntervalSince1970: 1_800_000_000)
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: defaults, now: { clock })
+        let provider = Provider(name: "R", baseURL: "https://status.example.com")
+        manager.providers = [provider]
+        manager.saveProviders()
+
+        await recover(manager, provider, url: url)
+        let recoveredAt = clock
+
+        // Panel opens an hour later: the 5-minute clock starts then.
+        clock = recoveredAt.addingTimeInterval(3600)
+        manager.markRecoveriesSeen()
+        let seenAt = clock
+
+        // Seen state survives a relaunch.
+        let relaunched = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: defaults, now: { clock })
+        XCTAssertEqual(relaunched.recovery.recoverySeenAt[provider.id], seenAt)
+
+        clock = seenAt.addingTimeInterval(RecoveryTracker.recoverySeenWindow - 1)
+        XCTAssertEqual(manager.recentRecovery(for: provider.id), recoveredAt)
+        clock = seenAt.addingTimeInterval(RecoveryTracker.recoverySeenWindow)
+        XCTAssertNil(manager.recentRecovery(for: provider.id))
+    }
+
+    func testRecoveryWhilePanelOpenCountsAsSeen() async {
+        let url = URL(string: "https://status.example.com/api/v2/summary.json")!
+        var clock = Date(timeIntervalSince1970: 1_800_000_000)
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: freshDefaults(), now: { clock })
+        let provider = Provider(name: "R", baseURL: "https://status.example.com")
+        manager.providers = [provider]
+
+        await recover(manager, provider, url: url)
+        manager.markRecoveriesSeen()
+        let recoveredAt = clock
+        clock = recoveredAt.addingTimeInterval(RecoveryTracker.recoverySeenWindow)
+        XCTAssertNil(manager.recentRecovery(for: provider.id))
+    }
+
+    func testClearRecoveryRemovesBadgeAndSeenState() async {
+        let url = URL(string: "https://status.example.com/api/v2/summary.json")!
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: freshDefaults())
+        let provider = Provider(name: "R", baseURL: "https://status.example.com")
+        manager.providers = [provider]
+
+        await recover(manager, provider, url: url)
+        manager.markRecoveriesSeen()
+        XCTAssertNotNil(manager.recentRecovery(for: provider.id))
+
+        manager.clearRecovery(for: provider.id)
+        XCTAssertNil(manager.recentRecovery(for: provider.id))
+        XCTAssertNil(manager.recovery.recoverySeenAt[provider.id])
+    }
+
+    func testMaintenanceEndingIsNotARecovery() {
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: freshDefaults())
+        let id = UUID()
+        manager.recordRecovery(for: id, from: .underMaintenance, to: .operational)
+        XCTAssertNil(manager.recentRecovery(for: id))
+        manager.recordRecovery(for: id, from: .majorOutage, to: .operational)
+        XCTAssertNotNil(manager.recentRecovery(for: id))
     }
 
     func testSameStatusDoesNotNotify() async {

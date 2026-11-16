@@ -51,7 +51,7 @@ struct ServiceDetailView: View {
                             Text("Services")
                                 .font(.system(size: 12))
                         }
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Color(nsColor: .accessibleLink))
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("detail-back")
@@ -75,7 +75,7 @@ struct ServiceDetailView: View {
                                 Image(systemName: "arrow.up.right")
                                     .font(.caption2)
                             }
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(Color(nsColor: .accessibleLink))
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("detail-view-status-page")
@@ -110,7 +110,7 @@ struct ServiceDetailView: View {
                 TimelineView(.periodic(from: .now, by: 30)) { context in
                     Text("Updated \(coarseTimeAgo(snapshot.lastUpdated, now: context.date))")
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                 }
             }
             .padding(.horizontal, 16)
@@ -257,6 +257,7 @@ struct IncidentRow: View {
     let incident: IncidentSnapshot
     let defaultExpanded: Bool
     @State private var isExpanded: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovered = false
 
     init(incident: IncidentSnapshot, defaultExpanded: Bool) {
@@ -269,7 +270,7 @@ struct IncidentRow: View {
         VStack(alignment: .leading, spacing: 0) {
             // Tappable header row
             Button {
-                withAnimation(.easeInOut(duration: 0.15)) { isExpanded.toggle() }
+                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.15)) { isExpanded.toggle() }
             } label: {
                 HStack(alignment: .top, spacing: 6) {
                     Image(systemName: "exclamationmark.triangle.fill")
@@ -291,14 +292,14 @@ struct IncidentRow: View {
                             .foregroundStyle(.secondary)
                         Image(systemName: "chevron.down")
                             .font(.system(size: 9, weight: .semibold))
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(.secondary)
                             .rotationEffect(.degrees(isExpanded ? 0 : -90))
                     }
                     .padding(.top, 1)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isHovered ? Color(nsColor: .unemphasizedSelectedContentBackgroundColor).opacity(0.4) : .clear)
+                .background(isHovered ? Color(nsColor: .quaternarySystemFill) : .clear)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -322,7 +323,7 @@ struct IncidentRow: View {
                                         if let date = update.createdAt {
                                             Text(date, style: .relative)
                                                 .font(.caption2)
-                                                .foregroundStyle(.tertiary)
+                                                .foregroundStyle(.secondary)
                                         }
                                     }
                                     Text(update.body)

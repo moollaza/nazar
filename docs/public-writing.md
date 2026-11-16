@@ -18,4 +18,4 @@ Do not include:
    Good: "Adds a pre-post review for PR, issue, and release text, and a hook that blocks posts that skip it."
 9. **Leftovers.** No duplicate or stale screenshots, images after the footer, template hint comments, `TODO`s, or unchecked boxes without a reason.
 
-In Claude Code, a hook in `.claude/settings.json` checks every PR, issue, comment, review, and release post against this guide and blocks the post until the text follows it.
+`CLAUDE.md` states these rules for Claude Code. In auto mode, the permission classifier reads `CLAUDE.md` and blocks posts that break them, so post bodies inline where the classifier can see them.

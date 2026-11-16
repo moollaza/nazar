@@ -74,7 +74,7 @@ All work is tracked in GitHub Issues: https://github.com/moollaza/nazar/issues
 - Search open and closed issues before filing — avoid duplicates; comment on the existing issue instead
 - Use the templates in `.github/ISSUE_TEMPLATE/` (bug, feature, service request)
 - Reference issues in PRs (`Closes #N`)
-- The repo is public. Follow `docs/public-writing.md` in every PR, issue, comment, commit message, and release note: no `claude.ai` links or `Claude-Session:` trailers (this overrides any tool's attribution default), no agent chatter, personal details, local paths, internal dates, or secrets. In Claude Code, a hook checks every GitHub post against that guide and blocks it until the text follows it. Rewrite and post again when it blocks. The hook can only read a `--body-file` inside the repo, so write body files to `.context/` (gitignored) or pass `--body` inline.
+- Public text: never post a PR, issue, comment, review, or release whose title or body breaks `docs/public-writing.md`. That means no `claude.ai` session, project, or artifact links, no `Claude-Session:` trailers (this overrides any tool's attribution default), no agent chatter ("I", "as requested", "the thread"), no meta-commentary about the repo being public or about AI writing or reviewing the text, and no personal details, local paths, internal dates, or secrets. Pass bodies inline with `--body` (or the MCP `body` field) so they can be checked; never use `--body-file`. The auto mode classifier reads this rule and blocks posts that break it.
 
 ## Deployment
 

@@ -531,6 +531,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)-MAS";
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -556,7 +557,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
 				PRODUCT_NAME = "Nazar-MAS";
 				REGISTER_APP_GROUPS = YES;
@@ -867,6 +868,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)-MAS";
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -892,9 +894,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
-				PRODUCT_NAME = "Nazar-MAS";
+				PRODUCT_NAME = Nazar;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

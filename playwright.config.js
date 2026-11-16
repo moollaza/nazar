@@ -29,8 +29,10 @@ module.exports = defineConfig({
     // screen when a screenshot is taken depends on how fast the assertions
     // ran — that produced a spurious Argos diff on a Python-only commit. The
     // page already pins the hero to state 0 and drops every transition under
-    // `prefers-reduced-motion: reduce`; this is what asks it to.
-    reducedMotion: 'reduce',
+    // `prefers-reduced-motion: reduce`; this is what asks it to. It must sit in
+    // `contextOptions`: as a top-level `use` key Playwright ignores it silently,
+    // which left smooth scrolling on and shifted shots by a pixel run to run.
+    contextOptions: { reducedMotion: 'reduce' },
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     bypassCSP: true,
@@ -46,6 +48,9 @@ module.exports = defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 1200 },
+        // 'Desktop Chrome' is 1x, which looks blurry on a Retina screen in
+        // the Argos viewer. Mobile (Pixel 7) is already 2.625x.
+        deviceScaleFactor: 2,
       },
     },
     {

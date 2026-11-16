@@ -22,6 +22,12 @@ jobs:
         id: release
         uses: googleapis/release-please-action@0dfd8538845b8e92600d271a895a5372865d4062 # v5.0.0
         with:
+          # GITHUB_TOKEN can't create a release whose tag range touches
+          # .github/workflows/ (GitHub requires the workflows permission, which
+          # GITHUB_TOKEN never has). Use a fine-grained PAT with Contents, Pull
+          # requests, Issues and Workflows read/write; fall back to
+          # GITHUB_TOKEN until the secret exists.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
           config-file: .github/release-please-config.json
           manifest-file: .github/.release-please-manifest.json
 

@@ -20,12 +20,12 @@ struct ServiceIconView: View {
 struct InitialsAvatarView: View {
     let name: String
 
-    private var initials: String {
-        let words = name.split(separator: " ")
+    static func initials(for name: String) -> String {
+        let words = name.split(separator: " ").filter { $0.first?.isLetter == true || $0.first?.isNumber == true }
         if words.count >= 2 {
             return String(words[0].prefix(1) + words[1].prefix(1)).uppercased()
         }
-        return String(name.prefix(2)).uppercased()
+        return String((words.first ?? Substring(name)).prefix(2)).uppercased()
     }
 
     private var backgroundColor: Color {
@@ -41,7 +41,7 @@ struct InitialsAvatarView: View {
         ZStack {
             RoundedRectangle(cornerRadius: 4)
                 .fill(backgroundColor.opacity(0.2))
-            Text(initials)
+            Text(Self.initials(for: name))
                 .font(.system(size: 9, weight: .bold))
                 .foregroundColor(backgroundColor)
         }

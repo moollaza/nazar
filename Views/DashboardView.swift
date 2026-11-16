@@ -169,6 +169,7 @@ struct DashboardView: View {
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
                     TextField("Filter services...", text: $searchText)
+                        .accessibilityIdentifier("dashboard-filter")
                         .textFieldStyle(.plain)
                         .font(.system(size: 12))
                     if !searchText.isEmpty {
@@ -390,6 +391,7 @@ struct ProviderRowView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(snapshot.name), \(snapshot.error != nil ? "Unavailable" : snapshot.overallStatus.label)\(isMuted ? ", muted" : "")")
         .accessibilityHint("Double-click to view details")
+        .accessibilityIdentifier("service-row-\(catalogId ?? snapshot.name)")
         .contextMenu {
             if let url = statusPageURL {
                 Button {
@@ -510,6 +512,7 @@ struct HoverButton: View {
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
         .help(help)
+        .accessibilityLabel(help)
     }
 }
 

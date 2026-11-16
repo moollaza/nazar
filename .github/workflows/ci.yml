@@ -73,12 +73,15 @@ jobs:
       - name: Check stated service counts against the catalog
         run: python3 scripts/check-service-count.py
 
+      - name: Check catalog names
+        run: python3 scripts/check-catalog-names.py
+
   build-and-test:
     name: Build + Test
     needs: changes
     if: needs.changes.outputs.app == 'true'
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -119,7 +122,7 @@ jobs:
         run: |
           set -euo pipefail
           dmg_app=build/ci/Build/Products/Debug/Nazar.app
-          mas_app=build/ci/Build/Products/Release/Nazar-MAS.app
+          mas_app=build/ci/Build/Products/Release-MAS/Nazar.app
 
           fail() { echo "::error::$1"; exit 1; }
 
@@ -141,7 +144,7 @@ jobs:
           }
 
           dmg_links=$(links_for "$dmg_app" Nazar)
-          mas_links=$(links_for "$mas_app" Nazar-MAS)
+          mas_links=$(links_for "$mas_app" Nazar)
           echo "DMG links:"; echo "$dmg_links"
           echo "App Store links:"; echo "$mas_links"
 
@@ -165,6 +168,13 @@ jobs:
             fail "App Store Info.plist carries SUFeedURL"
           fi
 
+          # App Store flavor installs as Nazar.app with its own bundle ID.
+          mas_plist="$mas_app/Contents/Info.plist"
+          [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$mas_plist")" = Nazar ] \
+            || fail "App Store CFBundleName is not Nazar"
+          [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$mas_plist")" = com.moollapps.Nazar ] \
+            || fail "App Store bundle ID is not com.moollapps.Nazar"
+
           echo "Both flavors are correct."
 
       - name: Run unit tests
@@ -179,9 +189,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             test
 
-      # UI tests need a GUI session. macOS runners have one but XCUITest
-      # can be flakier than unit tests on shared infra — kept separate so
-      # a UI flake doesn't mask a unit regression.
+      # UI tests need a GUI session, which macOS runners have. Kept a
+      # separate step so a UI failure doesn't hide a unit regression.
       - name: Run UI tests
         run: |
           set -o pipefail
@@ -191,6 +200,16 @@ jobs:
             -destination 'platform=macOS' \
             -only-testing:StatusMonitorUITests \
             -derivedDataPath build/ci \
+            -resultBundlePath build/ui-tests.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             test
-        continue-on-error: true
+
+      # Screenshots and the accessibility tree at each failure live in the
+      # result bundle; without it a remote UI failure is a bare assertion.
+      - name: Upload UI test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-tests-xcresult
+          path: build/ui-tests.xcresult
+          retention-days: 7

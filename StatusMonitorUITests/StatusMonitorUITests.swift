@@ -131,4 +131,154 @@ final class StatusMonitorUITests: XCTestCase {
         XCTAssertGreaterThan(descendants.count, 0,
                              "Help tab should surface the GitHub Repository link")
     }
+
+    func testSettingsOffersCheckForUpdates() {
+        for tab in ["Preferences", "Help"] {
+            let app = launchSettings(tab: tab)
+            let window = app.windows["Nazar Settings"]
+            XCTAssertTrue(window.waitForExistence(timeout: 5))
+            XCTAssertTrue(window.buttons["Check for Updates…"].waitForExistence(timeout: 5),
+                          "\(tab) tab should offer Check for Updates")
+            app.terminate()
+        }
+    }
+}
+
+/// User journeys from the verify skill, run headless on CI instead of driving
+/// the maintainer's desktop. A real status page is polled, so a row may read
+/// "Unavailable" when the network is down; tests match the service name, not
+/// its status.
+final class JourneyUITests: XCTestCase {
+
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+    }
+
+    private func launch(_ arguments: [String]) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestMode"] + arguments
+        app.launch()
+        return app
+    }
+
+    private func githubRow(in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any)["service-row-github"]
+    }
+
+    private func openPanelFromMenuBar(_ app: XCUIApplication) {
+        let icon = app.statusItems.firstMatch
+        XCTAssertTrue(icon.waitForExistence(timeout: 5), "Nazar should have a menu bar icon")
+        icon.click()
+    }
+
+    private func setGitHubMonitored(_ monitored: Bool, in app: XCUIApplication) {
+        let settings = app.windows["Nazar Settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 5), "Settings window should be open")
+        settings.staticTexts["Catalog"].click()
+        XCTAssertTrue(settings.staticTexts["Service Catalog"].waitForExistence(timeout: 5))
+
+        let search = settings.textFields["catalog-search"]
+        search.click()
+        search.typeKey("a", modifierFlags: .command)
+        search.typeText("GitHub")
+
+        let checkbox = settings.checkBoxes["catalog-toggle-github"]
+        XCTAssertTrue(checkbox.waitForExistence(timeout: 5), "GitHub should be in the search results")
+        if (checkbox.value as? Int == 1) != monitored {
+            checkbox.click()
+        }
+        XCTAssertEqual(checkbox.value as? Int, monitored ? 1 : 0)
+    }
+
+    /// Adds GitHub from the catalog, closes Settings, and opens the panel the
+    /// way a user does.
+    private func launchWithGitHubInPanel() -> XCUIApplication {
+        let app = launch(["-UITestOpenSettingsAt", "Catalog"])
+        setGitHubMonitored(true, in: app)
+        app.windows["Nazar Settings"].typeKey("w", modifierFlags: .command)
+        openPanelFromMenuBar(app)
+        XCTAssertTrue(githubRow(in: app).waitForExistence(timeout: 30),
+                      "A service added from the catalog should appear in the panel")
+        return app
+    }
+
+    func testFirstRunOpensOnboardingPanelAndGetStartedOpensSettings() {
+        let app = launch(["-UITestFirstRun"])
+
+        XCTAssertTrue(app.staticTexts["No services monitored"].waitForExistence(timeout: 5),
+                      "First launch should open the panel on its own with the empty state")
+        app.buttons["Get Started"].click()
+        XCTAssertTrue(app.windows["Nazar Settings"].waitForExistence(timeout: 5),
+                      "Get Started should open Settings")
+    }
+
+    func testMenuBarIconTogglesPanel() {
+        let app = launch([])
+
+        openPanelFromMenuBar(app)
+        let empty = app.staticTexts["No services monitored"]
+        XCTAssertTrue(empty.waitForExistence(timeout: 5), "Clicking the icon should open the panel")
+
+        app.typeKey(.escape, modifierFlags: [])
+        XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "Escape should close the panel")
+    }
+
+    func testCatalogAddPersistsAcrossRelaunchAndRemoveEmptiesPanel() {
+        var app = launchWithGitHubInPanel()
+
+        app.terminate()
+        app = launch(["-UITestKeepState"])
+        openPanelFromMenuBar(app)
+        let row = githubRow(in: app)
+        XCTAssertTrue(row.waitForExistence(timeout: 30), "The added service should survive a relaunch")
+        let label = row.value as? String ?? ""
+        XCTAssertTrue(label.hasPrefix("GitHub, "), "Row should read 'GitHub, <status>', got '\(label)'")
+
+        // Opening Settings closes the panel, so it can't cover the catalog.
+        // Reopen the panel afterwards to see the result.
+        app.buttons["Settings"].click()
+        XCTAssertTrue(row.waitForNonExistence(timeout: 5), "Opening Settings should close the panel")
+        setGitHubMonitored(false, in: app)
+        openPanelFromMenuBar(app)
+        XCTAssertTrue(app.staticTexts["No services monitored"].waitForExistence(timeout: 5),
+                      "Unticking the catalog entry should empty the panel")
+    }
+
+    func testPanelFilterDetailAndRefresh() {
+        let app = launchWithGitHubInPanel()
+        let row = githubRow(in: app)
+
+        let filter = app.textFields["dashboard-filter"]
+        filter.click()
+        filter.typeText("zzz")
+        XCTAssertTrue(row.waitForNonExistence(timeout: 5), "A filter with no match should hide the row")
+        filter.typeKey("a", modifierFlags: .command)
+        filter.typeKey(.delete, modifierFlags: [])
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "Clearing the filter should bring the row back")
+
+        app.buttons["Refresh all"].click()
+
+        row.click()
+        XCTAssertTrue(app.buttons["detail-view-status-page"].waitForExistence(timeout: 5),
+                      "Clicking a row should open its detail view")
+        app.buttons["detail-back"].click()
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "Back should return to the list")
+    }
+
+    func testSimulatedOutageUpdatesRowAndResets() {
+        let app = launchWithGitHubInPanel()
+
+        let row = githubRow(in: app)
+        row.rightClick()
+        app.menuItems["Simulate Major Outage"].click()
+        XCTAssertTrue(app.staticTexts["1 issue"].waitForExistence(timeout: 5),
+                      "Footer should count the simulated outage")
+        XCTAssertEqual(row.value as? String, "GitHub, Major Outage")
+
+        row.rightClick()
+        app.menuItems["Reset to Operational"].click()
+        XCTAssertTrue(app.staticTexts["All operational"].waitForExistence(timeout: 5),
+                      "Reset should clear the outage")
+        XCTAssertEqual(row.value as? String, "GitHub, Operational")
+    }
 }

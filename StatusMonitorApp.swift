@@ -19,6 +19,20 @@ struct StatusMonitorApp: App {
     }
 }
 
+/// Start each UI test clean so onboarding and provider state don't leak
+/// across tests. -UITestKeepState skips the reset, so a relaunch inside one
+/// test can prove what the previous launch saved. -UITestFirstRun leaves
+/// onboarding incomplete.
+private func resetDefaultsForUITests(arguments args: [String]) {
+    guard args.contains("-UITestMode") else { return }
+    if !args.contains("-UITestKeepState") {
+        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier ?? "com.moollapps.StatusMonitor")
+    }
+    if !args.contains("-UITestFirstRun") {
+        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+    }
+}
+
 // MARK: - Floating Panel (replaces NSPopover for clean rectangle, no arrow)
 
 class FloatingPanel: NSPanel {
@@ -63,7 +77,13 @@ class FloatingPanel: NSPanel {
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var panel: FloatingPanel!
-    let statusManager = StatusManager()
+    // Built after the UI-test reset: StatusManager reads saved providers in
+    // its initializer, so a later reset would leave the previous test's
+    // services loaded.
+    let statusManager: StatusManager = {
+        resetDefaultsForUITests(arguments: ProcessInfo.processInfo.arguments)
+        return StatusManager()
+    }()
     #if !MAS
     let updater = Updater()
     #endif
@@ -81,12 +101,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // hooks let tests land directly on an inspectable window.
         let args = ProcessInfo.processInfo.arguments
         let uiTestMode = args.contains("-UITestMode")
-        if uiTestMode {
-            // Start clean each run so onboarding / provider state doesn't leak
-            // across tests.
-            UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier ?? "com.moollapps.StatusMonitor")
-            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-        }
 
         UserDefaults.standard.register(defaults: ["notificationsEnabled": true])
         // Menu-bar apps use .accessory in production (no Dock icon, no foreground
@@ -102,6 +116,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Menu bar item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         updateMenuBarIcon(for: .operational)
+
+        // At launch the status item's window is still settling into the menu
+        // bar; a panel positioned before it lands opens far below the icon.
+        // Follow the icon so the first-run panel ends up under it.
+        if let buttonWindow = statusItem.button?.window {
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.didMoveNotification, object: buttonWindow, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let self, self.isPanelShown else { return }
+                    self.positionPanel()
+                }
+            }
+        }
 
         if let button = statusItem.button {
             button.action = #selector(handleStatusBarClick)
@@ -256,6 +284,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Settings Window
 
     func openSettings(tab: SettingsTab = .services) {
+        // The panel floats at pop-up-menu level and only closes on clicks
+        // outside the app, so left open it would sit on top of Settings.
+        panel?.close()
+
         // Reuse the existing window regardless of visibility so tab selection
         // and other state persist across close/reopen. With
         // `isReleasedWhenClosed = false` the window lives as long as
@@ -269,7 +301,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         SettingsInitialTab.value = tab
-        let settingsView = SettingsView()
+        #if MAS
+        let checkForUpdates: (() -> Void)? = nil
+        #else
+        let checkForUpdates: (() -> Void)? = { [weak self] in self?.updater.checkForUpdates() }
+        #endif
+        let settingsView = SettingsView(onCheckForUpdates: checkForUpdates)
             .environment(statusManager)
 
         let controller = NSHostingController(rootView: settingsView)

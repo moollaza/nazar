@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)" />
+
+    <title>Privacy Policy · Nazar</title>
+    <meta name="description" content="How the Nazar app and usenazar.com handle your data. The app collects no personal data; the website uses cookieless analytics." />
+    <link rel="canonical" href="https://usenazar.com/privacy" />
+
+    <script>
+      (function () {
+        try {
+          const saved = localStorage.getItem('theme') || 'auto';
+          if (saved === 'light') document.documentElement.style.colorScheme = 'light';
+          else if (saved === 'dark') document.documentElement.style.colorScheme = 'dark';
+        } catch {}
+      })();
+    </script>
+
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+
+    <!-- Plain CSS, no third-party requests. Colors match the homepage theme. -->
+    <style>
+      :root {
+        color-scheme: light dark;
+        --surface: light-dark(#ffffff, #0a0a0f);
+        --border: light-dark(#e5e5ea, #26263a);
+        --accent: light-dark(#4f46e5, #818cf8);
+        --text-primary: light-dark(#111113, #f0f0f5);
+        --text-secondary: light-dark(#4a4a52, #b0b0c8);
+        --text-tertiary: light-dark(#6b6b77, #8a8aa4);
+      }
+      *, *::before, *::after { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--surface);
+        color: var(--text-primary);
+        font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; text-decoration: none; }
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+      .wrap { max-width: 48rem; margin: 0 auto; padding: 0 1.5rem; }
+      .site-header { border-bottom: 1px solid var(--border); }
+      .site-header .wrap { display: flex; align-items: center; padding-top: 1rem; padding-bottom: 1rem; }
+      .brand { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.025em; }
+      main.wrap { padding-top: 4rem; padding-bottom: 4rem; }
+      h1 { margin: 0; font-size: 1.875rem; line-height: 1.2; font-weight: 700; letter-spacing: -0.025em; text-wrap: balance; }
+      .updated { margin-top: 1rem; font-size: 0.875rem; color: var(--text-tertiary); }
+      main h2 { margin: 2.5rem 0 0; font-size: 1.25rem; font-weight: 600; text-wrap: balance; }
+      main p, main ul { margin: 1rem 0 0; line-height: 1.625; color: var(--text-secondary); }
+      main p, main li { text-wrap: pretty; }
+      main ul { padding-left: 1.5rem; }
+      main li + li { margin-top: 0.5rem; }
+      main a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+      main strong { font-weight: 600; color: var(--text-primary); }
+      .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 0; }
+      .site-footer .wrap { display: flex; flex-direction: column; align-items: center; gap: 1rem; font-size: 0.875rem; color: var(--text-tertiary); }
+      .site-footer a { transition: color 150ms; }
+      .site-footer a:hover { color: var(--text-secondary); }
+      @media (min-width: 640px) {
+        h1 { font-size: 2.25rem; line-height: 1.1; }
+        .site-footer .wrap { flex-direction: row; justify-content: space-between; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a href="/" class="brand">Nazar</a>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>Privacy Policy</h1>
+      <p class="updated">Last updated: November 15, 2026</p>
+
+      <p>
+        Nazar is a macOS menu bar app that watches public status pages and tells you when a service has an outage.
+        This policy covers the Nazar app and this website, usenazar.com. Nazar is made by Zaahir Moolla.
+      </p>
+
+      <h2>The short version</h2>
+      <ul>
+        <li><strong>The Nazar app</strong> does not collect personal data. It has no accounts, no ads, and no tracking.</li>
+        <li><strong>This website</strong> collects anonymous visit statistics, without cookies, to see how people use it.</li>
+      </ul>
+
+      <h2>The Nazar app</h2>
+      <p>The app does not send us any personal data.</p>
+      <ul>
+        <li>
+          <strong>Status checks.</strong> Nazar requests each status page you add directly from that service.
+          The service sees your IP address and the app version, like any web request. We do not see these requests.
+        </li>
+        <li>
+          <strong>On your Mac.</strong> Your list of services, your settings, and your notifications stay on your Mac.
+          The optional "Find services from your installed apps" feature reads app names in your Applications folder
+          and sends nothing anywhere.
+        </li>
+        <li>
+          <strong>Feedback.</strong> Feedback links open a pre-filled GitHub issue in your browser. Nothing is sent
+          unless you submit it on GitHub.
+        </li>
+        <li>
+          <strong>Updates.</strong> The version downloaded from this website checks usenazar.com for new versions.
+          The Mac App Store version leaves updates to the App Store.
+        </li>
+      </ul>
+
+      <h2>This website (usenazar.com)</h2>
+      <p>
+        The website collects anonymous statistics about visits: which pages people view, which links and buttons they
+        click, which site sent them, their country, and their browser and device type. We use this to see how people find Nazar and
+        to fix problems with the site. It does not use cookies, and we do not use it to identify you.
+      </p>
+      <p>We use two services for this:</p>
+      <ul>
+        <li><a href="https://usefathom.com/legal/privacy" rel="noopener noreferrer">Fathom Analytics</a> counts visits and clicks.</li>
+        <li><a href="https://posthog.com/privacy" rel="noopener noreferrer">PostHog</a> counts visits and clicks, and reports errors on the site.</li>
+      </ul>
+      <p>
+        Like any website, the servers that deliver the site see your IP address. Your theme choice is saved in your
+        browser only.
+      </p>
+
+      <h2>Sharing and selling</h2>
+      <p>We do not sell personal data or share it for advertising.</p>
+
+      <h2>Children</h2>
+      <p>Nazar is suitable for all ages. We do not knowingly collect personal data from children.</p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        If this policy changes, we will update the date at the top of this page. The full history is public in the
+        <a href="https://github.com/moollaza/nazar/commits/main/website/privacy.html" rel="noopener noreferrer">Nazar GitHub repository</a>.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions? Open an issue on
+        <a href="https://github.com/moollaza/nazar/issues" rel="noopener noreferrer">GitHub</a>.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <a href="/">&larr; Back to Nazar</a>
+        <a href="https://github.com/moollaza/nazar" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
+  </body>
+</html>

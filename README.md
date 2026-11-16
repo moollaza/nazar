@@ -12,7 +12,7 @@ Nazar watches the services you depend on, right from your macOS menu bar.
 - Outage alerts and service updates for tools you rely on
 - Built-in catalog with one-click setup (5 services in under 60 seconds)
 - Color-coded menu bar icon (green/yellow/orange/red)
-- Supports Atlassian Statuspage, incident.io, Better Stack status pages, and RSS/Atom feeds
+- Supports Atlassian Statuspage, incident.io, Better Stack status pages, Apple System Status, and RSS/Atom feeds
 - Configurable per-service poll intervals
 - Native macOS app (SwiftUI, no Electron)
 - Free and open source ([Apache-2.0](LICENSE))
@@ -25,6 +25,13 @@ Requires macOS 14 (Sonoma) or later.
 
 > [!NOTE]
 > Nazar keeps itself up to date, but 1.3.0 and earlier shipped without the updater. If you're on one of those, download the latest `.dmg` once and replace the app. Updates are automatic after that.
+
+## Apple custom services
+
+In Settings, open Services and choose **Add Custom**. Select the `apple` type and add either page URL:
+
+- Apple Developer: `https://developer.apple.com/system-status/`
+- Apple System Status: `https://www.apple.com/support/systemstatus/`
 
 ## Development Setup
 

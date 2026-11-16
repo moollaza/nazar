@@ -335,6 +335,14 @@ class StatusManager {
             failureCounts[provider.id] = 0
 
             switch provider.type {
+            case .apple:
+                do {
+                    let snapshot = try AppleSystemStatus.snapshot(from: data, provider: provider, now: now())
+                    applySnapshot(snapshot, for: provider)
+                } catch {
+                    logger.error("Apple schema mismatch for \(provider.name): \(String(describing: error))")
+                    updateSnapshot(for: provider, error: "Status format not recognized")
+                }
             case .statuspage:
                 do {
                     try parseStatuspage(data: data, provider: provider)

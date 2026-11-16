@@ -73,6 +73,9 @@ jobs:
       - name: Check stated service counts against the catalog
         run: python3 scripts/check-service-count.py
 
+      - name: Check catalog names
+        run: python3 scripts/check-catalog-names.py
+
   build-and-test:
     name: Build + Test
     needs: changes

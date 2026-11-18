@@ -52,11 +52,13 @@ struct DashboardView: View {
     private var catalogMatches: [CatalogEntry] {
         guard !query.isEmpty else { return [] }
         let monitored = Set(manager.providers.compactMap(\.catalogEntryId))
-        let monitoredURLs = Set(manager.providers.map(\.baseURL))
         return Array(
             Catalog.shared.search(query)
                 .lazy
-                .filter { !monitored.contains($0.id) && !monitoredURLs.contains(Provider(from: $0).baseURL) }
+                .filter { entry in
+                    let candidate = Provider(from: entry)
+                    return !monitored.contains(entry.id) && !manager.providers.contains { $0.watchesSameFeed(as: candidate) }
+                }
                 .prefix(Self.catalogMatchLimit)
         )
     }

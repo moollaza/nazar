@@ -132,7 +132,7 @@ class StatusManager {
             return
         }
         do {
-            let saved = try JSONDecoder().decode([Provider].self, from: data)
+            let saved = try JSONDecoder().decode([Provider].self, from: data).map { Self.withCatalogScope($0) }
             if !saved.isEmpty {
                 providers = saved
                 if !defaults.bool(forKey: "hasCompletedOnboarding") {
@@ -149,6 +149,16 @@ class StatusManager {
             logger.error("Failed to decode persisted providers (\(error.localizedDescription)). Backed up raw data at \(backupKey).")
             providers = []
         }
+    }
+
+    /// Scope is not persisted: it is read from the catalog on load, so a
+    /// catalog fix reaches services that were added before it.
+    private static func withCatalogScope(_ provider: Provider) -> Provider {
+        var provider = provider
+        provider.componentIds = provider.catalogEntryId.flatMap { id in
+            Catalog.shared.entries.first { $0.id == id }?.componentIds
+        }
+        return provider
     }
 
     func saveProviders() {
@@ -174,7 +184,7 @@ class StatusManager {
             logger.error("Refused to add provider with invalid URL: \(provider.baseURL)")
             return false
         }
-        guard !providers.contains(where: { $0.baseURL == provider.baseURL }) else {
+        guard !providers.contains(where: { $0.watchesSameFeed(as: provider) }) else {
             logger.warning("Refused to add duplicate provider: \(provider.baseURL)")
             return false
         }
@@ -499,9 +509,21 @@ class StatusManager {
         return String(string[..<afterDot]) + padded + String(string[endOffset...])
     }
 
+    static let followedComponentsMissing = "Followed components not found on status page"
+
     private func parseStatuspage(data: Data, provider: Provider) throws {
-        let decoder = JSONDecoder()
-        let summary = try decoder.decode(StatuspageSummary.self, from: data)
+        let page = try JSONDecoder().decode(StatuspageSummary.self, from: data)
+        let summary: StatuspageSummary
+        if let ids = provider.componentIds {
+            guard let scoped = page.scoped(to: ids) else {
+                logger.error("No followed components on the status page for \(provider.name)")
+                updateSnapshot(for: provider, error: Self.followedComponentsMissing)
+                return
+            }
+            summary = scoped
+        } else {
+            summary = page
+        }
 
         let indicatorStatus = ComponentStatus(fromIndicator: summary.status.indicator)
 

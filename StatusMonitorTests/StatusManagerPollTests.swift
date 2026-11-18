@@ -287,6 +287,74 @@ final class StatusManagerPollTests: XCTestCase {
         XCTAssertEqual(manager.snapshots[0].error, "Status format not recognized")
     }
 
+    // MARK: - Component-scoped entries
+
+    // A page shared by two products. "Other" is down and the page indicator
+    // says so; "Ours" is a group with one healthy child plus a healthy
+    // top-level component.
+    private let sharedPageJSON = #"""
+    {
+      "page": {"name": "Parent Co", "url": "https://status.example.com"},
+      "status": {"indicator": "critical", "description": "Major Outage"},
+      "components": [
+        {"id": "g1", "name": "Ours", "status": "operational", "group": true},
+        {"id": "c1", "name": "API", "status": "operational", "group_id": "g1"},
+        {"id": "c2", "name": "Ours Website", "status": "operational"},
+        {"id": "c3", "name": "Other", "status": "major_outage"}
+      ],
+      "incidents": [
+        {"id": "i1", "name": "Other is down", "status": "investigating", "impact": "critical",
+         "updated_at": "2026-04-16T12:00:00Z", "components": [{"id": "c3"}]},
+        {"id": "i2", "name": "Untagged issue", "status": "investigating", "impact": "major",
+         "updated_at": "2026-04-16T12:00:00Z", "components": []},
+        {"id": "i3", "name": "Slow API", "status": "identified", "impact": "minor",
+         "updated_at": "2026-04-16T12:00:00Z", "components": [{"id": "c1"}, {"id": "c3"}]}
+      ],
+      "scheduled_maintenances": [
+        {"id": "m1", "name": "Website upgrade", "status": "in_progress", "impact": "maintenance",
+         "updated_at": "2026-04-16T12:00:00Z", "components": [{"id": "c2"}]},
+        {"id": "m2", "name": "Other upgrade", "status": "in_progress", "impact": "maintenance",
+         "updated_at": "2026-04-16T12:00:00Z", "components": [{"id": "c3"}]}
+      ]
+    }
+    """#.data(using: .utf8)!
+
+    private func pollSharedPage(componentIds: [String]?) async -> ProviderSnapshot? {
+        StubURLProtocol.register(url: URL(string: "https://status.example.com/api/v2/summary.json")!,
+                                 response: (sharedPageJSON, 200))
+        let manager = StatusManager(session: makeSession(), notifier: NotificationSpy(), defaults: freshDefaults())
+        let provider = Provider(name: "Ours", baseURL: "https://status.example.com", componentIds: componentIds)
+        manager.providers = [provider]
+        manager.snapshots = []
+        await manager.poll(provider: provider)
+        return manager.snapshots.first
+    }
+
+    func testScopedEntryShowsOnlyItsComponentsAndGroupChildren() async {
+        let snapshot = await pollSharedPage(componentIds: ["g1", "c2"])
+        XCTAssertEqual(snapshot?.components.map(\.name), ["API (Ours)", "Ours Website"])
+    }
+
+    func testScopedEntryIgnoresOtherProductsAndPageIndicator() async {
+        let snapshot = await pollSharedPage(componentIds: ["g1", "c2"])
+        XCTAssertNil(snapshot?.error)
+        XCTAssertEqual(snapshot?.activeIncidents.map(\.id), ["i3", "m1"],
+                       "keeps incidents and maintenances tagged with a followed component, drops the rest")
+        XCTAssertEqual(snapshot?.overallStatus, .degradedPerformance,
+                       "a minor incident on a followed component, not the critical page indicator")
+    }
+
+    func testUnscopedEntryStillFollowsWholePage() async {
+        let snapshot = await pollSharedPage(componentIds: nil)
+        XCTAssertEqual(snapshot?.overallStatus, .majorOutage)
+        XCTAssertEqual(snapshot?.activeIncidents.count, 5)
+    }
+
+    func testScopedEntryWithNoMatchingComponentsReportsError() async {
+        let snapshot = await pollSharedPage(componentIds: ["gone"])
+        XCTAssertEqual(snapshot?.error, StatusManager.followedComponentsMissing)
+    }
+
     // MARK: - Transition notifications
 
     func testStatusTransitionFiresNotification() async {

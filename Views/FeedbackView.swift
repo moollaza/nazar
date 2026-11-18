@@ -49,7 +49,7 @@ struct FeedbackView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 32))
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color(nsColor: ComponentStatus.operational.textColor))
                     Text("Thanks for your feedback!")
                         .font(.headline)
                     Text("A GitHub issue has been opened in your browser.")
@@ -92,7 +92,7 @@ struct FeedbackView: View {
                             if description.isEmpty {
                                 Text(feedbackType.descriptionHint)
                                     .font(.body)
-                                    .foregroundStyle(.tertiary)
+                                    .foregroundStyle(.secondary)
                                     .padding(.horizontal, 5)
                                     .padding(.vertical, 8)
                                     .allowsHitTesting(false)

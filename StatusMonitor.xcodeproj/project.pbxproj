@@ -25,6 +25,8 @@
 		8673B2802F884C760063B14E /* StatusMonitorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2782F884C760063B14E /* StatusMonitorApp.swift */; };
 		8673B2812F884C760063B14E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2712F884C760063B14E /* Models.swift */; };
 		8673B2822F884C760063B14E /* StatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2752F884C760063B14E /* StatusManager.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* RecoveryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */; };
+		A1B2C3D4E5F60718293A4B5D /* RecoveryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */; };
 		8673B2832F884C760063B14E /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8673B2702F884C760063B14E /* Info.plist */; };
 		957E228354DC8AD60E450400 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5A2340904F9E21F99F7E08 /* Updater.swift */; };
 		A1C474777F21B11EA94CA72C /* UpdaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06D8B42A6C227E732A87E10 /* UpdaterTests.swift */; };
@@ -37,6 +39,7 @@
 		BB00000100000001000CATTF /* CatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000002000CATTF /* CatalogTests.swift */; };
 		BB00000100000003000CODTF /* CodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000004000CODTF /* CodableTests.swift */; };
 		BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000CMPTF /* ComponentStatusTests.swift */; };
+		BB00000100000005000CNTRS /* ContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000CNTRS /* ContrastTests.swift */; };
 		BB00000100000005000INSTA /* InstatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000INSTA /* InstatusTests.swift */; };
 		BB00000100000005000DDOG1 /* DatadogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000006000DDOG1 /* DatadogTests.swift */; };
 		BB00000100000007000PRVTF /* ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000100000008000PRVTF /* ProviderTests.swift */; };
@@ -83,6 +86,7 @@
 		8673B2712F884C760063B14E /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		8673B2732F884C760063B14E /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		8673B2742F884C760063B14E /* RSSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParser.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryTracker.swift; sourceTree = "<group>"; };
 		8673B2752F884C760063B14E /* StatusManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusManager.swift; sourceTree = "<group>"; };
 		8673B2772F884C760063B14E /* StatusMonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StatusMonitor.entitlements; sourceTree = "<group>"; };
 		8673B2782F884C760063B14E /* StatusMonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusMonitorApp.swift; sourceTree = "<group>"; };
@@ -97,6 +101,7 @@
 		BB00000100000002000CATTF /* CatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTests.swift; sourceTree = "<group>"; };
 		BB00000100000004000CODTF /* CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableTests.swift; sourceTree = "<group>"; };
 		BB00000100000006000CMPTF /* ComponentStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentStatusTests.swift; sourceTree = "<group>"; };
+		BB00000100000006000CNTRS /* ContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContrastTests.swift; sourceTree = "<group>"; };
 		BB00000100000006000INSTA /* InstatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstatusTests.swift; sourceTree = "<group>"; };
 		BB00000100000006000DDOG1 /* DatadogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatadogTests.swift; sourceTree = "<group>"; };
 		BB00000100000008000PRVTF /* ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderTests.swift; sourceTree = "<group>"; };
@@ -213,6 +218,7 @@
 				8673B2732F884C760063B14E /* NotificationService.swift */,
 				8673B2742F884C760063B14E /* RSSParser.swift */,
 				8673B2752F884C760063B14E /* StatusManager.swift */,
+				A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */,
 				8E5A2340904F9E21F99F7E08 /* Updater.swift */,
 			);
 			path = Services;
@@ -245,6 +251,7 @@
 				BB00000100000002000CATTF /* CatalogTests.swift */,
 				BB00000100000004000CODTF /* CodableTests.swift */,
 				BB00000100000006000CMPTF /* ComponentStatusTests.swift */,
+				BB00000100000006000CNTRS /* ContrastTests.swift */,
 				BB00000100000006000INSTA /* InstatusTests.swift */,
 				BB00000100000006000DDOG1 /* DatadogTests.swift */,
 				BB00000100000008000PRVTF /* ProviderTests.swift */,
@@ -450,6 +457,7 @@
 				D877B9511A37DA86DC84CF0A /* StatusMonitorApp.swift in Sources */,
 				40A053B9F2E1F285BC6F6870 /* Models.swift in Sources */,
 				E0265BD6DCEEEDCCE32C2F7C /* StatusManager.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5C /* RecoveryTracker.swift in Sources */,
 				3B448DA27864F6F2DA6FA63B /* FeedbackView.swift in Sources */,
 				397E0F7904B2A749D4388081 /* ServiceDetailView.swift in Sources */,
 				53DB298D8048738F359C4B01 /* ServiceIconView.swift in Sources */,
@@ -468,6 +476,7 @@
 				8673B2802F884C760063B14E /* StatusMonitorApp.swift in Sources */,
 				8673B2812F884C760063B14E /* Models.swift in Sources */,
 				8673B2822F884C760063B14E /* StatusManager.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5D /* RecoveryTracker.swift in Sources */,
 				AA00000100000008000FBVEW /* FeedbackView.swift in Sources */,
 				AA0000010000000A000SDVEW /* ServiceDetailView.swift in Sources */,
 				AA00000100000006000SIVEW /* ServiceIconView.swift in Sources */,
@@ -482,6 +491,7 @@
 				BB00000100000001000CATTF /* CatalogTests.swift in Sources */,
 				BB00000100000003000CODTF /* CodableTests.swift in Sources */,
 				BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */,
+				BB00000100000005000CNTRS /* ContrastTests.swift in Sources */,
 				BB00000100000005000INSTA /* InstatusTests.swift in Sources */,
 				BB00000100000005000DDOG1 /* DatadogTests.swift in Sources */,
 				BB00000100000007000PRVTF /* ProviderTests.swift in Sources */,
@@ -531,6 +541,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)-MAS";
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -556,7 +567,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
 				PRODUCT_NAME = "Nazar-MAS";
 				REGISTER_APP_GROUPS = YES;
@@ -867,6 +878,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)-MAS";
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -892,9 +904,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
-				PRODUCT_NAME = "Nazar-MAS";
+				PRODUCT_NAME = Nazar;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

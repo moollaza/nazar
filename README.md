@@ -4,7 +4,7 @@ Nazar watches the services you depend on, right from your macOS menu bar.
 
 [**usenazar.com**](https://usenazar.com/) · [Download](https://github.com/moollaza/nazar/releases) · [Request a service](https://github.com/moollaza/nazar/issues/new?template=service_request.yml)
 
-![Nazar Screenshot](docs/assets/screenshot.png)
+<img src="docs/assets/screenshot.png" alt="The Nazar menu bar panel listing watched services and their status" width="420">
 
 ## Features
 
@@ -108,6 +108,8 @@ scripts/release.sh --skip-notarize
 ```
 
 Versioning: `Config/Version.xcconfig` is the only place the app version lives. release-please bumps its `MARKETING_VERSION` in the Release PR, so the tag and `CFBundleShortVersionString` always match. `release.sh` fails if they don't, and sets `CFBundleVersion` to `git rev-list --count HEAD` (never lower than the xcconfig's `CURRENT_PROJECT_VERSION`) so every release gets a higher build number. Run it from a full clone of the tag commit.
+
+release-please creates the tag and GitHub release with the `RELEASE_PLEASE_TOKEN` secret: a fine-grained PAT scoped to this repo with Contents, Pull requests, Issues and Workflows set to read/write. GitHub refuses to create a release whose tag range changes `.github/workflows/` unless the token has the Workflows permission, which `GITHUB_TOKEN` never has. To run release-please locally instead, first add the scope with `gh auth refresh -h github.com -s workflow`.
 
 ## Tech Stack
 

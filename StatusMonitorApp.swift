@@ -19,6 +19,20 @@ struct StatusMonitorApp: App {
     }
 }
 
+/// Start each UI test clean so onboarding and provider state don't leak
+/// across tests. -UITestKeepState skips the reset, so a relaunch inside one
+/// test can prove what the previous launch saved. -UITestFirstRun leaves
+/// onboarding incomplete.
+private func resetDefaultsForUITests(arguments args: [String]) {
+    guard args.contains("-UITestMode") else { return }
+    if !args.contains("-UITestKeepState") {
+        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier ?? "com.moollapps.StatusMonitor")
+    }
+    if !args.contains("-UITestFirstRun") {
+        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+    }
+}
+
 // MARK: - Floating Panel (replaces NSPopover for clean rectangle, no arrow)
 
 class FloatingPanel: NSPanel {
@@ -44,9 +58,27 @@ class FloatingPanel: NSPanel {
         visualEffect.material = .popover
         visualEffect.state = .active
         visualEffect.wantsLayer = true
-        visualEffect.layer?.cornerRadius = 10
+        visualEffect.layer?.cornerRadius = Self.cornerRadius
         visualEffect.layer?.masksToBounds = true
+        // The layer mask clips subviews only. The blurred backdrop and the
+        // window shadow follow maskImage, so without it a square corner shows
+        // behind the rounded one over other windows.
+        visualEffect.maskImage = Self.roundedMask(radius: Self.cornerRadius)
         contentView = visualEffect
+    }
+
+    private static let cornerRadius: CGFloat = 10
+
+    private static func roundedMask(radius: CGFloat) -> NSImage {
+        let edge = radius * 2 + 1
+        let image = NSImage(size: NSSize(width: edge, height: edge), flipped: false) { rect in
+            NSColor.black.setFill()
+            NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
+            return true
+        }
+        image.capInsets = NSEdgeInsets(top: radius, left: radius, bottom: radius, right: radius)
+        image.resizingMode = .stretch
+        return image
     }
 
     // Close on Escape key
@@ -63,7 +95,13 @@ class FloatingPanel: NSPanel {
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var panel: FloatingPanel!
-    let statusManager = StatusManager()
+    // Built after the UI-test reset: StatusManager reads saved providers in
+    // its initializer, so a later reset would leave the previous test's
+    // services loaded.
+    let statusManager: StatusManager = {
+        resetDefaultsForUITests(arguments: ProcessInfo.processInfo.arguments)
+        return StatusManager()
+    }()
     #if !MAS
     let updater = Updater()
     #endif
@@ -81,12 +119,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // hooks let tests land directly on an inspectable window.
         let args = ProcessInfo.processInfo.arguments
         let uiTestMode = args.contains("-UITestMode")
-        if uiTestMode {
-            // Start clean each run so onboarding / provider state doesn't leak
-            // across tests.
-            UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier ?? "com.moollapps.StatusMonitor")
-            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-        }
 
         UserDefaults.standard.register(defaults: ["notificationsEnabled": true])
         // Menu-bar apps use .accessory in production (no Dock icon, no foreground
@@ -103,6 +135,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         updateMenuBarIcon(for: .operational)
 
+        // At launch the status item's window is still settling into the menu
+        // bar; a panel positioned before it lands opens far below the icon.
+        // Follow the icon so the first-run panel ends up under it.
+        if let buttonWindow = statusItem.button?.window {
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.didMoveNotification, object: buttonWindow, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let self, self.isPanelShown else { return }
+                    self.positionPanel()
+                }
+            }
+        }
+
         if let button = statusItem.button {
             button.action = #selector(handleStatusBarClick)
             button.target = self
@@ -115,8 +161,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: panelSize))
 
         let hostingView = NSHostingView(
-            rootView: DashboardView(onOpenSettings: { [weak self] in
-                self?.openSettings()
+            rootView: DashboardView(onOpenSettings: { [weak self] tab in
+                self?.openSettings(tab: tab)
             })
             .environment(statusManager)
         )
@@ -180,7 +226,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Update tooltip after every poll cycle (not just worst-status changes)
         statusManager.onPollCycleComplete = { [weak self] in
-            self?.updateTooltip()
+            guard let self else { return }
+            self.updateTooltip()
+            if self.isPanelShown { self.statusManager.markRecoveriesSeen() }
         }
 
         // First launch → auto-open panel (slight delay so menu bar button window is ready)
@@ -209,6 +257,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         lastUpdated: Date(),
                         error: nil
                     )
+                    self.statusManager.recordRecovery(for: id, from: oldStatus, to: status)
+                    if self.isPanelShown { self.statusManager.markRecoveriesSeen() }
                     self.statusManager.recalcWorstStatus()
                     // Fire notification on simulated status change
                     if oldStatus != status {
@@ -256,6 +306,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Settings Window
 
     func openSettings(tab: SettingsTab = .services) {
+        // The panel floats at pop-up-menu level and only closes on clicks
+        // outside the app, so left open it would sit on top of Settings.
+        panel?.close()
+
         // Reuse the existing window regardless of visibility so tab selection
         // and other state persist across close/reopen. With
         // `isReleasedWhenClosed = false` the window lives as long as
@@ -269,7 +323,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         SettingsInitialTab.value = tab
-        let settingsView = SettingsView()
+        #if MAS
+        let checkForUpdates: (() -> Void)? = nil
+        #else
+        let checkForUpdates: (() -> Void)? = { [weak self] in self?.updater.checkForUpdates() }
+        #endif
+        let settingsView = SettingsView(onCheckForUpdates: checkForUpdates)
             .environment(statusManager)
 
         let controller = NSHostingController(rootView: settingsView)
@@ -333,7 +392,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             positionPanel()
             panel.makeKeyAndOrderFront(nil)
+            panel.invalidateShadow()
             NSApp.activate(ignoringOtherApps: true)
+            statusManager.markRecoveriesSeen()
         }
     }
 

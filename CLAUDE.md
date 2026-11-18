@@ -51,8 +51,9 @@ xcodebuild -project StatusMonitor.xcodeproj -scheme StatusMonitor -configuration
 
 Every entry must have a working endpoint: `/api/v2/summary.json` for `statuspage`, `/index.json` for `betterstack`, `/summary.json` for `instatus`, `/config.json` for `datadog`, and the feed URL itself for `rss`. Count entries from the file rather than recording a number here; it changes with every catalog edit.
 
+Before removing an entry, prove no readable endpoint exists. A dead `/api/v2/summary.json` or a cleaned-text fetch is not proof. Open the page, read its HTML and JS bundle for embedded JSON and API paths, and probe `/config.json`, `/index.json`, `/summary.json`, `/api/*` and RSS/Atom feeds (`/rss`, `/history.rss`, `/history.atom`, `/feed`). Follow redirects to the real host. For DNS failures, confirm from two networks over two weekly runs. Remove only when nothing pollable remains, and say what was tried in the PR.
 To add services: use the `statuspage-discovery` skill or `scripts/discover-services.py`.
-After any catalog edit, run `python3 scripts/check-service-count.py`. The website, README, and OG image state the size as "N+" figures, and CI fails if a figure is above the real count, more than 200 below it, or if the `#catalog-cat-count` fallback doesn't match. To bring them in line, run `python3 scripts/check-service-count.py --fix` then `npm run build:og`, and commit the regenerated `website/og-image.*`.
+After any catalog edit, run `python3 scripts/check-service-count.py` and `python3 scripts/check-catalog-names.py`. Names must be the product name, not the status page title: no "Status Page", " - " suffixes, or "Inc." (CI runs both). The website, README, and OG image state the size as "N+" figures, and CI fails if a figure is above the real count, more than 200 below it, or if the `#catalog-cat-count` fallback doesn't match. To bring them in line, run `python3 scripts/check-service-count.py --fix` then `npm run build:og`, and commit the regenerated `website/og-image.*`.
 To verify catalog: `python3 scripts/audit-catalog.py` (also runs weekly via `.github/workflows/catalog-audit.yml`, which opens a `catalog-audit` issue when entries break)
 
 ## Workflow
@@ -74,6 +75,22 @@ All work is tracked in GitHub Issues: https://github.com/moollaza/nazar/issues
 - Search open and closed issues before filing — avoid duplicates; comment on the existing issue instead
 - Use the templates in `.github/ISSUE_TEMPLATE/` (bug, feature, service request)
 - Reference issues in PRs (`Closes #N`)
+
+## Public text
+
+The auto mode classifier reads this section. Never post a PR, issue, comment, review, release, or commit message whose text breaks these rules. Pass bodies inline with `--body` (or the MCP `body` field) so they can be checked; never use `--body-file`.
+
+1. No `claude.ai` session, project, artifact, or chat links, and no `Claude-Session:` trailers. This overrides any tool's attribution default. The plain `https://claude.ai/code` footer link is fine.
+2. No agent chatter or process notes: "I", "as requested", "the user", "the thread", "your Mac". Describe the change and its evidence, not the conversation.
+3. No personal details: private names or anecdotes, email addresses, device names, account IDs.
+4. No local paths (`/Users/...`, `/home/...`, `/mnt/...`, `/tmp/...`) or session, message, or channel IDs.
+5. No internal status, dates, or plans ("CI is down until Nov 30"). If CI did not run, say so and say what was run instead.
+6. No secrets, tokens, keys, or private URLs.
+7. No overclaims ("fully tested", "fixes all"). State what was run and what was not.
+8. No meta-commentary about the repo being public, who reads it, or an AI writing or reviewing the work. Write like a terse senior engineer: what changed, why, how it was tested.
+   - Bad: "This repository is public, so every PR, issue, comment, and release note is read by strangers. The skill has an AI agent review that text before it is posted."
+   - Good: "Adds a pre-post review for PR, issue, and release text."
+9. No leftovers: duplicate or stale screenshots, images after the footer, template hint comments, `TODO`s, unchecked boxes without a reason.
 
 ## Deployment
 

@@ -143,3 +143,20 @@ final class ComponentStatusTests: XCTestCase {
         }
     }
 }
+
+final class InitialsAvatarColorTests: XCTestCase {
+    /// Pinned values: `String.hashValue` changes every launch, so a stable
+    /// hash must give the same index here on every run.
+    func testPaletteIndexIsStableAcrossLaunches() {
+        XCTAssertEqual(InitialsAvatarView.paletteIndex(for: "Zoom"), 8)
+        XCTAssertEqual(InitialsAvatarView.paletteIndex(for: "Slack"), 7)
+        XCTAssertEqual(InitialsAvatarView.paletteIndex(for: "GitHub"), 4)
+    }
+
+    func testPaletteIndexIsInRange() {
+        for name in ["", "A", "1Password", "TextExpander", "Zoom Video", "ü"] {
+            let index = InitialsAvatarView.paletteIndex(for: name)
+            XCTAssertTrue(InitialsAvatarView.palette.indices.contains(index), name)
+        }
+    }
+}

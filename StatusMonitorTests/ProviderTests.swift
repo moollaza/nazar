@@ -214,4 +214,14 @@ final class ProviderTests: XCTestCase {
         XCTAssertEqual(p1, p1)
     }
 
+    // MARK: - Initials
+
+    func testInitialsSkipWordsWithoutLetters() {
+        XCTAssertEqual(InitialsAvatarView.initials(for: "SolarWinds - Database"), "SD")
+        XCTAssertEqual(InitialsAvatarView.initials(for: "Server Status | Nexcess"), "SS")
+        XCTAssertEqual(InitialsAvatarView.initials(for: "Liquid Web"), "LW")
+        XCTAssertEqual(InitialsAvatarView.initials(for: "Stripe"), "ST")
+        XCTAssertEqual(InitialsAvatarView.initials(for: "Swrve -"), "SW")
+    }
+
 }

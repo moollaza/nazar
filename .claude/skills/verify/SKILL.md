@@ -59,36 +59,36 @@ Which app that is: the nearest `.app` above the shell. In Terminal, iTerm, or Gh
 ```bash
 $S/nazar-app.sh ax statusitem              # left-click the menu bar icon: toggles the dashboard panel
 $S/nazar-app.sh ax statusitem --right      # right-click: context menu (About, Check for Updates…, Preferences…, Send Feedback…, Quit)
-$S/nazar-app.sh ax wait "Refresh all" --timeout 5   # the panel is open
+$S/nazar-app.sh ax wait "Settings and more" --timeout 5   # the panel is open
 $S/nazar-app.sh ax dump                    # whole AX tree: role, labels, center point, size, [disabled]
-$S/nazar-app.sh ax press "Settings"        # AXPress, or a real click if the element has none
+$S/nazar-app.sh ax press "Settings and more" # AXPress, or a real click if the element has none; opens the gear menu
 $S/nazar-app.sh ax click "Catalog"                 # real click; refuses if another window covers the point
-$S/nazar-app.sh ax focus "Search services..."     # keyboard focus without a click (field under the panel)
+$S/nazar-app.sh ax focus "catalog-search"         # keyboard focus without a click
 $S/nazar-app.sh ax type "GitHub"
-$S/nazar-app.sh ax press "GitHub, www.githubstatus.com"   # catalog checkbox
+$S/nazar-app.sh ax press "catalog-toggle-github"   # catalog checkbox
 $S/nazar-app.sh ax rightclick "GitHub, Operational"
 $S/nazar-app.sh ax key escape              # escape | return | tab | cmd-r | cmd-w
 $S/nazar-app.sh ax windows                 # on-screen windows of the app
 ```
 
-Stable handles in this app (from the source, not guesses):
+Stable handles in this app, read from the source. Identifiers (`ax` matches them like labels) are the most stable; the same ones drive the XCUITests in `StatusMonitorUITests`.
 
-- Dashboard panel header: buttons have tooltips `Show issues only`, `Refresh all`, `Settings`; filter field placeholder `Filter services...`; status line `All operational` / `Updated …`. To prove the panel is open, wait for `Refresh all`. Do not wait for `Nazar`: that matches the application element and passes even with no panel.
-- Service row: one combined `AXStaticText` labelled `<Name>, <Status>` (for example `GitHub, Operational`, `GitHub, Major Outage`, `GitHub, Unavailable`, `…, muted`), tooltip `Double-click to view details`.
-- Empty dashboard: `No services monitored`, button `Get Started`.
-- Settings window title `Nazar Settings`; sidebar items `Services`, `Catalog`, `Preferences`, `Feedback`, `Help`.
+- Dashboard panel header: `Add a service` (tooltip), `Sort`, and the gear menu `Settings and more` with `Refresh Now`, `Add Custom Status Page…`, `Browse Catalog…`, `Settings…`, `Send Feedback…`, `Quit Nazar`. Filter field `dashboard-filter` (placeholder `Filter or add a service…`). Status line `All operational`, or a count such as `1 issue`. To prove the panel is open, wait for `Settings and more`, never `Nazar` (that matches the application element).
+- Service row: identifier `service-row-<catalogId>` (for example `service-row-github`), label `<Name>, <Status>` (for example `GitHub, Operational`, `GitHub, Major Outage`, `GitHub, Unavailable`, `…, muted`). Right-click it for `View Details`, `Open Status Page`, `Copy Status Page URL`, `Remove <Name>…`, and in Debug `Simulate Degraded`, `Simulate Major Outage`, `Reset to Operational`.
+- Empty dashboard: `No services monitored`, button `Browse Catalog`.
+- Settings window title `Nazar Settings`; sidebar items `Services`, `Catalog`, `Preferences`, `Feedback`, `Help` (static text: `click`, not `press`). Opening Settings closes the panel.
 - Services tab: `Browse Catalog`, `Add Custom...`; custom sheet fields `Name (e.g. My Service)`, `Status Page URL (e.g. https://status.example.com)`, buttons `Cancel`, `Add`; bad URL message `URL must be a valid https:// address with a host`.
-- Catalog tab: header `Service Catalog`, `(<N> available)`, `<N> monitoring`; field `Search services...` (once typed in, its value is the query, so `GitHub` matches the field too); one `AXCheckBox` per service labelled `<Name>, <status page host>` (for example `GitHub, www.githubstatus.com`), value `0`/`1`; `Scan Apps`.
-- Settings sidebar items are `AXStaticText` inside rows: use `ax click "Catalog"`, not `press`.
-- Detail view: back button `Services`, `View Status Page`, `Filter components...`.
+- Catalog tab: header `Service Catalog`, `<N> monitoring`; field `catalog-search`; one `AXCheckBox` per service, identifier `catalog-toggle-<catalog id>`, value `0`/`1`; `Scan Apps`.
+- Detail view: `detail-back`, `detail-view-status-page`, `Filter components...`.
+- `Check for Updates…` is in Settings and in the menu bar icon's right-click menu.
 
 Prefer `wait` over `sleep`. The panel and Settings animate in; status values arrive after a network poll.
 
-Mouse events are real and the drive runs on the person's own desktop. Before each drive, ask the person to reply `go` once they can leave the Mac alone for about 2 minutes, and wait for it. A macOS VM was rejected for this repo (the smallest Tart image is a 20.8 GB download). Per-PR checks belong in XCUITest on GitHub Actions, which needs no desktop.
+Mouse events are real and the drive runs on the person's own desktop. Before each drive, ask the person to reply `go` once they can leave the Mac alone for about 2 minutes, and wait for it. A macOS VM was rejected for this repo (the smallest Tart image is a 20.8 GB download). Per-PR checks run as XCUITest on GitHub Actions (`StatusMonitorUITests`, in `ci.yml`), which needs no desktop. Use this skill for proof the UI tests do not cover, or to show a change working before tests exist.
 
 - Before every real click `ax` raises the element's window and checks that the window under the point belongs to the verify app (or, for `statusitem`, the menu bar). If another app covers the point it refuses with `refusing to click … covered by <app>` instead of clicking into the user's app. Do not work around this.
-- The dashboard panel closes on any mouse click in another app, including the person using their Mac. If `wait "Refresh all"` fails right after `statusitem`, the panel was closed by outside activity: chain `statusitem` and the next steps in one command, and ask the person to keep hands off.
-- The panel floats above Settings and covers part of it (the catalog search field among others). Neither `ax statusitem` nor Escape closes it while Settings is open (see the dashboard Gotchas). For a covered field use `ax focus "<label>"`, then `ax type`. `type` and `key` refuse unless the verify app is frontmost.
+- The dashboard panel closes on any mouse click in another app, including the person using their Mac. If `wait "Settings and more"` fails right after `statusitem`, the panel was closed by outside activity: chain `statusitem` and the next steps in one command, and ask the person to keep hands off.
+- For a field another window covers, use `ax focus "<label>"`, then `ax type`. `type` and `key` refuse unless the verify app is frontmost.
 
 ### Evidence
 

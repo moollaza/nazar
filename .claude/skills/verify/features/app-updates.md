@@ -14,6 +14,7 @@ The DMG build of Nazar updates itself with Sparkle. It reads `https://usenazar.c
 ## How to get to it (user POV)
 
 - Menu bar icon right-click > `Check for Updates…`.
+- Settings > `Check for Updates…`.
 - Automatic: Sparkle's scheduled background check (daily).
 - Clicking the `Update available` notification.
 

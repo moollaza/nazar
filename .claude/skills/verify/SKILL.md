@@ -84,7 +84,7 @@ Stable handles in this app (from the source, not guesses):
 
 Prefer `wait` over `sleep`. The panel and Settings animate in; status values arrive after a network poll.
 
-Mouse events are real. Do not move the mouse or type while a drive runs, and tell the user that before starting on their own Mac.
+Mouse events are real and the drive runs on the person's own desktop. Before each drive, ask the person to reply `go` once they can leave the Mac alone for about 2 minutes, and wait for it. A macOS VM was rejected for this repo (the smallest Tart image is a 20.8 GB download). Per-PR checks belong in XCUITest on GitHub Actions, which needs no desktop.
 
 - Before every real click `ax` raises the element's window and checks that the window under the point belongs to the verify app (or, for `statusitem`, the menu bar). If another app covers the point it refuses with `refusing to click … covered by <app>` instead of clicking into the user's app. Do not work around this.
 - The dashboard panel closes on any mouse click in another app, including the person using their Mac. If `wait "Refresh all"` fails right after `statusitem`, the panel was closed by outside activity: chain `statusitem` and the next steps in one command, and ask the person to keep hands off.

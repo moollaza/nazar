@@ -129,7 +129,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(uiTestMode ? .regular : .accessory)
 
         NotificationService.shared.setup()
-        NotificationService.shared.requestPermission()
+        // Ask for notification permission once there is something to alert
+        // about. A fresh install has no services, so the prompt waits until
+        // the first one is added. The system shows the prompt only once;
+        // later calls just return the saved answer.
+        if !statusManager.providers.isEmpty {
+            NotificationService.shared.requestPermission()
+        }
+        statusManager.onProviderAdded = {
+            NotificationService.shared.requestPermission()
+        }
 
         // Menu bar item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -292,6 +301,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// A menu bar app has no window and no Dock icon. If the menu bar hides
+    /// the status item (notch overflow, a menu bar manager, or the macOS
+    /// "Allow in Menu Bar" setting), opening the app again from Finder,
+    /// Spotlight, or Launchpad is the only way back in. Show the panel.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !isPanelShown {
+            togglePanel()
+        }
+        return false
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         if let monitor = eventMonitor {
             NSEvent.removeMonitor(monitor)
@@ -399,12 +419,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func positionPanel() {
+        let panelSize = panel.frame.size
+
+        // When the status item is hidden, its button has no on-screen frame.
+        // Fall back to the top-right corner of the main screen, where the
+        // icon would normally be.
         guard let button = statusItem.button,
-              let buttonWindow = button.window else { return }
+              let buttonWindow = button.window,
+              let buttonScreen = buttonWindow.screen,
+              buttonWindow.isVisible else {
+            let screenFrame = NSScreen.main?.visibleFrame ?? .zero
+            panel.setFrameOrigin(NSPoint(
+                x: screenFrame.maxX - panelSize.width - 8,
+                y: screenFrame.maxY - panelSize.height - 4
+            ))
+            return
+        }
 
         let buttonFrame = buttonWindow.convertToScreen(button.convert(button.bounds, to: nil))
-        let panelSize = panel.frame.size
-        let screenFrame = buttonWindow.screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
+        let screenFrame = buttonScreen.visibleFrame
 
         // Center panel horizontally below the menu bar icon
         var x = buttonFrame.midX - panelSize.width / 2

@@ -27,10 +27,8 @@
 		8673B2822F884C760063B14E /* StatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2752F884C760063B14E /* StatusManager.swift */; };
 		A1B2C3D4E5F60718293A4B5C /* RecoveryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */; };
 		A1B2C3D4E5F60718293A4B5D /* RecoveryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */; };
-		8673B2832F884C760063B14E /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8673B2702F884C760063B14E /* Info.plist */; };
 		957E228354DC8AD60E450400 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5A2340904F9E21F99F7E08 /* Updater.swift */; };
 		A1C474777F21B11EA94CA72C /* UpdaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06D8B42A6C227E732A87E10 /* UpdaterTests.swift */; };
-		A7ACEE4C8A734AF1A3FB9F41 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8673B2702F884C760063B14E /* Info.plist */; };
 		AA00000100000001000CATJN /* catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = AA00000100000002000CATJN /* catalog.json */; };
 		AA00000100000006000SIVEW /* ServiceIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000007000SIVEW /* ServiceIconView.swift */; };
 		AA00000100000008000FBVEW /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000009000FBVEW /* FeedbackView.swift */; };
@@ -82,7 +80,6 @@
 		640B4B7EBE7F8E7424FD55B7 /* Nazar-DMG.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = "Nazar-DMG.entitlements"; path = "Config/Nazar-DMG.entitlements"; sourceTree = "<group>"; };
 		865777782F8DA018001FF1AB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8673B25C2F884BFF0063B14E /* StatusMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StatusMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8673B2702F884C760063B14E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8673B2712F884C760063B14E /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		8673B2732F884C760063B14E /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		8673B2742F884C760063B14E /* RSSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParser.swift; sourceTree = "<group>"; };
@@ -179,7 +176,6 @@
 			children = (
 				8673B25D2F884BFF0063B14E /* Products */,
 				DD00000100000001000VRSCF /* Version.xcconfig */,
-				8673B2702F884C760063B14E /* Info.plist */,
 				8673B2722F884C760063B14E /* Models */,
 				AA00000100000003000RESRC /* Resources */,
 				8673B2762F884C760063B14E /* Services */,
@@ -413,7 +409,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8673B2832F884C760063B14E /* Info.plist in Resources */,
 				865777792F8DA018001FF1AB /* Assets.xcassets in Resources */,
 				AA00000100000001000CATJN /* catalog.json in Resources */,
 			);
@@ -430,7 +425,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A7ACEE4C8A734AF1A3FB9F41 /* Info.plist in Resources */,
 				0E1A5CBC0312F3F0D63E4FC9 /* Assets.xcassets in Resources */,
 				B836A7428081A142574F2DBE /* catalog.json in Resources */,
 			);
@@ -566,7 +560,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
 				PRODUCT_NAME = "Nazar-MAS";
@@ -736,7 +730,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
 				PRODUCT_MODULE_NAME = StatusMonitor;
 				PRODUCT_NAME = Nazar;
@@ -784,7 +778,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitor;
 				PRODUCT_MODULE_NAME = StatusMonitor;
 				PRODUCT_NAME = Nazar;
@@ -805,7 +799,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -823,7 +817,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -840,7 +834,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitorUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -857,7 +851,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = W4HBM3A7DC;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.StatusMonitorUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -903,7 +897,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moollapps.Nazar;
 				PRODUCT_MODULE_NAME = StatusMonitor;
 				PRODUCT_NAME = Nazar;

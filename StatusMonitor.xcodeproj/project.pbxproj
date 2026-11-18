@@ -26,6 +26,13 @@
 		8673B2812F884C760063B14E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2712F884C760063B14E /* Models.swift */; };
 		8673B2822F884C760063B14E /* StatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8673B2752F884C760063B14E /* StatusManager.swift */; };
 		A1B2C3D4E5F60718293A4B5C /* RecoveryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */; };
+		C0FFEE0000000000000HIST06 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000HIST08 /* HistoryStore.swift */; };
+		C0FFEE0000000000000HIST07 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000HIST08 /* HistoryStore.swift */; };
+		C0FFEE0000000000000HIST09 /* HistoryStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000HIST11 /* HistoryStripView.swift */; };
+		C0FFEE0000000000000HIST10 /* HistoryStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000HIST11 /* HistoryStripView.swift */; };
+		C0FFEE0000000000000HIST01 /* ServiceHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000HIST03 /* ServiceHistory.swift */; };
+		C0FFEE0000000000000HIST02 /* ServiceHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000HIST03 /* ServiceHistory.swift */; };
+		C0FFEE0000000000000HIST04 /* ServiceHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000HIST05 /* ServiceHistoryTests.swift */; };
 		A1B2C3D4E5F60718293A4B5D /* RecoveryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */; };
 		8673B2832F884C760063B14E /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8673B2702F884C760063B14E /* Info.plist */; };
 		957E228354DC8AD60E450400 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5A2340904F9E21F99F7E08 /* Updater.swift */; };
@@ -88,6 +95,10 @@
 		8673B2732F884C760063B14E /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		8673B2742F884C760063B14E /* RSSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParser.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryTracker.swift; sourceTree = "<group>"; };
+		C0FFEE0000000000000HIST08 /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
+		C0FFEE0000000000000HIST11 /* HistoryStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStripView.swift; sourceTree = "<group>"; };
+		C0FFEE0000000000000HIST03 /* ServiceHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceHistory.swift; sourceTree = "<group>"; };
+		C0FFEE0000000000000HIST05 /* ServiceHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceHistoryTests.swift; sourceTree = "<group>"; };
 		8673B2752F884C760063B14E /* StatusManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusManager.swift; sourceTree = "<group>"; };
 		8673B2772F884C760063B14E /* StatusMonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StatusMonitor.entitlements; sourceTree = "<group>"; };
 		8673B2782F884C760063B14E /* StatusMonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusMonitorApp.swift; sourceTree = "<group>"; };
@@ -210,6 +221,7 @@
 			isa = PBXGroup;
 			children = (
 				8673B2712F884C760063B14E /* Models.swift */,
+				C0FFEE0000000000000HIST03 /* ServiceHistory.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -221,6 +233,7 @@
 				8673B2742F884C760063B14E /* RSSParser.swift */,
 				8673B2752F884C760063B14E /* StatusManager.swift */,
 				A1B2C3D4E5F60718293A4B5E /* RecoveryTracker.swift */,
+				C0FFEE0000000000000HIST08 /* HistoryStore.swift */,
 				8E5A2340904F9E21F99F7E08 /* Updater.swift */,
 			);
 			path = Services;
@@ -230,6 +243,7 @@
 			isa = PBXGroup;
 			children = (
 				8673B2792F884C760063B14E /* DashboardView.swift */,
+				C0FFEE0000000000000HIST11 /* HistoryStripView.swift */,
 				AA00000100000009000FBVEW /* FeedbackView.swift */,
 				AA0000010000000B000SDVEW /* ServiceDetailView.swift */,
 				AA00000100000007000SIVEW /* ServiceIconView.swift */,
@@ -254,6 +268,7 @@
 				BB00000100000004000CODTF /* CodableTests.swift */,
 				BB00000100000006000CMPTF /* ComponentStatusTests.swift */,
 				BB00000100000006000CNTRS /* ContrastTests.swift */,
+				C0FFEE0000000000000HIST05 /* ServiceHistoryTests.swift */,
 				BB00000100000006000INSTA /* InstatusTests.swift */,
 				BB00000100000006000DDOG1 /* DatadogTests.swift */,
 				BB00000100000006000PGDT1 /* PagerDutyTests.swift */,
@@ -461,6 +476,9 @@
 				40A053B9F2E1F285BC6F6870 /* Models.swift in Sources */,
 				E0265BD6DCEEEDCCE32C2F7C /* StatusManager.swift in Sources */,
 				A1B2C3D4E5F60718293A4B5C /* RecoveryTracker.swift in Sources */,
+				C0FFEE0000000000000HIST01 /* ServiceHistory.swift in Sources */,
+				C0FFEE0000000000000HIST06 /* HistoryStore.swift in Sources */,
+				C0FFEE0000000000000HIST09 /* HistoryStripView.swift in Sources */,
 				3B448DA27864F6F2DA6FA63B /* FeedbackView.swift in Sources */,
 				397E0F7904B2A749D4388081 /* ServiceDetailView.swift in Sources */,
 				53DB298D8048738F359C4B01 /* ServiceIconView.swift in Sources */,
@@ -480,6 +498,9 @@
 				8673B2812F884C760063B14E /* Models.swift in Sources */,
 				8673B2822F884C760063B14E /* StatusManager.swift in Sources */,
 				A1B2C3D4E5F60718293A4B5D /* RecoveryTracker.swift in Sources */,
+				C0FFEE0000000000000HIST02 /* ServiceHistory.swift in Sources */,
+				C0FFEE0000000000000HIST07 /* HistoryStore.swift in Sources */,
+				C0FFEE0000000000000HIST10 /* HistoryStripView.swift in Sources */,
 				AA00000100000008000FBVEW /* FeedbackView.swift in Sources */,
 				AA0000010000000A000SDVEW /* ServiceDetailView.swift in Sources */,
 				AA00000100000006000SIVEW /* ServiceIconView.swift in Sources */,
@@ -495,6 +516,7 @@
 				BB00000100000003000CODTF /* CodableTests.swift in Sources */,
 				BB00000100000005000CMPTF /* ComponentStatusTests.swift in Sources */,
 				BB00000100000005000CNTRS /* ContrastTests.swift in Sources */,
+				C0FFEE0000000000000HIST04 /* ServiceHistoryTests.swift in Sources */,
 				BB00000100000005000INSTA /* InstatusTests.swift in Sources */,
 				BB00000100000005000DDOG1 /* DatadogTests.swift in Sources */,
 				BB00000100000005000PGDT1 /* PagerDutyTests.swift in Sources */,

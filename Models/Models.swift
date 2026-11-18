@@ -194,6 +194,14 @@ struct Provider: Identifiable, Codable, Equatable {
         }
     }
 
+    /// Incident history feed, for the providers that publish one separately
+    /// from their status endpoint. Datadog's `config.json` already carries
+    /// its history, so it needs no second request.
+    var historyURL: URL? {
+        guard hasValidURL, type == .statuspage else { return nil }
+        return URL(string: "\(baseURL)/api/v2/incidents.json")
+    }
+
     /// URL suitable for opening in the user's browser (NSWorkspace.open). Nil
     /// when the baseURL is not a valid https URL — prevents `file://`,
     /// `javascript:`, `x-apple.*` and other schemes from reaching NSWorkspace.
@@ -898,4 +906,47 @@ extension NSColor {
     /// Link text. The system link blue renders near 4:1 on the white panel,
     /// under the 4.5:1 text minimum, so light mode uses blue-700.
     static let accessibleLink = adaptive(light: 0x1D4ED8, dark: .linkColor)
+}
+
+// MARK: - Date parsing
+
+/// ISO8601 timestamps as status pages publish them, with or without
+/// fractional seconds.
+enum StatusDate {
+    private static let iso8601: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    private static let iso8601NoFraction: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
+    static func parse(_ string: String) -> Date? {
+        if let date = iso8601.date(from: string) ?? iso8601NoFraction.date(from: string) {
+            return date
+        }
+        // ISO8601DateFormatter only accepts exactly three fractional digits.
+        // Datadog timestamps carry anywhere from two to six ("...:19.244657Z"),
+        // so pad or truncate to three and try once more.
+        guard let normalized = normalizingFractionalSeconds(string) else { return nil }
+        return iso8601.date(from: normalized)
+    }
+
+    /// Rewrites the fractional-seconds field of an ISO8601 string to exactly
+    /// three digits. Returns nil when the string carries no fractional part.
+    private static func normalizingFractionalSeconds(_ string: String) -> String? {
+        guard let dot = string.firstIndex(of: ".") else { return nil }
+        let afterDot = string.index(after: dot)
+        guard let endOffset = string[afterDot...].firstIndex(where: { !$0.isNumber }) else { return nil }
+        let digits = string[afterDot..<endOffset]
+        guard !digits.isEmpty else { return nil }
+        let padded = digits.count >= 3
+            ? String(digits.prefix(3))
+            : String(digits) + String(repeating: "0", count: 3 - digits.count)
+        return String(string[..<afterDot]) + padded + String(string[endOffset...])
+    }
 }

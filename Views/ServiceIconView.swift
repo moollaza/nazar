@@ -3,23 +3,25 @@ import SwiftUI
 struct ServiceIconView: View {
     let name: String
     let catalogId: String?
+    var size: CGFloat = 20
 
     var body: some View {
         if let catalogId, let icon = NSImage(named: catalogId) {
             Image(nsImage: icon)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 20, height: 20)
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .frame(width: size, height: size)
+                .clipShape(RoundedRectangle(cornerRadius: size / 5))
                 .accessibilityIgnoresInvertColors()
         } else {
-            InitialsAvatarView(name: name)
+            InitialsAvatarView(name: name, size: size)
         }
     }
 }
 
 struct InitialsAvatarView: View {
     let name: String
+    var size: CGFloat = 20
 
     static func initials(for name: String) -> String {
         let words = name.split(separator: " ").filter { $0.first?.isLetter == true || $0.first?.isNumber == true }
@@ -64,16 +66,16 @@ struct InitialsAvatarView: View {
         ZStack {
             // Opaque base so the row's hover fill can't show through the
             // tint and lower the letter contrast.
-            RoundedRectangle(cornerRadius: 4)
+            RoundedRectangle(cornerRadius: size / 5)
                 .fill(Color(nsColor: .windowBackgroundColor))
             // A stronger tint than the old 20% so pale hues (blue, cyan)
             // still stand out on the grey row hover fill, without a border.
-            RoundedRectangle(cornerRadius: 4)
+            RoundedRectangle(cornerRadius: size / 5)
                 .fill(backgroundColor.opacity(0.35))
             Text(Self.initials(for: name))
-                .font(.system(size: 9, weight: .bold))
+                .font(.system(size: size * 0.45, weight: .bold))
                 .foregroundColor(textColor)
         }
-        .frame(width: 20, height: 20)
+        .frame(width: size, height: size)
     }
 }

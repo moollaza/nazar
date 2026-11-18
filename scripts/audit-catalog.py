@@ -80,6 +80,7 @@ def endpoint(entry):
         "betterstack": base + "/index.json",
         "instatus": base + "/summary.json",
         "datadog": base + "/config.json",
+        "pagerduty": base + "/api/impacted_services",
     }.get(entry["type"], base)
 
 
@@ -134,6 +135,13 @@ def check(entry, ctx, timeout=20):
             statuses = {c.get("status") for c in j["components"]}
             detail = f"components={len(j['components'])} statuses={','.join(sorted(x for x in statuses if x))}"
             return True, detail, None
+
+        if entry["type"] == "pagerduty":
+            # A healthy PagerDuty page returns an empty list, so the list's
+            # presence (with the page id) is what identifies one.
+            if not isinstance(j.get("impacted_services"), list) or "status_page_id" not in j:
+                return False, "Missing impacted_services in PagerDuty JSON", KIND_MALFORMED
+            return True, f"impacted={len(j['impacted_services'])}", None
 
         if entry["type"] == "betterstack":
             if "data" not in j or "attributes" not in j.get("data", {}):

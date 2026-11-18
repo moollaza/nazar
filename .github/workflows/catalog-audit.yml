@@ -81,7 +81,7 @@ jobs:
             python3 scripts/report-failures.py failures.json --ids --confident-only
             echo ""
             echo "Before removing an entry, check whether the service moved: a different domain,"
-            echo "or a different platform (Instatus, Better Stack, incident.io, Datadog). Most"
+            echo "or a different platform (Instatus, Better Stack, incident.io, Datadog, PagerDuty). Most"
             echo "\"broken\" entries have simply migrated."
             echo ""
             echo "_Run: [\`${GITHUB_RUN_ID}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})_"

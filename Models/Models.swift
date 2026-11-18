@@ -189,6 +189,8 @@ struct Provider: Identifiable, Codable, Equatable {
             return URL(string: "\(baseURL)/summary.json")
         case .datadog:
             return URL(string: "\(baseURL)/config.json")
+        case .pagerduty:
+            return URL(string: "\(baseURL)/api/impacted_services")
         }
     }
 
@@ -207,6 +209,7 @@ enum ProviderType: String, Codable, CaseIterable {
     case betterstack  // Better Stack status page JSON:API (index.json)
     case instatus     // Instatus status page JSON (summary.json)
     case datadog      // Datadog status page JSON (config.json)
+    case pagerduty    // PagerDuty status page JSON (/api/impacted_services and siblings)
 }
 
 // MARK: - Atlassian Statuspage API Response
@@ -551,6 +554,19 @@ enum ComponentStatus: String, Codable, Comparable {
         }
     }
 
+    /// Maps the last segment of a PagerDuty post-enum key (for example
+    /// `incident/impacts/partial_outage`) to Nazar's model. The enum ids
+    /// differ on every page, but these keys are fixed by PagerDuty.
+    init(fromPagerDuty key: String) {
+        switch PagerDutyPostEnum.state(fromKey: key) {
+        case "operational": self = .operational
+        case "partial_outage": self = .partialOutage
+        case "outage": self = .majorOutage
+        case "maintenance": self = .underMaintenance
+        default: self = .unknown
+        }
+    }
+
     /// Maps Better Stack status vocabulary (aggregate_state and resource status)
     /// to Nazar's component model. Unrecognised values surface as `.unknown`
     /// rather than masquerading as healthy.
@@ -670,6 +686,150 @@ struct DatadogTimelineEntry: Codable {
     let description: String?
     let createdAt: String?
     let startedAt: String?
+}
+
+// MARK: - PagerDuty Status Page Response
+
+// PagerDuty-hosted status pages are a client-rendered app. Its data comes from
+// four public endpoints under `{base_url}/api/`, and a poll needs all four:
+//
+// - `impacted_services`: the services with an open impact, and the impact's
+//   severity id. A healthy page returns an empty list. This is the status.
+// - `post_enums`: maps each severity and status id to a fixed key such as
+//   `incident/impacts/outage`. The ids differ on every page.
+// - `services`: the service names.
+// - `posts?is_featured=true`: open incidents and scheduled or in-progress
+//   maintenances, with their updates.
+//
+// The page's embedded `globalStatusHeadline` is static text the page owner
+// typed, not a status, so it is not read.
+struct PagerDutyPage {
+    let impacted: PagerDutyImpactedServices
+    let enums: PagerDutyPostEnums
+    let services: PagerDutyServices
+    let posts: PagerDutyPosts
+
+    init(impacted: Data, enums: Data, services: Data, posts: Data) throws {
+        let decoder = JSONDecoder()
+        self.impacted = try decoder.decode(PagerDutyImpactedServices.self, from: impacted)
+        self.enums = try decoder.decode(PagerDutyPostEnums.self, from: enums)
+        self.services = try decoder.decode(PagerDutyServices.self, from: services)
+        self.posts = try decoder.decode(PagerDutyPosts.self, from: posts)
+    }
+}
+
+struct PagerDutyImpactedServices: Codable {
+    let impactedServices: [PagerDutyImpactedService]
+
+    enum CodingKeys: String, CodingKey {
+        case impactedServices = "impacted_services"
+    }
+}
+
+struct PagerDutyImpactedService: Codable {
+    let serviceId: String
+    let impactSeverityId: String
+
+    enum CodingKeys: String, CodingKey {
+        case serviceId = "service_id"
+        case impactSeverityId = "impact_severity_id"
+    }
+}
+
+struct PagerDutyPostEnums: Codable {
+    let postEnums: [PagerDutyPostEnum]
+
+    enum CodingKeys: String, CodingKey {
+        case postEnums = "post_enums"
+    }
+}
+
+struct PagerDutyPostEnum: Codable {
+    let id: String
+    let name: String
+    let layoutSettings: LayoutSettings?
+
+    struct LayoutSettings: Codable {
+        let key: String?
+    }
+
+    /// The last segment of the key: `in_progress` for `maintenance/status/in_progress`.
+    var state: String? { layoutSettings?.key.map(Self.state(fromKey:)) }
+
+    static func state(fromKey key: String) -> String {
+        key.split(separator: "/").last.map(String.init) ?? key
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, name
+        case layoutSettings = "layout_settings"
+    }
+}
+
+struct PagerDutyServices: Codable {
+    let services: [PagerDutyService]
+}
+
+struct PagerDutyService: Codable {
+    let id: String
+    let name: String
+    let displayName: String?
+    /// Missing means active.
+    let isActive: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name
+        case displayName = "display_name"
+        case isActive = "is_active"
+    }
+}
+
+struct PagerDutyPosts: Codable {
+    let posts: [PagerDutyPost]
+}
+
+struct PagerDutyPost: Codable {
+    let id: String
+    let title: String?
+    let postType: String?
+    let lastUpdateAt: Int64?
+    let latestUpdate: PagerDutyPostUpdate?
+    /// Oldest first.
+    let updates: [PagerDutyPostUpdate]?
+
+    var isMaintenance: Bool { postType == "maintenance" }
+
+    enum CodingKeys: String, CodingKey {
+        case id, title, updates
+        case postType = "post_type"
+        case lastUpdateAt = "last_update_at"
+        case latestUpdate = "latest_update"
+    }
+}
+
+struct PagerDutyPostUpdate: Codable {
+    let id: String
+    let message: String?
+    /// Milliseconds since the Unix epoch.
+    let reportedAt: Int64?
+    let statusId: String?
+    let impacts: [PagerDutyImpact]?
+
+    enum CodingKeys: String, CodingKey {
+        case id, message, impacts
+        case reportedAt = "reported_at"
+        case statusId = "status_id"
+    }
+}
+
+struct PagerDutyImpact: Codable {
+    let serviceId: String
+    let severityId: String
+
+    enum CodingKeys: String, CodingKey {
+        case serviceId = "service_id"
+        case severityId = "severity_id"
+    }
 }
 
 struct ProviderSnapshot: Identifiable {

@@ -324,27 +324,7 @@ class StatusManager {
         }
 
         do {
-            let (data, response) = try await session.data(from: url)
-            guard let http = response as? HTTPURLResponse else {
-                recordFailure(for: provider)
-                updateSnapshot(for: provider, error: "Non-HTTP response")
-                return
-            }
-            guard (200...299).contains(http.statusCode) else {
-                logger.error("Poll HTTP \(http.statusCode) for \(provider.name)")
-                recordFailure(for: provider)
-                updateSnapshot(for: provider, error: httpErrorMessage(for: http.statusCode))
-                return
-            }
-            guard data.count <= maxResponseBytes else {
-                logger.error("Poll response too large for \(provider.name): \(data.count) bytes")
-                recordFailure(for: provider)
-                updateSnapshot(for: provider, error: "Response too large (\(data.count / 1_000_000) MB)")
-                return
-            }
-
-            // Success — reset backoff
-            failureCounts[provider.id] = 0
+            let data = try await fetch(url, for: provider)
 
             switch provider.type {
             case .statuspage:
@@ -384,6 +364,20 @@ class StatusManager {
                     logger.error("Datadog parse failed for \(provider.name): \(error.localizedDescription)")
                     updateSnapshot(for: provider, error: "Status format not recognized")
                 }
+            case .pagerduty:
+                // The primary response is only the impacted services. The other
+                // three requests run first so a failure in any of them counts
+                // as a failed poll, before the backoff reset below.
+                let extra = try await fetchPagerDutyExtras(provider: provider)
+                do {
+                    let page = try PagerDutyPage(
+                        impacted: data, enums: extra.enums, services: extra.services, posts: extra.posts
+                    )
+                    parsePagerDuty(page, provider: provider)
+                } catch let error as DecodingError {
+                    logger.error("PagerDuty schema mismatch for \(provider.name): \(String(describing: error))")
+                    updateSnapshot(for: provider, error: "Status format not recognized")
+                }
             case .rss:
                 do {
                     try parseRSS(data: data, provider: provider)
@@ -392,6 +386,12 @@ class StatusManager {
                     updateSnapshot(for: provider, error: "Could not parse RSS feed")
                 }
             }
+
+            // Success — reset backoff
+            failureCounts[provider.id] = 0
+        } catch let error as FetchError {
+            recordFailure(for: provider)
+            updateSnapshot(for: provider, error: error.message)
         } catch let urlError as URLError {
             logger.error("Network error [\(urlError.code.rawValue)] for \(provider.name): \(urlError.localizedDescription)")
             recordFailure(for: provider)
@@ -403,13 +403,45 @@ class StatusManager {
         }
     }
 
+    private enum FetchError: Error {
+        case nonHTTP
+        case http(Int)
+        case tooLarge(Int)
+
+        var message: String {
+            switch self {
+            case .nonHTTP: return "Non-HTTP response"
+            case .http(let code): return StatusManager.httpErrorMessage(for: code)
+            case .tooLarge(let bytes): return "Response too large (\(bytes / 1_000_000) MB)"
+            }
+        }
+    }
+
+    /// GETs one status endpoint and returns its body only for a 2xx response
+    /// within `maxResponseBytes`.
+    private func fetch(_ url: URL, for provider: Provider) async throws -> Data {
+        let (data, response) = try await session.data(from: url)
+        guard let http = response as? HTTPURLResponse else {
+            throw FetchError.nonHTTP
+        }
+        guard (200...299).contains(http.statusCode) else {
+            logger.error("Poll HTTP \(http.statusCode) for \(provider.name) at \(url.path)")
+            throw FetchError.http(http.statusCode)
+        }
+        guard data.count <= maxResponseBytes else {
+            logger.error("Poll response too large for \(provider.name): \(data.count) bytes")
+            throw FetchError.tooLarge(data.count)
+        }
+        return data
+    }
+
     private func backoffWindow(for provider: Provider, failures: Int) -> Double {
         let base = min(Double(provider.pollIntervalSeconds) * pow(2, Double(min(failures, 5))), 3600)
         // Jitter in ±50% so many providers failing together don't retry in lockstep.
         return base * Double.random(in: 0.5...1.5)
     }
 
-    private func httpErrorMessage(for code: Int) -> String {
+    nonisolated private static func httpErrorMessage(for code: Int) -> String {
         switch code {
         case 401, 403: return "Access denied (\(code))"
         case 404: return "Status page not found (404) — URL may have changed"
@@ -673,6 +705,115 @@ class StatusManager {
                 createdAt: (entry.createdAt ?? entry.startedAt).flatMap(Self.parseDate)
             )
         }
+    }
+
+    // MARK: - PagerDuty Status Page Parsing
+
+    /// Fetches the three PagerDuty endpoints that go with `/api/impacted_services`.
+    private func fetchPagerDutyExtras(provider: Provider) async throws -> (enums: Data, services: Data, posts: Data) {
+        let api = "\(provider.baseURL)/api"
+        guard let enumsURL = URL(string: "\(api)/post_enums"),
+              let servicesURL = URL(string: "\(api)/services"),
+              let postsURL = URL(string: "\(api)/posts?is_featured=true&limit=500") else {
+            throw URLError(.badURL)
+        }
+        async let enums = fetch(enumsURL, for: provider)
+        async let services = fetch(servicesURL, for: provider)
+        async let posts = fetch(postsURL, for: provider)
+        return try await (enums, services, posts)
+    }
+
+    private func parsePagerDuty(_ page: PagerDutyPage, provider: Provider) {
+        let enumsById = Dictionary(page.enums.postEnums.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        func severity(_ id: String) -> ComponentStatus {
+            enumsById[id]?.layoutSettings?.key.map(ComponentStatus.init(fromPagerDuty:)) ?? .unknown
+        }
+
+        var impactByService: [String: ComponentStatus] = [:]
+        for impact in page.impacted.impactedServices {
+            impactByService[impact.serviceId] = max(
+                impactByService[impact.serviceId] ?? .operational,
+                severity(impact.impactSeverityId)
+            )
+        }
+
+        let components = page.services.services
+            .filter { $0.isActive != false }
+            .map { service in
+                ComponentSnapshot(
+                    id: service.id,
+                    name: service.displayName ?? service.name,
+                    status: impactByService[service.id] ?? .operational
+                )
+            }
+        // An impacted service missing from the service list still counts.
+        let componentMax = max(
+            components.map(\.status).max() ?? .operational,
+            impactByService.values.max() ?? .operational
+        )
+
+        // Featured posts include maintenance that has not started yet, so the
+        // post's current status decides whether it is open.
+        let closedStates: Set<String> = ["scheduled", "resolved", "completed"]
+        // Incidents before maintenance, then the most recently updated first.
+        let posts = page.posts.posts.sorted { a, b in
+            if a.isMaintenance != b.isMaintenance { return !a.isMaintenance }
+            return (a.lastUpdateAt ?? 0) > (b.lastUpdateAt ?? 0)
+        }
+        let incidents = posts.compactMap { post -> IncidentSnapshot? in
+            let state = post.latestUpdate?.statusId.flatMap { enumsById[$0] }
+            if let current = state?.state, closedStates.contains(current) {
+                return nil
+            }
+            let isMaintenance = post.isMaintenance
+            let updates = (post.updates ?? []).reversed().map { update in
+                IncidentUpdateSnapshot(
+                    id: update.id,
+                    status: update.statusId.flatMap { enumsById[$0]?.name } ?? "update",
+                    body: Self.plainText(fromHTML: update.message ?? ""),
+                    createdAt: update.reportedAt.map(Self.date(fromMilliseconds:))
+                )
+            }
+            return IncidentSnapshot(
+                id: post.id,
+                name: post.title ?? (isMaintenance ? "Scheduled maintenance" : "Incident"),
+                impact: (post.latestUpdate?.impacts ?? []).map { severity($0.severityId) }.max()
+                    ?? (isMaintenance ? .underMaintenance : componentMax),
+                status: (state?.name ?? "").capitalized,
+                latestUpdate: updates.first?.body,
+                updatedAt: post.lastUpdateAt.map(Self.date(fromMilliseconds:)),
+                updates: updates
+            )
+        }
+
+        // The same cap of five as the other parsers.
+        let active = Array(incidents.prefix(5))
+        let incidentMax = active.map(\.impact).max() ?? .operational
+
+        let snapshot = ProviderSnapshot(
+            id: provider.id,
+            name: provider.name,
+            overallStatus: max(componentMax, incidentMax),
+            components: components,
+            activeIncidents: active,
+            lastUpdated: Date(),
+            error: nil
+        )
+        applySnapshot(snapshot, for: provider)
+    }
+
+    private static func date(fromMilliseconds ms: Int64) -> Date {
+        Date(timeIntervalSince1970: TimeInterval(ms) / 1000)
+    }
+
+    /// PagerDuty update messages are HTML fragments, mostly text and `<br />`.
+    nonisolated static func plainText(fromHTML html: String) -> String {
+        var text = html.replacingOccurrences(of: "<br\\s*/?>", with: "\n", options: [.regularExpression, .caseInsensitive])
+        text = text.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+        for (entity, char) in [("&lt;", "<"), ("&gt;", ">"), ("&quot;", "\""), ("&#39;", "'"), ("&nbsp;", " "), ("&amp;", "&")] {
+            text = text.replacingOccurrences(of: entity, with: char)
+        }
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func parseBetterStack(data: Data, provider: Provider) throws {

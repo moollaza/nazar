@@ -425,16 +425,21 @@ enum ComponentStatus: String, Codable, Comparable {
         }
     }
 
+    /// Status dot and icon color. In light mode the system green, yellow,
+    /// orange and gray fall below the 3:1 a state indicator needs on the
+    /// window background (1.5:1 for yellow), so light mode uses darker
+    /// Tailwind shades instead.
     var color: NSColor {
         switch self {
-        case .operational: return .systemGreen
-        case .degradedPerformance: return .systemYellow
-        case .underMaintenance: return .systemYellow
-        case .partialOutage: return .systemOrange
+        case .operational: return NSColor.adaptive(light: 0x15803D, dark: .systemGreen)
+        case .degradedPerformance: return NSColor.adaptive(light: 0xB45309, dark: .systemYellow)
+        case .underMaintenance: return NSColor.adaptive(light: 0x2563EB, dark: .systemBlue)
+        case .partialOutage: return NSColor.adaptive(light: 0xEA580C, dark: .systemOrange)
         case .majorOutage: return .systemRed
-        case .unknown: return .systemGray
+        case .unknown: return NSColor.adaptive(light: 0x6B7280, dark: .systemGray)
         }
     }
+
 
     /// High-contrast color safe for use as text foreground (meets WCAG 4.5:1 on light/dark backgrounds)
     var textColor: NSColor {
@@ -444,7 +449,8 @@ enum ComponentStatus: String, Codable, Comparable {
                 ? .systemGreen
                 : NSColor(red: 0.08, green: 0.40, blue: 0.15, alpha: 1) // dark green #166534
         }
-        case .degradedPerformance, .underMaintenance: return NSColor(name: nil) { appearance in
+        case .underMaintenance: return NSColor.adaptive(light: 0x1E40AF, dark: NSColor(srgbRed: 0.58, green: 0.77, blue: 0.99, alpha: 1)) // blue-800 / blue-300 #93c5fd
+        case .degradedPerformance: return NSColor(name: nil) { appearance in
             appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
                 ? .systemYellow
                 : NSColor(red: 0.52, green: 0.35, blue: 0.0, alpha: 1) // dark amber #855A00
@@ -456,21 +462,49 @@ enum ComponentStatus: String, Codable, Comparable {
         }
         case .majorOutage: return NSColor(name: nil) { appearance in
             appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
-                ? .systemRed
+                ? NSColor(red: 0.99, green: 0.65, blue: 0.65, alpha: 1) // red-300 #fca5a5; systemRed is 3.7:1 on #323232
                 : NSColor(red: 0.60, green: 0.04, blue: 0.04, alpha: 1) // dark red #991b1b
         }
         case .unknown: return .secondaryLabelColor
         }
     }
 
+    /// Badge text and background, one pair per appearance: 800-shade on
+    /// 100-shade in light mode, 300-shade on 900-shade in dark mode.
+    /// StatusBadge reads these; they are the only place the pairs live.
+    var badgeColors: (text: NSColor, background: NSColor) {
+        func rgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) -> NSColor {
+            NSColor(srgbRed: r, green: g, blue: b, alpha: 1)
+        }
+        switch self {
+        case .majorOutage:
+            return (NSColor.adaptive(light: rgb(0.60, 0.04, 0.04), dark: rgb(0.988, 0.647, 0.647)), // #991b1b, #fca5a5
+                    NSColor.adaptive(light: rgb(0.996, 0.89, 0.89), dark: rgb(0.45, 0.06, 0.06))) // #fee2e2, #7f1d1d
+        case .partialOutage:
+            return (NSColor.adaptive(light: rgb(0.60, 0.22, 0.02), dark: rgb(0.99, 0.73, 0.47)), // #9a3412, #fdba74
+                    NSColor.adaptive(light: rgb(1.0, 0.93, 0.84), dark: rgb(0.49, 0.15, 0.01))) // #ffedd5, #7c2d12
+        case .degradedPerformance:
+            return (NSColor.adaptive(light: rgb(0.57, 0.29, 0.01), dark: rgb(0.99, 0.82, 0.36)), // #92400e, #fcd34d
+                    NSColor.adaptive(light: rgb(0.996, 0.95, 0.78), dark: rgb(0.47, 0.22, 0.01))) // #fef3c7, #78350f
+        case .underMaintenance:
+            return (NSColor.adaptive(light: rgb(0.12, 0.25, 0.69), dark: rgb(0.58, 0.77, 0.99)), // #1e40af, #93c5fd
+                    NSColor.adaptive(light: rgb(0.86, 0.92, 1.0), dark: rgb(0.12, 0.23, 0.54))) // #dbeafe, #1e3a8a
+        case .unknown:
+            return (NSColor.adaptive(light: rgb(0.22, 0.25, 0.32), dark: rgb(0.61, 0.64, 0.69)), // #374151, #9ca3af
+                    NSColor.adaptive(light: rgb(0.95, 0.96, 0.96), dark: rgb(0.19, 0.22, 0.26))) // #f3f4f6, #1f2937
+        case .operational:
+            return (NSColor.adaptive(light: rgb(0.08, 0.40, 0.15), dark: rgb(0.52, 0.90, 0.60)), // #166534, #86efac
+                    NSColor.adaptive(light: rgb(0.86, 0.99, 0.91), dark: rgb(0.08, 0.33, 0.14))) // #dcfce7, #14532d
+        }
+    }
+
     var iconInfo: (name: String, color: NSColor) {
         switch self {
-        case .operational: return ("checkmark.circle.fill", .systemGreen)
-        case .degradedPerformance: return ("exclamationmark.triangle.fill", .systemYellow)
-        case .underMaintenance: return ("wrench.fill", .systemYellow)
-        case .partialOutage: return ("exclamationmark.triangle.fill", .systemOrange)
-        case .majorOutage: return ("xmark.circle.fill", .systemRed)
-        case .unknown: return ("questionmark.circle.fill", .systemGray)
+        case .operational: return ("checkmark.circle.fill", color)
+        case .degradedPerformance, .partialOutage: return ("exclamationmark.triangle.fill", color)
+        case .underMaintenance: return ("wrench.fill", color)
+        case .majorOutage: return ("xmark.circle.fill", color)
+        case .unknown: return ("questionmark.circle.fill", color)
         }
     }
 
@@ -681,4 +715,27 @@ struct IncidentUpdateSnapshot: Identifiable {
     let status: String
     let body: String
     let createdAt: Date?
+}
+
+extension NSColor {
+    /// `light` (an sRGB hex value) in light mode, `dark` in dark mode.
+    static func adaptive(light hex: Int, dark: NSColor) -> NSColor {
+        let light = NSColor(srgbRed: CGFloat((hex >> 16) & 0xFF) / 255,
+                            green: CGFloat((hex >> 8) & 0xFF) / 255,
+                            blue: CGFloat(hex & 0xFF) / 255, alpha: 1)
+        return NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua ? dark : light
+        }
+    }
+
+    /// `light` in light mode, `dark` in dark mode.
+    static func adaptive(light: NSColor, dark: NSColor) -> NSColor {
+        NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua ? dark : light
+        }
+    }
+
+    /// Link text. The system link blue renders near 4:1 on the white panel,
+    /// under the 4.5:1 text minimum, so light mode uses blue-700.
+    static let accessibleLink = adaptive(light: 0x1D4ED8, dark: .linkColor)
 }

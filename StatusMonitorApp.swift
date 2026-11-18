@@ -58,9 +58,27 @@ class FloatingPanel: NSPanel {
         visualEffect.material = .popover
         visualEffect.state = .active
         visualEffect.wantsLayer = true
-        visualEffect.layer?.cornerRadius = 10
+        visualEffect.layer?.cornerRadius = Self.cornerRadius
         visualEffect.layer?.masksToBounds = true
+        // The layer mask clips subviews only. The blurred backdrop and the
+        // window shadow follow maskImage, so without it a square corner shows
+        // behind the rounded one over other windows.
+        visualEffect.maskImage = Self.roundedMask(radius: Self.cornerRadius)
         contentView = visualEffect
+    }
+
+    private static let cornerRadius: CGFloat = 10
+
+    private static func roundedMask(radius: CGFloat) -> NSImage {
+        let edge = radius * 2 + 1
+        let image = NSImage(size: NSSize(width: edge, height: edge), flipped: false) { rect in
+            NSColor.black.setFill()
+            NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
+            return true
+        }
+        image.capInsets = NSEdgeInsets(top: radius, left: radius, bottom: radius, right: radius)
+        image.resizingMode = .stretch
+        return image
     }
 
     // Close on Escape key
@@ -143,8 +161,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: panelSize))
 
         let hostingView = NSHostingView(
-            rootView: DashboardView(onOpenSettings: { [weak self] in
-                self?.openSettings()
+            rootView: DashboardView(onOpenSettings: { [weak self] tab in
+                self?.openSettings(tab: tab)
             })
             .environment(statusManager)
         )
@@ -208,7 +226,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Update tooltip after every poll cycle (not just worst-status changes)
         statusManager.onPollCycleComplete = { [weak self] in
-            self?.updateTooltip()
+            guard let self else { return }
+            self.updateTooltip()
+            if self.isPanelShown { self.statusManager.markRecoveriesSeen() }
         }
 
         // First launch → auto-open panel (slight delay so menu bar button window is ready)
@@ -237,6 +257,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         lastUpdated: Date(),
                         error: nil
                     )
+                    self.statusManager.recordRecovery(for: id, from: oldStatus, to: status)
+                    if self.isPanelShown { self.statusManager.markRecoveriesSeen() }
                     self.statusManager.recalcWorstStatus()
                     // Fire notification on simulated status change
                     if oldStatus != status {
@@ -370,7 +392,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             positionPanel()
             panel.makeKeyAndOrderFront(nil)
+            panel.invalidateShadow()
             NSApp.activate(ignoringOtherApps: true)
+            statusManager.markRecoveriesSeen()
         }
     }
 

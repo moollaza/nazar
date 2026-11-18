@@ -202,14 +202,14 @@ final class JourneyUITests: XCTestCase {
         return app
     }
 
-    func testFirstRunOpensOnboardingPanelAndGetStartedOpensSettings() {
+    func testFirstRunOpensOnboardingPanelAndBrowseCatalogOpensSettings() {
         let app = launch(["-UITestFirstRun"])
 
         XCTAssertTrue(app.staticTexts["No services monitored"].waitForExistence(timeout: 5),
                       "First launch should open the panel on its own with the empty state")
-        app.buttons["Get Started"].click()
+        app.buttons["Browse Catalog"].click()
         XCTAssertTrue(app.windows["Nazar Settings"].waitForExistence(timeout: 5),
-                      "Get Started should open Settings")
+                      "Browse Catalog should open Settings")
     }
 
     func testMenuBarIconTogglesPanel() {
@@ -236,7 +236,11 @@ final class JourneyUITests: XCTestCase {
 
         // Opening Settings closes the panel, so it can't cover the catalog.
         // Reopen the panel afterwards to see the result.
-        app.buttons["Settings"].click()
+        app.menuButtons["Settings and more"].click()
+        // The app's hidden main menu also has a "Settings…" item; click the visible one.
+        let settingsItem = app.menuItems.matching(identifier: "Settings…").allElementsBoundByIndex
+            .first { $0.isHittable } ?? app.menuItems["Settings…"].firstMatch
+        settingsItem.click()
         XCTAssertTrue(row.waitForNonExistence(timeout: 5), "Opening Settings should close the panel")
         setGitHubMonitored(false, in: app)
         openPanelFromMenuBar(app)
@@ -256,7 +260,8 @@ final class JourneyUITests: XCTestCase {
         filter.typeKey(.delete, modifierFlags: [])
         XCTAssertTrue(row.waitForExistence(timeout: 5), "Clearing the filter should bring the row back")
 
-        app.buttons["Refresh all"].click()
+        app.menuButtons["Settings and more"].click()
+        app.menuItems["Refresh Now"].click()
 
         row.click()
         XCTAssertTrue(app.buttons["detail-view-status-page"].waitForExistence(timeout: 5),
@@ -279,6 +284,8 @@ final class JourneyUITests: XCTestCase {
         app.menuItems["Reset to Operational"].click()
         XCTAssertTrue(app.staticTexts["All operational"].waitForExistence(timeout: 5),
                       "Reset should clear the outage")
-        XCTAssertEqual(row.value as? String, "GitHub, Operational")
+        // Coming back from an outage shows the Recovered badge until it is seen.
+        let label = row.value as? String ?? ""
+        XCTAssertTrue(label.hasPrefix("GitHub, Recovered"), "Row should read 'GitHub, Recovered…', got '\(label)'")
     }
 }

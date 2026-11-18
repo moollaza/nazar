@@ -4,7 +4,7 @@ Nazar watches the services you depend on, right from your macOS menu bar.
 
 [**usenazar.com**](https://usenazar.com/) · [Download](https://github.com/moollaza/nazar/releases) · [Request a service](https://github.com/moollaza/nazar/issues/new?template=service_request.yml)
 
-![Nazar Screenshot](docs/assets/screenshot.png)
+<img src="docs/assets/screenshot.png" alt="The Nazar menu bar panel listing watched services and their status" width="420">
 
 ## Features
 

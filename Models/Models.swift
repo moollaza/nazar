@@ -13,10 +13,14 @@ struct CatalogEntry: Identifiable, Codable, Equatable {
     let type: ProviderType  // .statuspage or .rss
     let category: String    // e.g. "Developer Tools"
     let platform: String?   // "atlassian", "incident.io", etc.
+    /// Statuspage component ids this entry follows when its page is shared
+    /// with other products. Nil follows the whole page.
+    var componentIds: [String]? = nil
 
     enum CodingKeys: String, CodingKey {
         case id, name, type, category, platform
         case baseURL = "base_url"
+        case componentIds = "component_ids"
     }
 }
 
@@ -133,12 +137,15 @@ struct Provider: Identifiable, Codable, Equatable {
     var isEnabled: Bool
     var catalogEntryId: String?  // matches CatalogEntry.id if created from catalog
     var isMuted: Bool
+    /// Component ids to follow on a shared page. Not persisted:
+    /// `StatusManager` reads it from the catalog when it loads providers.
+    var componentIds: [String]?
 
     enum CodingKeys: String, CodingKey {
         case id, name, baseURL, type, pollIntervalSeconds, isEnabled, catalogEntryId, isMuted
     }
 
-    init(name: String, baseURL: String, type: ProviderType = .statuspage, pollIntervalSeconds: Int = 60, isEnabled: Bool = true, catalogEntryId: String? = nil, isMuted: Bool = false) {
+    init(name: String, baseURL: String, type: ProviderType = .statuspage, pollIntervalSeconds: Int = 60, isEnabled: Bool = true, catalogEntryId: String? = nil, isMuted: Bool = false, componentIds: [String]? = nil) {
         self.id = UUID()
         self.name = name
         self.baseURL = baseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
@@ -147,10 +154,11 @@ struct Provider: Identifiable, Codable, Equatable {
         self.isEnabled = isEnabled
         self.catalogEntryId = catalogEntryId
         self.isMuted = isMuted
+        self.componentIds = componentIds
     }
 
     init(from entry: CatalogEntry) {
-        self.init(name: entry.name, baseURL: entry.baseURL, type: entry.type, catalogEntryId: entry.id)
+        self.init(name: entry.name, baseURL: entry.baseURL, type: entry.type, catalogEntryId: entry.id, componentIds: entry.componentIds)
     }
 
     init(from decoder: Decoder) throws {
@@ -163,6 +171,12 @@ struct Provider: Identifiable, Codable, Equatable {
         isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
         catalogEntryId = try container.decodeIfPresent(String.self, forKey: .catalogEntryId)
         isMuted = try container.decodeIfPresent(Bool.self, forKey: .isMuted) ?? false
+        componentIds = nil
+    }
+
+    /// True when both poll the same page for the same components.
+    func watchesSameFeed(as other: Provider) -> Bool {
+        baseURL == other.baseURL && componentIds.map { Set($0) } == other.componentIds.map { Set($0) }
     }
 
     var hasValidURL: Bool {
@@ -276,13 +290,52 @@ struct StatuspageIncident: Codable, Identifiable {
     let createdAt: String?
     let updatedAt: String
     let incidentUpdates: [StatuspageIncidentUpdate]?
+    let components: [StatuspageComponentRef]?
 
     enum CodingKeys: String, CodingKey {
-        case id, name, status, impact
+        case id, name, status, impact, components
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case incidentUpdates = "incident_updates"
     }
+}
+
+extension StatuspageSummary {
+    /// The part of a shared page that covers one product: the listed
+    /// components, the children of listed groups, and the incidents and
+    /// maintenances tagged with them. Untagged incidents are dropped, since
+    /// on a shared page they are mostly about other products. The page-wide
+    /// indicator covers every product, so the scoped indicator is the worst
+    /// impact among the kept incidents. Nil when no listed component is on
+    /// the page.
+    func scoped(to ids: [String]) -> StatuspageSummary? {
+        let listed = Set(ids)
+        let followed = Set(components
+            .filter { $0.group != true && (listed.contains($0.id) || $0.groupId.map { listed.contains($0) } == true) }
+            .map(\.id))
+        guard !followed.isEmpty else { return nil }
+
+        let isTagged: (StatuspageIncident) -> Bool = { incident in
+            incident.components?.contains { followed.contains($0.id) } == true
+        }
+        let keptIncidents = incidents?.filter(isTagged)
+        let impacts = ["none", "minor", "major", "critical"]
+        let worst = (keptIncidents ?? []).compactMap { impacts.firstIndex(of: $0.impact) }.max() ?? 0
+
+        return StatuspageSummary(
+            page: page,
+            status: StatuspageOverall(indicator: impacts[worst], description: ""),
+            // Groups stay so child components keep their group name.
+            components: components.filter { $0.group == true || followed.contains($0.id) },
+            incidents: keptIncidents,
+            scheduledMaintenances: scheduledMaintenances?.filter(isTagged)
+        )
+    }
+}
+
+/// An affected component as listed on an incident. Only the id is needed.
+struct StatuspageComponentRef: Codable {
+    let id: String
 }
 
 struct StatuspageIncidentUpdate: Codable, Identifiable {

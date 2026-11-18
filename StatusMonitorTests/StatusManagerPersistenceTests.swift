@@ -116,6 +116,26 @@ final class StatusManagerPersistenceTests: XCTestCase {
         XCTAssertEqual(m.providers.count, 1)
     }
 
+    func testAddProviderAllowsDifferentComponentScopesOnOnePage() {
+        let m = makeManager()
+        XCTAssertTrue(m.addProvider(Provider(name: "A", baseURL: "https://status.example.com", componentIds: ["c1"])))
+        XCTAssertTrue(m.addProvider(Provider(name: "B", baseURL: "https://status.example.com", componentIds: ["c2", "c3"])))
+        XCTAssertFalse(m.addProvider(Provider(name: "B Again", baseURL: "https://status.example.com", componentIds: ["c3", "c2"])),
+                       "same components in another order are the same scope")
+        XCTAssertEqual(m.providers.map(\.name), ["A", "B"])
+    }
+
+    func testLoadReadsComponentScopeFromCatalog() throws {
+        let entry = try XCTUnwrap(Catalog.shared.entries.first { $0.componentIds != nil },
+                                  "needs one catalog entry with component_ids")
+        let m1 = makeManager()
+        m1.providers = [Provider(from: entry)]
+        m1.saveProviders()
+
+        let m2 = makeManager()
+        XCTAssertEqual(m2.providers.first?.componentIds, entry.componentIds)
+    }
+
     func testAddProviderSetsOnboardingComplete() {
         let m = makeManager()
         XCTAssertFalse(suite.bool(forKey: "hasCompletedOnboarding"))

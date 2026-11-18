@@ -94,6 +94,14 @@ final class CatalogTests: XCTestCase {
         }
     }
 
+    func testComponentScopeOnlyOnStatuspageEntries() {
+        for entry in Catalog.shared.entries {
+            guard let ids = entry.componentIds else { continue }
+            XCTAssertEqual(entry.type, .statuspage, "\(entry.id): only the statuspage parser reads component_ids")
+            XCTAssertFalse(ids.isEmpty, "\(entry.id): an empty component_ids follows nothing; omit the key instead")
+        }
+    }
+
     func testKnownEntryExists() {
         let github = Catalog.shared.entries.first(where: { $0.id == "github" })
         XCTAssertNotNil(github)

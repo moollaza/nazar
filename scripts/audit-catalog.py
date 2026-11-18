@@ -117,6 +117,12 @@ def check(entry, ctx, timeout=20):
             # (Instatus and similar), and unclaimed pages returning nulls.
             if not isinstance(j.get("page"), dict) or not isinstance(j.get("status"), dict):
                 return False, "Missing or null page/status in JSON", KIND_MALFORMED
+            # A scoped entry reads only its listed components, so one that
+            # left the page would read as healthy if nothing checked it.
+            on_page = {c.get("id") for c in j.get("components") or []}
+            missing = [i for i in entry.get("component_ids", []) if i not in on_page]
+            if missing:
+                return False, f"component_ids not on page: {', '.join(missing)}", KIND_MALFORMED
             return True, f"indicator={j.get('status', {}).get('indicator', '?')}", None
 
         if entry["type"] == "instatus":

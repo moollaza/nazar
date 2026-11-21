@@ -249,21 +249,6 @@ final class JourneyUITests: XCTestCase {
         XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "Escape should close the panel")
     }
 
-    func testProbeRawClickOutsideClosesPanel() {
-        let app = launch([])
-        openPanelFromMenuBar(app)
-        let empty = app.staticTexts["No services monitored"]
-        XCTAssertTrue(empty.waitForExistence(timeout: 5))
-        let finder = XCUIApplication(bundleIdentifier: "com.apple.finder")
-        finder.activate()
-        XCTAssertTrue(finder.wait(for: .runningForeground, timeout: 5))
-        let icon = app.statusItems.firstMatch.frame
-        print("PROBE icon \(icon) finder \(finder.frame) app state \(app.state.rawValue)")
-        click(at: CGPoint(x: icon.midX - 300, y: 400), through: finder)
-        print("PROBE after click app state \(app.state.rawValue) finder \(finder.state.rawValue)")
-        XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "PROBE raw outside click should close the panel")
-    }
-
     func testCatalogAddPersistsAcrossRelaunchAndRemoveEmptiesPanel() {
         var app = launchWithGitHubInPanel()
 

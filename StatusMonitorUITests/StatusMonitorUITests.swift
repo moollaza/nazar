@@ -1,5 +1,4 @@
 import XCTest
-import ApplicationServices
 
 /// Smoke-test UI coverage. Menu-bar apps can't be driven through the status
 /// item in CI (the status bar lives in a separate process), so these tests
@@ -172,15 +171,14 @@ final class JourneyUITests: XCTestCase {
         icon.click()
     }
 
-    /// Posts a left click at the element's center without activating the app.
-    private func rawClick(_ element: XCUIElement) {
-        let frame = element.frame
-        let point = CGPoint(x: frame.midX, y: frame.midY)
-        for type in [CGEventType.leftMouseDown, .leftMouseUp] {
-            CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: .left)?
-                .post(tap: .cghidEventTap)
-            usleep(50_000)
-        }
+    /// Clicks a screen point through `host`, which is already frontmost.
+    /// `XCUIElement.click()` activates the element's app first, and that hides
+    /// bugs that only show while another app is in front.
+    private func click(at point: CGPoint, through host: XCUIApplication) {
+        let origin = host.frame.origin
+        host.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: point.x - origin.x, dy: point.y - origin.y))
+            .click()
     }
 
     private func setGitHubMonitored(_ monitored: Bool, in app: XCUIApplication) {
@@ -239,7 +237,8 @@ final class JourneyUITests: XCTestCase {
         XCTAssertTrue(finder.wait(for: .runningForeground, timeout: 5), "Finder should be frontmost")
         XCTAssertTrue(empty.exists, "The panel should stay open when another app becomes active")
 
-        rawClick(app.statusItems.firstMatch)
+        let icon = app.statusItems.firstMatch.frame
+        click(at: CGPoint(x: icon.midX, y: icon.midY), through: finder)
         XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "Clicking the icon again should close the panel")
         _ = XCTWaiter.wait(for: [XCTestExpectation()], timeout: 1)
         XCTAssertFalse(empty.exists, "The panel should stay closed after the second click")
@@ -258,15 +257,10 @@ final class JourneyUITests: XCTestCase {
         let finder = XCUIApplication(bundleIdentifier: "com.apple.finder")
         finder.activate()
         XCTAssertTrue(finder.wait(for: .runningForeground, timeout: 5))
-        let icon = app.statusItems.firstMatch
-        print("PROBE icon frame \(icon.frame) app state \(app.state.rawValue)")
-        let point = CGPoint(x: icon.frame.midX - 300, y: 400)
-        for type in [CGEventType.leftMouseDown, .leftMouseUp] {
-            CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: .left)?
-                .post(tap: .cghidEventTap)
-            usleep(50_000)
-        }
-        print("PROBE AXIsProcessTrusted \(AXIsProcessTrusted())")
+        let icon = app.statusItems.firstMatch.frame
+        print("PROBE icon \(icon) finder \(finder.frame) app state \(app.state.rawValue)")
+        click(at: CGPoint(x: icon.midX - 300, y: 400), through: finder)
+        print("PROBE after click app state \(app.state.rawValue) finder \(finder.state.rawValue)")
         XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "PROBE raw outside click should close the panel")
     }
 

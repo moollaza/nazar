@@ -219,6 +219,11 @@ final class JourneyUITests: XCTestCase {
         let empty = app.staticTexts["No services monitored"]
         XCTAssertTrue(empty.waitForExistence(timeout: 5), "Clicking the icon should open the panel")
 
+        // macOS 14+ may decline the panel's activation request, which leaves
+        // another app frontmost while the panel shows. Reproduce that.
+        XCUIApplication(bundleIdentifier: "com.apple.finder").activate()
+        XCTAssertTrue(empty.exists, "The panel should stay open when another app becomes active")
+
         openPanelFromMenuBar(app)
         XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "Clicking the icon again should close the panel")
         _ = XCTWaiter.wait(for: [XCTestExpectation()], timeout: 1)

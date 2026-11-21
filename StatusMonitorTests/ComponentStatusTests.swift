@@ -142,6 +142,80 @@ final class ComponentStatusTests: XCTestCase {
                            "Round-trip failed for \(status)")
         }
     }
+
+    // MARK: - menuBarImage
+
+    func testOperationalMenuBarImageIsTemplate() {
+        XCTAssertEqual(ComponentStatus.operational.menuBarImage?.isTemplate, true)
+    }
+
+    /// Without the color baked in, these icons draw black on a dark menu bar.
+    func testNonOperationalMenuBarImagesDrawInStatusColor() throws {
+        for status in ComponentStatus.allCases where status != .operational {
+            let image = try XCTUnwrap(status.menuBarImage, "\(status)")
+            XCTAssertFalse(image.isTemplate, "\(status)")
+            for name in [NSAppearance.Name.vibrantDark, .vibrantLight] {
+                let appearance = try XCTUnwrap(NSAppearance(named: name))
+                var expected = NSColor.black
+                appearance.performAsCurrentDrawingAppearance {
+                    expected = status.color.usingColorSpace(.sRGB) ?? .black
+                }
+                let rep = try XCTUnwrap(render(image, in: appearance))
+                let drawn = try XCTUnwrap(mostOpaquePixel(in: rep), "\(status) \(name.rawValue)")
+                XCTAssertEqual(drawn.redComponent, expected.redComponent, accuracy: 0.1, "\(status) \(name.rawValue)")
+                XCTAssertEqual(drawn.greenComponent, expected.greenComponent, accuracy: 0.1, "\(status) \(name.rawValue)")
+                XCTAssertEqual(drawn.blueComponent, expected.blueComponent, accuracy: 0.1, "\(status) \(name.rawValue)")
+            }
+        }
+    }
+
+    /// The tint must keep the symbol's shape, including the glyph cut out of
+    /// `xmark.circle.fill`, not draw a solid disc or triangle.
+    func testNonOperationalMenuBarImagesKeepTheSymbolShape() throws {
+        let appearance = try XCTUnwrap(NSAppearance(named: .vibrantDark))
+        for status in ComponentStatus.allCases where status != .operational {
+            let tinted = try XCTUnwrap(status.menuBarImage.flatMap { render($0, in: appearance) }, "\(status)")
+            let plain = try XCTUnwrap(status.menuBarSymbol.flatMap { render($0, in: appearance) }, "\(status)")
+            var mismatched = 0
+            for x in 0..<plain.pixelsWide {
+                for y in 0..<plain.pixelsHigh {
+                    let a = tinted.colorAt(x: x, y: y)?.alphaComponent ?? 0
+                    let b = plain.colorAt(x: x, y: y)?.alphaComponent ?? 0
+                    if abs(a - b) > 0.1 { mismatched += 1 }
+                }
+            }
+            XCTAssertEqual(mismatched, 0, "\(status): \(mismatched) pixels differ in shape")
+        }
+    }
+
+    /// Draws `image` at 2x under `appearance`.
+    private func render(_ image: NSImage, in appearance: NSAppearance) -> NSBitmapImageRep? {
+        let size = image.size
+        guard let rep = NSBitmapImageRep(
+            bitmapDataPlanes: nil, pixelsWide: Int(size.width * 2), pixelsHigh: Int(size.height * 2),
+            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+            colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0
+        ) else { return nil }
+        rep.size = size
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        appearance.performAsCurrentDrawingAppearance {
+            image.draw(in: NSRect(origin: .zero, size: size))
+        }
+        NSGraphicsContext.restoreGraphicsState()
+        return rep
+    }
+
+    private func mostOpaquePixel(in rep: NSBitmapImageRep) -> NSColor? {
+        var best: NSColor?
+        for x in 0..<rep.pixelsWide {
+            for y in 0..<rep.pixelsHigh {
+                guard let c = rep.colorAt(x: x, y: y)?.usingColorSpace(.sRGB) else { continue }
+                if c.alphaComponent > (best?.alphaComponent ?? 0.5) { best = c }
+            }
+        }
+        return best
+    }
 }
 
 final class InitialsAvatarColorTests: XCTestCase {

@@ -349,15 +349,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Menu Bar Icon
 
     func updateMenuBarIcon(for status: ComponentStatus) {
-        guard let button = statusItem?.button else { return }
-        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
-        let (name, color) = status.iconInfo
-        let image = NSImage(systemSymbolName: name, accessibilityDescription: "Status")?
-            .withSymbolConfiguration(config)
-        // Use template rendering for operational state so macOS matches menu bar appearance
-        image?.isTemplate = (status == .operational)
-        button.image = image
-        button.contentTintColor = (status == .operational) ? nil : color
+        statusItem?.button?.image = status.menuBarImage
     }
 
     private func updateTooltip() {

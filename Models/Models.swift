@@ -394,7 +394,7 @@ struct BetterStackRef: Codable {
 
 // MARK: - Normalized Status Model (internal)
 
-enum ComponentStatus: String, Codable, Comparable {
+enum ComponentStatus: String, Codable, Comparable, CaseIterable {
     case operational
     case degradedPerformance = "degraded_performance"
     case partialOutage = "partial_outage"
@@ -501,14 +501,41 @@ enum ComponentStatus: String, Codable, Comparable {
         }
     }
 
-    var iconInfo: (name: String, color: NSColor) {
-        switch self {
-        case .operational: return ("checkmark.circle.fill", color)
-        case .degradedPerformance, .partialOutage: return ("exclamationmark.triangle.fill", color)
-        case .underMaintenance: return ("wrench.fill", color)
-        case .majorOutage: return ("xmark.circle.fill", color)
-        case .unknown: return ("questionmark.circle.fill", color)
+    /// Menu bar icon. Operational is a template image, so it follows the
+    /// menu bar like other status items. Other states draw in `color`:
+    /// `contentTintColor` tints only template images, so a non-template
+    /// symbol would draw in its default black. The tint fills the symbol's
+    /// own shape at draw time, which keeps glyph cutouts (the x in
+    /// `xmark.circle.fill`) and resolves `color` for the menu bar's appearance.
+    var menuBarImage: NSImage? {
+        guard let symbol = menuBarSymbol else { return nil }
+        guard self != .operational else {
+            symbol.isTemplate = true
+            return symbol
         }
+        let color = color
+        let image = NSImage(size: symbol.size, flipped: false) { rect in
+            symbol.draw(in: rect)
+            color.set()
+            rect.fill(using: .sourceAtop)
+            return true
+        }
+        image.accessibilityDescription = label
+        return image
+    }
+
+    /// The untinted symbol behind `menuBarImage`.
+    var menuBarSymbol: NSImage? {
+        let name: String
+        switch self {
+        case .operational: name = "checkmark.circle.fill"
+        case .degradedPerformance, .partialOutage: name = "exclamationmark.triangle.fill"
+        case .underMaintenance: name = "wrench.fill"
+        case .majorOutage: name = "xmark.circle.fill"
+        case .unknown: name = "questionmark.circle.fill"
+        }
+        return NSImage(systemSymbolName: name, accessibilityDescription: label)?
+            .withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: 14, weight: .medium))
     }
 
     init(fromStatuspage raw: String) {

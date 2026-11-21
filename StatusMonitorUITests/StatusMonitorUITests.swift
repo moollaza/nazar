@@ -205,9 +205,9 @@ final class JourneyUITests: XCTestCase {
     func testFirstRunOpensOnboardingPanelAndBrowseCatalogOpensSettings() {
         let app = launch(["-UITestFirstRun"])
 
-        XCTAssertTrue(app.staticTexts["No services monitored"].waitForExistence(timeout: 5),
-                      "First launch should open the panel on its own with the empty state")
-        app.buttons["Browse Catalog"].click()
+        XCTAssertTrue(app.staticTexts["Welcome to Nazar"].waitForExistence(timeout: 5),
+                      "First launch should open the panel on its own with the onboarding picker")
+        app.buttons["onboarding-browse"].click()
         XCTAssertTrue(app.windows["Nazar Settings"].waitForExistence(timeout: 5),
                       "Browse Catalog should open Settings")
     }
@@ -216,7 +216,7 @@ final class JourneyUITests: XCTestCase {
         let app = launch([])
 
         openPanelFromMenuBar(app)
-        let empty = app.staticTexts["No services monitored"]
+        let empty = app.staticTexts["Welcome to Nazar"]
         XCTAssertTrue(empty.waitForExistence(timeout: 5), "Clicking the icon should open the panel")
 
         app.typeKey(.escape, modifierFlags: [])
@@ -244,7 +244,7 @@ final class JourneyUITests: XCTestCase {
         XCTAssertTrue(row.waitForNonExistence(timeout: 5), "Opening Settings should close the panel")
         setGitHubMonitored(false, in: app)
         openPanelFromMenuBar(app)
-        XCTAssertTrue(app.staticTexts["No services monitored"].waitForExistence(timeout: 5),
+        XCTAssertTrue(app.staticTexts["Welcome to Nazar"].waitForExistence(timeout: 5),
                       "Unticking the catalog entry should empty the panel")
     }
 

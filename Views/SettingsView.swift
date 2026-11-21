@@ -298,8 +298,8 @@ struct AddCustomServiceView: View {
                 Button("Add") {
                     manager.addProvider(candidate)
                     logger.info("Added custom provider: \(trimmedName)")
-                    if suggestForCatalog, let url = catalogRequestURL() {
-                        NSWorkspace.shared.open(url)
+                    if suggestForCatalog {
+                        NSWorkspace.shared.open(ServiceRequest.url(name: trimmedName, statusURL: trimmedURL))
                     }
                     dismiss()
                 }
@@ -309,18 +309,6 @@ struct AddCustomServiceView: View {
         }
         .padding(20)
         .frame(width: 400)
-    }
-
-    /// Opens the catalog request issue form with the name and URL already filled in.
-    private func catalogRequestURL() -> URL? {
-        var components = URLComponents(string: "https://github.com/moollaza/nazar/issues/new")
-        components?.queryItems = [
-            URLQueryItem(name: "template", value: "service_request.yml"),
-            URLQueryItem(name: "title", value: "[Service]: \(trimmedName)"),
-            URLQueryItem(name: "service-name", value: trimmedName),
-            URLQueryItem(name: "status-url", value: trimmedURL),
-        ]
-        return components?.url
     }
 }
 

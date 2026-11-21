@@ -140,7 +140,10 @@ struct DashboardView: View {
 
             // Content
             if manager.providers.isEmpty && query.isEmpty {
-                emptyState
+                OnboardingPicker(
+                    onBrowse: { onOpenSettings?(.catalog) },
+                    onSuggest: { NSWorkspace.shared.open(ServiceRequest.url()) }
+                )
             } else if !manager.providers.isEmpty && manager.snapshots.isEmpty && query.isEmpty {
                 VStack(spacing: 8) {
                     ProgressView()
@@ -153,12 +156,15 @@ struct DashboardView: View {
                 serviceList
             }
 
-            Divider()
+            // Onboarding has its own bottom bar.
+            if !(manager.providers.isEmpty && query.isEmpty) {
+                Divider()
 
-            if let provider = pendingRemoval {
-                removalBar(for: provider)
-            } else {
-                footer
+                if let provider = pendingRemoval {
+                    removalBar(for: provider)
+                } else {
+                    footer
+                }
             }
         }
     }
@@ -229,6 +235,7 @@ struct DashboardView: View {
 
             Button("Add Custom Status Page…") { onOpenSettings?(.services) }
             Button("Browse Catalog…") { onOpenSettings?(.catalog) }
+            Button("Suggest a Service…") { NSWorkspace.shared.open(ServiceRequest.url()) }
 
             Divider()
 
@@ -442,6 +449,19 @@ struct DashboardView: View {
                             }
                         }
                     }
+                    if matches.isEmpty {
+                        Button {
+                            NSWorkspace.shared.open(ServiceRequest.url(name: query))
+                        } label: {
+                            Label("Suggest “\(query)” for the catalog", systemImage: "plus.bubble")
+                                .font(.caption)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(Color(nsColor: .accessibleLink))
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                    }
                     Button {
                         onOpenSettings?(.services)
                     } label: {
@@ -466,29 +486,193 @@ struct DashboardView: View {
             .padding(.vertical, 4)
         }
     }
+}
 
-    // MARK: - Empty State
+// MARK: - Service Request
 
-    private var emptyState: some View {
-        VStack(spacing: 12) {
-            Spacer()
-            Image(systemName: "antenna.radiowaves.left.and.right")
-                .font(.system(size: 36))
-                .foregroundStyle(.secondary)
-            Text("No services monitored")
-                .font(.headline)
-            Text("Type a service name above to add it,\nor browse the full catalog.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-            Button("Browse Catalog") {
-                onOpenSettings?(.catalog)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.regular)
-            Spacer()
+/// The catalog request issue form, with the name and URL filled in when known.
+enum ServiceRequest {
+    static func url(name: String? = nil, statusURL: String? = nil) -> URL {
+        var components = URLComponents(string: "https://github.com/moollaza/nazar/issues/new")!
+        var items = [URLQueryItem(name: "template", value: "service_request.yml")]
+        if let name, !name.isEmpty {
+            items.append(URLQueryItem(name: "title", value: "[Service]: \(name)"))
+            items.append(URLQueryItem(name: "service-name", value: name))
         }
-        .frame(maxWidth: .infinity)
+        if let statusURL, !statusURL.isEmpty {
+            items.append(URLQueryItem(name: "status-url", value: statusURL))
+        }
+        components.queryItems = items
+        return components.url!
+    }
+}
+
+// MARK: - Onboarding
+
+/// Shown while nothing is monitored: services matched from installed apps
+/// (pre-checked) plus a few popular ones, added in one step.
+struct OnboardingPicker: View {
+    @Environment(StatusManager.self) var manager
+    var onBrowse: () -> Void
+    var onSuggest: () -> Void
+    @State private var appMatches: [CatalogEntry] = []
+    @State private var selected: Set<String> = []
+    @State private var scanned = false
+
+    private static let popularIds = ["openai", "anthropic", "aws", "cloudflare", "github", "vercel", "stripe"]
+
+    private var popular: [CatalogEntry] {
+        let matched = Set(appMatches.map(\.id))
+        let byId = Dictionary(Catalog.shared.entries.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        let entries = Self.popularIds.filter { !matched.contains($0) }.compactMap { byId[$0] }
+        return Array(entries.prefix(appMatches.isEmpty ? 6 : 2))
+    }
+
+    /// Catalog size rounded down to the hundred, e.g. "1,800+".
+    private var catalogSize: String {
+        "\((Catalog.shared.entries.count / 100 * 100).formatted())+"
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    welcome
+                    if !appMatches.isEmpty {
+                        sectionHeader("Found \(appMatches.count) on your Mac", note: "stays on this Mac") {
+                            selectAllButton
+                        }
+                        ForEach(appMatches) { row(for: $0) }
+                    }
+                    if scanned {
+                        sectionHeader("Popular", note: appMatches.isEmpty ? "no matches in your apps" : nil) {
+                            EmptyView()
+                        }
+                        ForEach(popular) { row(for: $0) }
+                    }
+                    Button(action: onBrowse) {
+                        Text("Browse all \(catalogSize) services")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .controlSize(.large)
+                    .accessibilityIdentifier("onboarding-browse")
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
+                    .padding(.bottom, 8)
+                }
+            }
+
+            Divider()
+
+            HStack {
+                Button("Missing one? Suggest it", action: onSuggest)
+                    .buttonStyle(.plain)
+                    .font(.caption)
+                    .foregroundStyle(Color(nsColor: .accessibleLink))
+                Spacer()
+                Button(watchTitle, action: watch)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(selected.isEmpty)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+        }
+        .task {
+            guard !scanned else { return }
+            appMatches = Catalog.shared.suggestFromInstalledApps()
+            selected = Set(appMatches.map(\.id))
+            scanned = true
+        }
+    }
+
+    private var watchTitle: String {
+        switch selected.count {
+        case 0: return "Watch"
+        case 1: return "Watch 1 Service"
+        default: return "Watch \(selected.count) Services"
+        }
+    }
+
+    private var selectAllButton: some View {
+        let ids = Set(appMatches.map(\.id))
+        let allOn = ids.isSubset(of: selected)
+        return Button(allOn ? "Select None" : "Select All") {
+            if allOn { selected.subtract(ids) } else { selected.formUnion(ids) }
+        }
+        .buttonStyle(.plain)
+        .font(.caption)
+        .foregroundStyle(Color(nsColor: .accessibleLink))
+    }
+
+    private var welcome: some View {
+        HStack(spacing: 12) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 36, height: 36)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Welcome to Nazar")
+                    .font(.headline)
+                Text("Pick what you rely on. Nazar flags outages in your menu bar.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 4)
+    }
+
+    private func sectionHeader<Trailing: View>(
+        _ title: String, note: String?, @ViewBuilder trailing: () -> Trailing
+    ) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            Text(title.uppercased())
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+            if let note {
+                Text("· \(note)")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            Spacer()
+            trailing()
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 4)
+    }
+
+    private func row(for entry: CatalogEntry) -> some View {
+        let isOn = Binding(
+            get: { selected.contains(entry.id) },
+            set: { if $0 { selected.insert(entry.id) } else { selected.remove(entry.id) } }
+        )
+        return HStack(spacing: 10) {
+            Toggle(entry.name, isOn: isOn)
+                .toggleStyle(.checkbox)
+                .labelsHidden()
+            ServiceIconView(name: entry.name, catalogId: entry.id)
+            Text(entry.name)
+                .lineLimit(1)
+            Spacer()
+            Text(entry.category)
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        .onTapGesture { isOn.wrappedValue.toggle() }
+    }
+
+    private func watch() {
+        let chosen = (appMatches + popular).filter { selected.contains($0.id) }
+        for entry in chosen {
+            _ = manager.addProvider(Provider(from: entry))
+        }
+        logger.info("Onboarding added \(chosen.count) services")
     }
 }
 

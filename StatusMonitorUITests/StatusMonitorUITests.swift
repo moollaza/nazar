@@ -223,7 +223,7 @@ final class JourneyUITests: XCTestCase {
     }
 
     func testMenuBarIconTogglesPanel() {
-        let app = launch([])
+        let app = launch(["-UITestAccessory"])
 
         openPanelFromMenuBar(app)
         let empty = app.staticTexts["No services monitored"]

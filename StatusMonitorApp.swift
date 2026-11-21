@@ -126,7 +126,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // we promote to .regular during UI tests — the status item still shows,
         // but the app becomes a regular foreground process the test harness
         // can drive.
-        NSApp.setActivationPolicy(uiTestMode ? .regular : .accessory)
+        NSApp.setActivationPolicy(uiTestMode && !args.contains("-UITestAccessory") ? .regular : .accessory)
 
         NotificationService.shared.setup()
         NotificationService.shared.requestPermission()

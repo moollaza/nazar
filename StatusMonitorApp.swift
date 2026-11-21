@@ -174,11 +174,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             visualEffect.addSubview(hostingView)
         }
 
-        // Close panel on outside click
+        // Close panel on outside click. The menu bar icon is not outside: its
+        // mouse-down reaches this monitor too, and closing here would let the
+        // icon's mouse-up action open the panel again.
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            if self?.isPanelShown == true {
-                self?.panel.close()
-            }
+            guard let self, self.isPanelShown,
+                  self.statusButtonScreenFrame?.contains(NSEvent.mouseLocation) != true else { return }
+            self.panel.close()
         }
 
         // Keyboard shortcut: Cmd+R to refresh (only when panel is shown)
@@ -380,6 +382,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         if event.type == .rightMouseUp {
+            panel.close()
             showContextMenu()
         } else {
             togglePanel()
@@ -398,13 +401,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func positionPanel() {
-        guard let button = statusItem.button,
-              let buttonWindow = button.window else { return }
+    private var statusButtonScreenFrame: NSRect? {
+        guard let button = statusItem.button, let window = button.window else { return nil }
+        return window.convertToScreen(button.convert(button.bounds, to: nil))
+    }
 
-        let buttonFrame = buttonWindow.convertToScreen(button.convert(button.bounds, to: nil))
+    private func positionPanel() {
+        guard let buttonFrame = statusButtonScreenFrame else { return }
+
         let panelSize = panel.frame.size
-        let screenFrame = buttonWindow.screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
+        let screen = statusItem.button?.window?.screen
+        let screenFrame = screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
 
         // Center panel horizontally below the menu bar icon
         var x = buttonFrame.midX - panelSize.width / 2

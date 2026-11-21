@@ -219,6 +219,13 @@ final class JourneyUITests: XCTestCase {
         let empty = app.staticTexts["No services monitored"]
         XCTAssertTrue(empty.waitForExistence(timeout: 5), "Clicking the icon should open the panel")
 
+        openPanelFromMenuBar(app)
+        XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "Clicking the icon again should close the panel")
+        _ = XCTWaiter.wait(for: [XCTestExpectation()], timeout: 1)
+        XCTAssertFalse(empty.exists, "The panel should stay closed after the second click")
+
+        openPanelFromMenuBar(app)
+        XCTAssertTrue(empty.waitForExistence(timeout: 5), "A third click should open the panel again")
         app.typeKey(.escape, modifierFlags: [])
         XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "Escape should close the panel")
     }

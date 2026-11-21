@@ -1,4 +1,5 @@
 import XCTest
+import ApplicationServices
 
 /// Smoke-test UI coverage. Menu-bar apps can't be driven through the status
 /// item in CI (the status bar lives in a separate process), so these tests
@@ -247,6 +248,26 @@ final class JourneyUITests: XCTestCase {
         XCTAssertTrue(empty.waitForExistence(timeout: 5), "A third click should open the panel again")
         app.typeKey(.escape, modifierFlags: [])
         XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "Escape should close the panel")
+    }
+
+    func testProbeRawClickOutsideClosesPanel() {
+        let app = launch([])
+        openPanelFromMenuBar(app)
+        let empty = app.staticTexts["No services monitored"]
+        XCTAssertTrue(empty.waitForExistence(timeout: 5))
+        let finder = XCUIApplication(bundleIdentifier: "com.apple.finder")
+        finder.activate()
+        XCTAssertTrue(finder.wait(for: .runningForeground, timeout: 5))
+        let icon = app.statusItems.firstMatch
+        print("PROBE icon frame \(icon.frame) app state \(app.state.rawValue)")
+        let point = CGPoint(x: icon.frame.midX - 300, y: 400)
+        for type in [CGEventType.leftMouseDown, .leftMouseUp] {
+            CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: .left)?
+                .post(tap: .cghidEventTap)
+            usleep(50_000)
+        }
+        print("PROBE AXIsProcessTrusted \(AXIsProcessTrusted())")
+        XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "PROBE raw outside click should close the panel")
     }
 
     func testCatalogAddPersistsAcrossRelaunchAndRemoveEmptiesPanel() {

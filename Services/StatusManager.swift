@@ -32,6 +32,7 @@ class StatusManager {
     /// Notification Center.
     private var transitionTimes: [UUID: [Date]] = [:]
     private(set) var recovery: RecoveryTracker
+    let historyStore = HistoryStore()
     private var sleepObserver: NSObjectProtocol?
     private var wakeObserver: NSObjectProtocol?
 
@@ -54,18 +55,6 @@ class StatusManager {
             "User-Agent": "Nazar/\(version) (+https://usenazar.com)"
         ]
         return URLSession(configuration: config)
-    }()
-
-    private static let iso8601: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return f
-    }()
-
-    private static let iso8601NoFraction: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withInternetDateTime]
-        return f
     }()
 
     init(
@@ -215,6 +204,7 @@ class StatusManager {
         failureCounts.removeValue(forKey: provider.id)
         lastFailure.removeValue(forKey: provider.id)
         transitionTimes.removeValue(forKey: provider.id)
+        historyStore.remove(provider.id)
         clearRecovery(for: provider.id)
         saveProviders()
         recalcWorstStatus()
@@ -317,6 +307,8 @@ class StatusManager {
             }
         }
 
+        historyStore.sync(provider)
+
         guard let url = provider.apiURL else {
             recordFailure(for: provider)
             updateSnapshot(for: provider, error: "Invalid URL — must be https:// with a valid host")
@@ -330,6 +322,9 @@ class StatusManager {
             case .statuspage:
                 do {
                     try parseStatuspage(data: data, provider: provider)
+                    historyStore.refreshIfNeeded(provider: provider, session: session, now: now()) { [weak self] p in
+                        self?.providers.first { $0.id == p.id }?.type == p.type
+                    }
                 } catch let error as DecodingError {
                     logger.error("Statuspage schema mismatch for \(provider.name): \(String(describing: error))")
                     updateSnapshot(for: provider, error: "Status format not recognized")
@@ -403,6 +398,14 @@ class StatusManager {
         }
     }
 
+    // MARK: - Incident history
+
+    /// The last 28 days for `id`, or nil when its status page publishes no
+    /// history (RSS, Better Stack, Instatus) or none has loaded yet.
+    func history(for id: UUID) -> ServiceHistory? {
+        historyStore.history(for: id, now: now())
+    }
+
     private enum FetchError: Error {
         case nonHTTP
         case http(Int)
@@ -474,31 +477,6 @@ class StatusManager {
 
     // MARK: - Statuspage JSON Parsing
 
-    private static func parseDate(_ string: String) -> Date? {
-        if let date = iso8601.date(from: string) ?? iso8601NoFraction.date(from: string) {
-            return date
-        }
-        // ISO8601DateFormatter only accepts exactly three fractional digits.
-        // Datadog timestamps carry anywhere from two to six ("...:19.244657Z"),
-        // so pad or truncate to three and try once more.
-        guard let normalized = normalizingFractionalSeconds(string) else { return nil }
-        return iso8601.date(from: normalized)
-    }
-
-    /// Rewrites the fractional-seconds field of an ISO8601 string to exactly
-    /// three digits. Returns nil when the string carries no fractional part.
-    private static func normalizingFractionalSeconds(_ string: String) -> String? {
-        guard let dot = string.firstIndex(of: ".") else { return nil }
-        let afterDot = string.index(after: dot)
-        guard let endOffset = string[afterDot...].firstIndex(where: { !$0.isNumber }) else { return nil }
-        let digits = string[afterDot..<endOffset]
-        guard !digits.isEmpty else { return nil }
-        let padded = digits.count >= 3
-            ? String(digits.prefix(3))
-            : String(digits) + String(repeating: "0", count: 3 - digits.count)
-        return String(string[..<afterDot]) + padded + String(string[endOffset...])
-    }
-
     private func parseStatuspage(data: Data, provider: Provider) throws {
         let decoder = JSONDecoder()
         let summary = try decoder.decode(StatuspageSummary.self, from: data)
@@ -542,7 +520,7 @@ class StatusManager {
                     id: update.id,
                     status: update.status,
                     body: update.body ?? "",
-                    createdAt: update.createdAt.flatMap(Self.parseDate)
+                    createdAt: update.createdAt.flatMap(StatusDate.parse)
                 )
             }
             return IncidentSnapshot(
@@ -551,7 +529,7 @@ class StatusManager {
                 impact: ComponentStatus(fromIndicator: incident.impact),
                 status: incident.status,
                 latestUpdate: incident.incidentUpdates?.first?.body,
-                updatedAt: Self.parseDate(incident.updatedAt),
+                updatedAt: StatusDate.parse(incident.updatedAt),
                 updates: updates
             )
         }
@@ -586,7 +564,7 @@ class StatusManager {
                 impact: incident.impact.map(ComponentStatus.init(fromInstatus:)) ?? pageStatus,
                 status: (incident.status ?? "").capitalized,
                 latestUpdate: nil,
-                updatedAt: incident.updatedAt.flatMap(Self.parseDate)
+                updatedAt: incident.updatedAt.flatMap(StatusDate.parse)
             )
         }
 
@@ -597,7 +575,7 @@ class StatusManager {
                 impact: .underMaintenance,
                 status: (maint.status ?? "").capitalized,
                 latestUpdate: nil,
-                updatedAt: maint.start.flatMap(Self.parseDate)
+                updatedAt: maint.start.flatMap(StatusDate.parse)
             )
         }
 
@@ -627,6 +605,7 @@ class StatusManager {
     private func parseDatadog(data: Data, provider: Provider) throws {
         let decoder = JSONDecoder()
         let config = try decoder.decode(DatadogConfig.self, from: data)
+        historyStore.record(config.historyIntervals, for: provider)
 
         let components = config.components
             .sorted { ($0.position ?? Int.max) < ($1.position ?? Int.max) }
@@ -659,7 +638,7 @@ class StatusManager {
                         .max() ?? componentMax,
                     status: (incident.currentStatus ?? "").capitalized,
                     latestUpdate: incident.timeline?.first?.description ?? incident.description,
-                    updatedAt: (incident.lastModifiedAt ?? incident.publishedDate).flatMap(Self.parseDate),
+                    updatedAt: (incident.lastModifiedAt ?? incident.publishedDate).flatMap(StatusDate.parse),
                     updates: updates
                 )
             } ?? []
@@ -674,7 +653,7 @@ class StatusManager {
                     status: (maint.currentStatus ?? "").capitalized,
                     latestUpdate: maint.timeline?.first?.description ?? maint.description,
                     updatedAt: (maint.scheduledStartDate ?? maint.lastModifiedAt ?? maint.publishedDate)
-                        .flatMap(Self.parseDate),
+                        .flatMap(StatusDate.parse),
                     updates: Self.datadogUpdates(maint.timeline)
                 )
             } ?? []
@@ -702,7 +681,7 @@ class StatusManager {
                 id: entry.id,
                 status: entry.status ?? "update",
                 body: entry.description ?? "",
-                createdAt: (entry.createdAt ?? entry.startedAt).flatMap(Self.parseDate)
+                createdAt: (entry.createdAt ?? entry.startedAt).flatMap(StatusDate.parse)
             )
         }
     }
@@ -865,7 +844,7 @@ class StatusManager {
                         id: update.id,
                         status: "update",
                         body: update.attributes?.message ?? "",
-                        createdAt: update.attributes?.publishedAt.flatMap(Self.parseDate)
+                        createdAt: update.attributes?.publishedAt.flatMap(StatusDate.parse)
                     )
                 }
             let impact: ComponentStatus

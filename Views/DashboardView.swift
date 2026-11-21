@@ -15,6 +15,8 @@ enum DashboardSort: String {
 }
 
 struct DashboardView: View {
+    @AppStorage(HistorySettings.stripKey) private var showHistoryStrip = HistorySettings.stripDefault
+    @AppStorage(HistorySettings.incidentFreeKey) private var showIncidentFree = HistorySettings.incidentFreeDefault
     @Environment(StatusManager.self) var manager
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var onOpenSettings: ((SettingsTab) -> Void)?
@@ -75,8 +77,9 @@ struct DashboardView: View {
         manager.snapshots.filter { !mutedIds.contains($0.id) }
     }
 
+    /// Maintenance is planned work, not an issue, so it never counts here.
     private var issueCount: Int {
-        visibleSnapshots.filter { $0.overallStatus != .operational }.count
+        visibleSnapshots.filter { ![.operational, .underMaintenance].contains($0.overallStatus) }.count
     }
 
     private var unreachableCount: Int {
@@ -404,6 +407,8 @@ struct DashboardView: View {
                         isMuted: provider?.isMuted ?? false,
                         statusPageURL: provider?.externalURL,
                         recoveredAt: manager.recentRecovery(for: snapshot.id),
+                        historyDisplay: HistoryDisplay(history: manager.history(for: snapshot.id),
+                                                       showStrip: showHistoryStrip, showPercent: showIncidentFree),
                         onTap: {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 selectedProviderId = snapshot.id
@@ -562,6 +567,7 @@ struct ProviderRowView: View {
     var statusPageURL: URL? = nil
     /// Set while the Recovered badge should show (see StatusManager.recentRecovery).
     var recoveredAt: Date? = nil
+    var historyDisplay: HistoryDisplay = .hidden
     let onTap: () -> Void
     var onToggleMute: (() -> Void)?
     var onRemove: (() -> Void)?
@@ -604,21 +610,12 @@ struct ProviderRowView: View {
         return false
     }
 
-    var body: some View {
+    private var nameLine: some View {
         HStack(spacing: 10) {
-            // Icon with status badge
-            ZStack(alignment: .bottomTrailing) {
-                ServiceIconView(name: snapshot.name, catalogId: catalogId)
-                Circle()
-                    .fill(Color(nsColor: snapshot.overallStatus.color))
-                    .frame(width: 8, height: 8)
-                    .overlay(Circle().stroke(Color(nsColor: .windowBackgroundColor), lineWidth: 2))
-                    .offset(x: 2, y: 2)
-            }
-
             Text(snapshot.name)
                 .font(.system(.body, weight: .medium))
                 .lineLimit(1)
+                .truncationMode(.tail)
 
             if isMuted {
                 Image(systemName: "speaker.slash.fill")
@@ -626,8 +623,24 @@ struct ProviderRowView: View {
                     .foregroundStyle(.secondary)
                     .help("Notifications muted")
             }
+        }
+    }
 
-            Spacer()
+    var body: some View {
+        HStack(spacing: 10) {
+            // Icon with status badge
+            ZStack(alignment: .bottomTrailing) {
+                ServiceIconView(name: snapshot.name, catalogId: catalogId, size: historyDisplay.tileSize)
+                Circle()
+                    .fill(Color(nsColor: snapshot.overallStatus.color))
+                    .frame(width: 8, height: 8)
+                    .overlay(Circle().stroke(Color(nsColor: .windowBackgroundColor), lineWidth: 2))
+                    .offset(x: 2, y: 2)
+            }
+
+            HistoryNameColumn(display: historyDisplay) { nameLine }
+
+            Spacer(minLength: 12)
 
             switch rowStatus {
             case .unavailable:
@@ -641,7 +654,7 @@ struct ProviderRowView: View {
                     .help("Recovered \(coarseTimeAgo(date)). Click to clear.")
             case .operational:
                 Text("Operational")
-                    .font(.caption)
+                    .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             case .issue(let status):
                 StatusBadge(label: status.label, status: status)
@@ -669,7 +682,7 @@ struct ProviderRowView: View {
         )
         .onHover { hovering in isHovered = hovering }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(snapshot.name), \(statusLabel)\(isMuted ? ", muted" : "")")
+        .accessibilityLabel("\(snapshot.name), \(statusLabel)\(isMuted ? ", muted" : "")\(historyDisplay.accessibilityText)")
         .accessibilityHint("Double-click to view details")
         .accessibilityIdentifier("service-row-\(catalogId ?? snapshot.name)")
         .accessibilityAction(named: isMuted ? "Unmute" : "Mute") { onToggleMute?() }
@@ -750,11 +763,10 @@ struct StatusBadge: View {
     var body: some View {
         let palette = status.badgeColors
         Text(label)
-            .font(.caption2)
-            .fontWeight(.semibold)
+            .font(.system(size: 11, weight: .semibold))
             .foregroundColor(Color(nsColor: palette.text))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
             .background(Color(nsColor: palette.background))
             .clipShape(Capsule())
     }

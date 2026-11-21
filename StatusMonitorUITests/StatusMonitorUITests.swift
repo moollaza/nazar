@@ -278,7 +278,9 @@ final class JourneyUITests: XCTestCase {
         app.menuItems["Simulate Major Outage"].click()
         XCTAssertTrue(app.staticTexts["1 issue"].waitForExistence(timeout: 5),
                       "Footer should count the simulated outage")
-        XCTAssertEqual(row.value as? String, "GitHub, Major Outage")
+        // The row's value also carries the 28-day history summary when it has loaded.
+        let outageLabel = row.value as? String ?? ""
+        XCTAssertTrue(outageLabel.hasPrefix("GitHub, Major Outage"), "Row should read 'GitHub, Major Outage…', got '\(outageLabel)'")
 
         row.rightClick()
         app.menuItems["Reset to Operational"].click()

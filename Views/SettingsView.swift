@@ -558,6 +558,8 @@ struct CatalogSettingsView: View {
 struct PreferencesSettingsView: View {
     var onCheckForUpdates: (() -> Void)?
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
+    @AppStorage(HistorySettings.stripKey) private var showHistoryStrip = HistorySettings.stripDefault
+    @AppStorage(HistorySettings.incidentFreeKey) private var showIncidentFree = HistorySettings.incidentFreeDefault
     @State private var systemNotificationsAllowed: Bool? = nil
 
     var body: some View {
@@ -577,6 +579,17 @@ struct PreferencesSettingsView: View {
                         }
                     }
                 ))
+            }
+
+            Section("Service history") {
+                Toggle("28-day strip", isOn: $showHistoryStrip)
+                Toggle(isOn: $showIncidentFree) {
+                    Text("Incident-free %")
+                    Text("Share of the last 28 days with no open incident")
+                }
+                Text("Shown for services whose status page publishes its incident history.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             if let onCheckForUpdates {

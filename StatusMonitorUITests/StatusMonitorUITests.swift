@@ -171,6 +171,17 @@ final class JourneyUITests: XCTestCase {
         icon.click()
     }
 
+    /// Posts a left click at the element's center without activating the app.
+    private func rawClick(_ element: XCUIElement) {
+        let frame = element.frame
+        let point = CGPoint(x: frame.midX, y: frame.midY)
+        for type in [CGEventType.leftMouseDown, .leftMouseUp] {
+            CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: .left)?
+                .post(tap: .cghidEventTap)
+            usleep(50_000)
+        }
+    }
+
     private func setGitHubMonitored(_ monitored: Bool, in app: XCUIApplication) {
         let settings = app.windows["Nazar Settings"]
         XCTAssertTrue(settings.waitForExistence(timeout: 5), "Settings window should be open")
@@ -219,12 +230,15 @@ final class JourneyUITests: XCTestCase {
         let empty = app.staticTexts["No services monitored"]
         XCTAssertTrue(empty.waitForExistence(timeout: 5), "Clicking the icon should open the panel")
 
-        // macOS 14+ may decline the panel's activation request, which leaves
-        // another app frontmost while the panel shows. Reproduce that.
-        XCUIApplication(bundleIdentifier: "com.apple.finder").activate()
+        // A menu bar app is usually not frontmost while its panel shows.
+        // XCUIElement.click() activates the app first, so click the icon with
+        // raw mouse events to keep another app in front.
+        let finder = XCUIApplication(bundleIdentifier: "com.apple.finder")
+        finder.activate()
+        XCTAssertTrue(finder.wait(for: .runningForeground, timeout: 5), "Finder should be frontmost")
         XCTAssertTrue(empty.exists, "The panel should stay open when another app becomes active")
 
-        openPanelFromMenuBar(app)
+        rawClick(app.statusItems.firstMatch)
         XCTAssertTrue(empty.waitForNonExistence(timeout: 5), "Clicking the icon again should close the panel")
         _ = XCTWaiter.wait(for: [XCTestExpectation()], timeout: 1)
         XCTAssertFalse(empty.exists, "The panel should stay closed after the second click")

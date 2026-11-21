@@ -22,6 +22,9 @@ class StatusManager {
 
     var onWorstStatusChanged: ((ComponentStatus) -> Void)?
     var onPollCycleComplete: (() -> Void)?
+    /// Fires after a provider is added. AppDelegate uses it to ask for
+    /// notification permission when alerts first matter, not at launch.
+    var onProviderAdded: (() -> Void)?
     private var timers: [UUID: Timer] = [:]
     private var previousStatuses: [UUID: ComponentStatus] = [:]
     private var failureCounts: [UUID: Int] = [:]
@@ -175,6 +178,7 @@ class StatusManager {
         if !defaults.bool(forKey: "hasCompletedOnboarding") {
             defaults.set(true, forKey: "hasCompletedOnboarding")
         }
+        onProviderAdded?()
         logger.info("Added provider: \(provider.name)")
         return true
     }

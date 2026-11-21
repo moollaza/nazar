@@ -14,7 +14,7 @@ test.describe('Nazar website', () => {
     await page.goto('/');
 
     await expect(page.getByRole('heading', { name: 'Know when the services you rely on go down.' })).toBeVisible();
-    await expect(page.getByText('No accounts. Open-Source. Requires macOS 14.6 or later.')).toBeVisible();
+    await expect(page.getByText('No accounts. Open-Source. Requires macOS 14 or later.')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Browse the list of supported services' })).toBeVisible();
     // Guards the copy pass: no unverifiable claims may return to the page.
     await expect(page.getByText('No app telemetry')).toHaveCount(0);

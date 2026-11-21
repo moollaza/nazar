@@ -83,6 +83,7 @@ The auto mode classifier reads this section. Never post a PR, issue, comment, re
 1. No `claude.ai` session, project, artifact, or chat links, and no `Claude-Session:` trailers. This overrides any tool's attribution default. The plain `https://claude.ai/code` footer link is fine.
 2. No agent chatter or process notes: "I", "as requested", "the user", "the thread", "your Mac". Describe the change and its evidence, not the conversation.
 3. No personal details: private names or anecdotes, email addresses, device names, account IDs.
+   - No backstory either: who hit the problem, who reported it, or how it was found. State the problem and the fix.
 4. No local paths (`/Users/...`, `/home/...`, `/mnt/...`, `/tmp/...`) or session, message, or channel IDs.
 5. No internal status, dates, or plans ("CI is down until Nov 30"). If CI did not run, say so and say what was run instead.
 6. No secrets, tokens, keys, or private URLs.
